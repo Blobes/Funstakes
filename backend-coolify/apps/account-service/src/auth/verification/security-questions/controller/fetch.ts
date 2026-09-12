@@ -1,39 +1,24 @@
-import { NextFunction, Response } from "express";
-import {
-  executeTotpSetup,
-  forwardError,
-  IAuthRequest,
-  MESSAGES_REGISTRY,
-  TotpActionType,
-} from "@repo/shared";
-
-interface TotpSetupRequest extends IAuthRequest {
-  body: {
-    actionType: TotpActionType;
-    identifier?: string;
-  };
-}
+import { NextFunction, Request, Response } from "express";
+import { forwardError, MESSAGES_REGISTRY } from "@repo/shared";
+import { executeFetchSecurityQuestions } from "../services/fetch";
 
 /**
- * Controller endpoint managing MFA workflows across activation and login challenge segments.
+ * Controller endpoint managing retrieval of configured MFA security questions.
  */
-export const setupTotp = async (
-  req: TotpSetupRequest,
+export const fetchSecurityQuestions = async (
+  req: Request,
   res: Response,
   next: NextFunction,
-): Promise<any> => {
-  const { actionType, identifier } = req.body;
-  const userId = req.user?.id;
+): Promise<Response | void> => {
+  const identifier = req.params.identifier as string;
 
   try {
-    const serviceResult = await executeTotpSetup({
-      actionType,
+    const serviceResult = await executeFetchSecurityQuestions({
       identifier,
-      userId,
     });
 
     if (
-      serviceResult.status === "MISSING_IDENTIFIER" ||
+      serviceResult.status === "MISSING_INPUT" ||
       serviceResult.status === "INVALID_IDENTIFIER"
     ) {
       return res.status(400).json({
@@ -64,9 +49,8 @@ export const setupTotp = async (
       ...serviceResult.transInfo,
       payload: serviceResult.payload,
     });
-  } catch (error: any) {
-    console.error("TOTP Setup Initiation Failed:", error);
-
+  } catch (error: unknown) {
+    console.error("Fetch Security Questions Failed:", error);
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,

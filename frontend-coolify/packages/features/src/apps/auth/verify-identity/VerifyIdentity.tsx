@@ -119,54 +119,42 @@ export const VerifyIdentity = <P extends TransitPurpose>(
    */
   const alternativeMethodItems = useMemo(() => {
     if (alternativeMethods.length === 0) return [];
-
     return [
       {
         id: "alternative-methods",
         title: (
           <TransText
-            {...AUTH_BUTTON_LABELS.other_verification_methods}
+            {...AUTH_BUTTON_LABELS.try_other_methods}
             sx={{
               ...theme.typography.text4,
+              textAlign: "center",
               fontWeight: 600,
-              color: theme.palette.primary.dark,
+              color: theme.palette.gray[300],
             }}
           />
         ),
-        content: (
-          <Stack
+        content: alternativeMethods.map((targetMethod) => (
+          <TransText
+            key={targetMethod}
+            onClick={() => switchMethod(targetMethod)}
+            {...getMethodLabelProps(targetMethod)}
             sx={{
-              width: "100%",
-              gap: theme.gap(4),
-              pt: theme.gap(2),
+              ...theme.typography.text4,
+              textAlign: "center",
+              fontWeight: 600,
+              color: theme.palette.primary.dark,
+              padding: theme.boxSpacing(8),
+              cursor: "pointer",
+              borderRadius: theme.radius[2],
+              backgroundColor: theme.palette.gray.trans[1],
+              border: `1px solid transparent`,
+              transition: "border 0.2s ease",
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+              },
             }}
-          >
-            {alternativeMethods.map((targetMethod) => (
-              <Box
-                key={targetMethod}
-                onClick={() => switchMethod(targetMethod)}
-                sx={{
-                  padding: theme.boxSpacing(4, 6),
-                  borderRadius: `${theme.radius[2]}px`,
-                  cursor: "pointer",
-                  transition: "background-color 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: theme.fixedColors.pTrans,
-                  },
-                }}
-              >
-                <TransText
-                  {...getMethodLabelProps(targetMethod)}
-                  sx={{
-                    ...theme.typography.text4,
-                    fontWeight: 500,
-                    color: theme.palette.text.primary,
-                  }}
-                />
-              </Box>
-            ))}
-          </Stack>
-        ),
+          />
+        )),
       },
     ];
   }, [alternativeMethods, getMethodLabelProps, switchMethod, theme]);
@@ -174,7 +162,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
   return (
     <Stack
       sx={{
-        width: "36%",
+        width: "38%",
         minWidth: 300,
         maxWidth: 600,
         [theme.breakpoints.down("lg")]: { width: "50%" },
@@ -184,7 +172,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
           maxWidth: "unset",
         },
         alignItems: "center",
-        gap: theme.gap(4),
+        gap: theme.gap(16),
         ...containerStyle,
       }}
     >
@@ -194,14 +182,19 @@ export const VerifyIdentity = <P extends TransitPurpose>(
         sx={{
           ...theme.typography.text4,
           color: theme.palette.primary.dark,
-          background: theme.fixedColors.pTrans,
+          background: theme.palette.gray[50],
           padding: theme.boxSpacing(3, 5),
           borderRadius: theme.radius[2],
           textAlign: "center",
           fontWeight: 700,
-          position: "absolute",
+          position: "fixed",
           top: 20,
           right: 30,
+          zIndex: 20,
+          [theme.breakpoints.down("md")]: {
+            top: 14,
+            right: 14,
+          },
         }}
       >
         Session: {Math.floor(timeLeft / 60)}:
@@ -220,27 +213,8 @@ export const VerifyIdentity = <P extends TransitPurpose>(
           items={alternativeMethodItems}
           style={{
             container: {
-              width: "100%",
-              marginTop: theme.gap(4),
-            },
-            item: {
-              backgroundColor: "transparent",
-              border: "none",
-              "&.Mui-expanded": {
-                borderColor: "transparent",
-                boxShadow: "none",
-              },
-            },
-            summary: {
-              padding: 0,
-              justifyContent: "center",
-              "& .MuiAccordionSummary-content": {
-                justifyContent: "center",
-                flex: "unset",
-              },
-            },
-            details: {
-              padding: theme.boxSpacing(2, 0, 0, 0),
+              width: "80%",
+              [theme.breakpoints.down("lg")]: { width: "100%" },
             },
           }}
         />

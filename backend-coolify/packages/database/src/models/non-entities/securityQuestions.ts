@@ -1,5 +1,5 @@
 import { Schema, Document, Model, model } from "mongoose";
-import { ISecurityQuestionDocument } from "../../types/misc";
+import { ISecurityQuestionDocument } from "../../types/others";
 
 const SecurityQuestionSchema = new Schema<ISecurityQuestionDocument>(
   {
@@ -20,6 +20,9 @@ const SecurityQuestionSchema = new Schema<ISecurityQuestionDocument>(
   },
   { timestamps: true },
 );
+
+SecurityQuestionSchema.index({ userId: 1 }, { unique: true });
+SecurityQuestionSchema.index({ userId: 1, "questions.question": 1 });
 
 export const SecurityQuestionModel: Model<ISecurityQuestionDocument> =
   model<ISecurityQuestionDocument>(

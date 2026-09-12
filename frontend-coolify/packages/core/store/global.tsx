@@ -16,6 +16,7 @@ import {
 } from "../types/ui-props";
 import { CLIENT_ROUTES } from "../constants/routesConfig";
 import { AuthStatus } from "../types/auth";
+import { SNACKBAR_DURATION } from "../constants/others";
 
 /** * Defines the shape and actions of the global application store.
  */
@@ -101,7 +102,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   accessToken: null,
   snackBarMsgs: {
     messages: [],
-    defaultDur: 5,
+    defaultDur: SNACKBAR_DURATION.SECS_6,
     dir: "up",
   },
   inlineMsg: null,

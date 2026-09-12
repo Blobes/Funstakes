@@ -1,3 +1,5 @@
+import { TopicModel } from "@repo/database";
+
 /**
  * Set of common stop words, prepositions, conjunctions, pronouns, auxiliary terms,
  * qualifiers, adverbs, numbers, and filler tokens to exclude from metadata tag extraction.
@@ -401,4 +403,81 @@ export const topicsExtractor = (caption?: string): string[] => {
 
   // Slice down to the maximum allowed metadata topics limit
   return uniqueCandidates.slice(0, 3);
+};
+
+/**
+ * Extracts up to 3 topic titles from a text caption based on matching words in the Topic collection.
+ * Ranks topic matches by word occurrence frequency within the caption.
+ *
+ * @param caption The text string to analyze for topic keyword matches.
+ * @returns Array containing up to 3 matched topic titles.
+ */
+export const extractTopicsFromCaption = async (
+  caption?: string,
+): Promise<string[]> => {
+  if (!caption || !caption.trim()) {
+    return [];
+  }
+
+  // Sanitize text, extract clean alphanumeric words (length > 2 to ignore common stop words)
+  const words = caption
+    .toLowerCase()
+    .replace(/[^\w\s]/gi, "")
+    .split(/\s+/)
+    .filter((word) => word.length > 2);
+
+  if (words.length === 0) {
+    return [];
+  }
+
+  // Count word frequencies within the caption
+  const wordFrequencyMap = new Map<string, number>();
+  for (const word of words) {
+    wordFrequencyMap.set(word, (wordFrequencyMap.get(word) || 0) + 1);
+  }
+
+  const uniqueWords = Array.from(wordFrequencyMap.keys());
+
+  // Escape special regex characters in extracted words for safe query construction
+  const regexPatterns = uniqueWords.map(
+    (word) =>
+      new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"),
+  );
+
+  // Fetch topics from database where the title matches any of the caption words
+  const matchedTopics = await TopicModel.find(
+    {
+      title: { $in: regexPatterns },
+    },
+    { title: 1 },
+  )
+    .lean()
+    .exec();
+
+  if (!matchedTopics || matchedTopics.length === 0) {
+    return [];
+  }
+
+  // Calculate total score for each matched topic title based on caption word frequencies
+  const scoredTopics = matchedTopics.map((topic) => {
+    const titleLower = topic.title.toLowerCase();
+    let matchScore = 0;
+
+    for (const [word, frequency] of wordFrequencyMap.entries()) {
+      if (titleLower.includes(word)) {
+        matchScore += frequency;
+      }
+    }
+
+    return {
+      title: topic.title,
+      score: matchScore,
+    };
+  });
+
+  // Sort matched topics by calculated match score in descending order
+  scoredTopics.sort((a, b) => b.score - a.score);
+
+  // Pick top 3 highest scoring topic titles
+  return scoredTopics.slice(0, 3).map((item) => item.title);
 };

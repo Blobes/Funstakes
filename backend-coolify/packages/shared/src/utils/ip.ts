@@ -3,16 +3,20 @@ import { ILocation } from "@repo/database";
 
 /**
  * Fetches location data using ip-api.com.
+ *
+ * @param ip Client IP address to geolocate.
+ * @returns Parsed geographic data object or null on failure/local IP.
  */
 export async function getLocationFromIp(ip: string | undefined) {
-  // 1. Guard against local/internal IPs
+  // Guard against local/internal IPs
   if (!ip || ip === "::1" || ip === "127.0.0.1" || ip === "localhost") {
     return null;
   }
 
   try {
-    // We use the JSON endpoint with specific fields to match your needs
-    const fields = "status,message,country,regionName,city,isp,lat,lon";
+    // Added continent and continentCode to requested API fields
+    const fields =
+      "status,message,continent,continentCode,country,region,regionName,city,isp,lat,lon";
     const response = await fetch(
       `http://ip-api.com/json/${ip}?fields=${fields}`,
     );
@@ -30,19 +34,46 @@ export async function getLocationFromIp(ip: string | undefined) {
     }
 
     return {
+      continent: data.continent,
+      continentCode: data.continentCode,
       country: data.country,
+      regionCode: data.region,
       state: data.regionName,
       city: data.city,
       isp: data.isp,
       latitude: data.lat,
       longitude: data.lon,
-      flag: null, // ip-api free tier does not provide emojis
+      flag: null,
     };
   } catch (err: any) {
     console.error("Geo Network Error:", err.message);
     return null;
   }
 }
+
+/**
+ * Resolves IP address into standard GeoJSON Point location structure.
+ *
+ * @param ipAddress Target client IP address.
+ * @returns Formatted GeoJSON point location object or undefined.
+ */
+export const buildLocationFromIp = async (
+  ipAddress: string,
+): Promise<ILocation | undefined> => {
+  const geoData = await getLocationFromIp(ipAddress);
+  if (!geoData) return undefined;
+
+  return {
+    name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
+    city: geoData.city,
+    state: geoData.state,
+    country: geoData.country,
+    region: geoData.regionCode,
+    continent: geoData.continent,
+    type: "Point" as const,
+    coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
+  };
+};
 
 /**
  * Extracts real client IP address from proxy headers prioritizing Cloudflare headers.
@@ -63,24 +94,6 @@ export const getClientIp = (req: Request): string | undefined => {
     req.socket.remoteAddress;
 
   return ip;
-};
-
-/**
- * Resolves IP address into standard GeoJSON Point location structure.
- */
-export const buildLocationFromIp = async (
-  ipAddress: string,
-): Promise<ILocation | undefined> => {
-  const geoData = await getLocationFromIp(ipAddress);
-  if (!geoData) return undefined;
-  return {
-    name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
-    city: geoData.city,
-    state: geoData.state,
-    country: geoData.country,
-    type: "Point" as const,
-    coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-  };
 };
 
 export const generateRandomIp = () => {

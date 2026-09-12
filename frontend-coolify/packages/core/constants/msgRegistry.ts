@@ -1,4 +1,14 @@
+import {
+  AllowedVerificationTypes,
+  OtpMessageChannel,
+  VerifyIdentityMethod,
+} from "../types/auth";
 import { ITranslation } from "../types/ui-props";
+import {
+  ALLOWED_VERIFICATION_METHODS,
+  MESSAGING_CHANNELS,
+  VERIFY_IDENTITY_METHODS,
+} from "./others";
 
 export type TranslationNode =
   | ITranslation
@@ -57,6 +67,14 @@ export const auth = {
       tValue: "Verify code",
     },
     proceed: { tKey: "auth:button.proceed", tValue: "Proceed" },
+    proceed_to_verification: {
+      tKey: "auth:button.proceed_to_verification",
+      tValue: "Proceed to verification",
+    },
+    reconfigure: {
+      tKey: "auth:button.reconfigure",
+      tValue: "Reconfigure",
+    },
     reset_password: {
       tKey: "auth:button.reset_password",
       tValue: "Reset password",
@@ -102,9 +120,9 @@ export const auth = {
       tKey: "auth:button.use_security_questions",
       tValue: "Security Questions",
     },
-    other_verification_methods: {
-      tKey: "auth:button.use_security_questions",
-      tValue: "Other verification methods",
+    try_other_methods: {
+      tKey: "auth:button.try_other_methods",
+      tValue: "Try other methods",
     },
     verify_and_proceed: {
       tKey: "auth:button.verify_and_proceed",
@@ -166,6 +184,10 @@ export const auth = {
       tKey: "auth:feedback.enter_code_manually",
       tValue: "Or enter code manually",
     },
+    failed_to_load_auth_data: {
+      tKey: "auth:feedback.failed_to_load_auth_data",
+      tValue: "Failed to load authenticator data",
+    },
     few_minutes_to_setup_account: {
       tKey: "auth:feedback.few_minutes_to_setup_account",
       tValue: "It only takes a few minutes to set up your account.",
@@ -196,6 +218,10 @@ export const auth = {
       tValue:
         "Enter your email or phone number below to authorize a password reset.",
     },
+    loading_auth_data: {
+      tKey: "auth:feedback.loading_auth_data",
+      tValue: "Loading authenticator data",
+    },
     login_activated_tagline: {
       tKey: "auth:feedback.login_activated_tagline",
       tValue: "Login Activated",
@@ -217,6 +243,10 @@ export const auth = {
       tValue: "A new code has been sent to your {{channel}}.",
       interpolations: { channel },
     }),
+    need_to_scan_qr_code_again: {
+      tKey: "auth:feedback.need_to_scan_qr_code_again",
+      tValue: " Need to scan QR code again?",
+    },
     no_account_found_email: {
       tKey: "auth:feedback.no_account_found_email",
       tValue: "We couldn't find an account with the email address.",
@@ -271,10 +301,24 @@ export const auth = {
       tKey: "auth:feedback.otp_invalid_code",
       tValue: "Invalid code.",
     },
-    missing_verification_session: (method: string = "OTP") => ({
+    mfa_setup_with_msg_channel: (channel: OtpMessageChannel) => ({
+      tKey: "auth:feedback.mfa_setup_with_msg_channel",
+      tValue: "Set up MFA with {{channel}} Code",
+      interpolations: { channel: MESSAGING_CHANNELS[channel] },
+    }),
+    mfa_setup_without_msg_channel: (method: VerifyIdentityMethod) => ({
+      tKey: "auth:feedback.mfa_setup_without_msg_channel",
+      tValue: "Set up MFA with {{method}}",
+      interpolations: { method: VERIFY_IDENTITY_METHODS[method] },
+    }),
+    missing_mfa_setup_session: {
+      tKey: "auth:feedback.missing_mfa_setup_session",
+      tValue: "Missing MFA setup session data.",
+    },
+    missing_verification_session: (method: AllowedVerificationTypes) => ({
       tKey: "auth:feedback.missing_verification_session",
       tValue: "Missing {{method}} verification session data.",
-      interpolations: { method },
+      interpolations: { method: ALLOWED_VERIFICATION_METHODS[method] },
     }),
     otp_send_code_failed: {
       tKey: "auth:feedback.otp_send_code_failed",
@@ -375,14 +419,19 @@ export const auth = {
       tKey: "auth:feedback.session_expired",
       tValue: "Set up your legal names and unique username.",
     },
-    setup_authenticator_headline: {
-      tKey: "auth:feedback.setup_authenticator_headline",
-      tValue: "Set up MFA with Authenticator",
-    },
-    setup_authenticator_tagline: {
+    totp_mfa_setup_tagline: {
       tKey: "auth:feedback.setup_authenticator_tagline",
       tValue:
         "Scan the QR code below with your authenticator app (like Google Authenticator or 1Password) to generate your verification code.",
+    },
+    security_questions_mfa_setup_tagline: {
+      tKey: "auth:feedback.security_questions_mfa_setup_tagline",
+      tValue:
+        "Select and answer three security questions to protect your account and verify your identity when signing in.",
+    },
+    select_security_question_first: {
+      tKey: "auth:feedback.select_security_question_first",
+      tValue: "Select security question first.",
     },
     session_termination_headline: {
       tKey: "auth:feedback.session_termination_headline",
@@ -410,27 +459,24 @@ export const auth = {
       tKey: "auth:feedback.verification_successful_tagline",
       tValue: "Verification successful!",
     },
-    verify_code_from_auth_app_headline: {
-      tKey: "auth:feedback.verify_code_from_auth_app_headline",
-      tValue: "Verify Code from Authenticator",
-    },
-    verify_code_from_auth_app_tagline: {
-      tKey: "auth:feedback.verify_code_from_auth_app_tagline",
+    verify_with_auth_app_tagline: {
+      tKey: "auth:feedback.verify_with_auth_app_tagline",
       tValue:
         "Enter the 6-digit code displayed in your authenticator application. Please note that you can only use this method if you've set up Multi-factor Authentication (MFA) for your {{Funstakes}} account",
     },
-    verify_with_security_questions_headline: {
-      tKey: "auth:feedback.verify_with_security_questions_headline",
-      tValue: "Verify with Security Questions",
-    },
     verify_with_security_questions_tagline: {
-      tKey: "auth:feedback.verify_with_security_questions_headline",
+      tKey: "auth:feedback.verify_with_auth_app_tagline",
       tValue: "Verify your identity with your chosen security questions",
     },
-    verify_via_credential: (credType: string) => ({
-      tKey: "auth:feedback.verify_your_credential",
-      tValue: "Verify {{credType}} Code",
-      interpolations: { credType },
+    verify_with_msg_channel: (channel: OtpMessageChannel) => ({
+      tKey: "auth:feedback.verify_with_msg_channel",
+      tValue: "Verify {{channel}} Code",
+      interpolations: { channel: MESSAGING_CHANNELS[channel] },
+    }),
+    verify_without_msg_channel: (method: VerifyIdentityMethod) => ({
+      tKey: "auth:feedback.verify_without_msg_channel",
+      tValue: "Verify with {{method}}",
+      interpolations: { method: VERIFY_IDENTITY_METHODS[method] },
     }),
     verify_your_account_headline: {
       tKey: "auth:feedback.verify_your_account_headline",
@@ -467,6 +513,10 @@ export const auth = {
       },
     },
     label: {
+      answer: {
+        tKey: "auth:input.label.answer",
+        tValue: "Enter anwer",
+      },
       confirm_password: {
         tKey: "auth:input.label.confirm_password",
         tValue: "Confirm Password",
@@ -511,6 +561,11 @@ export const auth = {
         tKey: "auth:input.label.phone_optional",
         tValue: "Phone number (Optional)",
       },
+      security_question: (index: number) => ({
+        tKey: "auth:input.label.security_question",
+        tValue: "Security Question {{index}}",
+        interpolations: { index },
+      }),
       username: {
         tKey: "auth:input.label.username",
         tValue: "Username",
@@ -556,6 +611,14 @@ export const auth = {
       re_enter_password: {
         tKey: "auth:input.label.re_enter_password",
         tValue: "Re-enter your password",
+      },
+      select_a_question: {
+        tKey: "auth:input.label.select_a_question",
+        tValue: "Select a question...",
+      },
+      type_your_answer: {
+        tKey: "auth:input.label.rtype_your_answer",
+        tValue: "Type your answer...",
       },
     },
   },
@@ -677,6 +740,10 @@ export const common = {
     refresh: {
       tKey: "common:button.refresh",
       tValue: "Refresh",
+    },
+    retry: {
+      tKey: "common:button.retry",
+      tValue: "Retry",
     },
     request_access: {
       tKey: "common:button.request_access",
@@ -853,7 +920,7 @@ export const common = {
     network_glitch_tagline: {
       tKey: "common:feedback.network_glitch_tagline",
       tValue:
-        "Check your internet connection. We'll retry automatically in a few minutes.",
+        "Please, check your internet connection and retry again in a few seconds.",
     },
     network_offline_tagline: {
       tKey: "common:feedback.network_offline_tagline",
@@ -901,9 +968,14 @@ export const common = {
       tKey: "common:feedback.seem_to_be_offline_tagline",
       tValue: "Switch to offline mode to view offline contents.",
     },
-    server_error: {
-      tKey: "common:feedback.server_error",
-      tValue: "An error occurred. Please try again.",
+    server_error_headline: {
+      tKey: "common:feedback.server_error_headline",
+      tValue: "Something went wrong on our end.",
+    },
+    server_error_tagline: {
+      tKey: "common:feedback.server_error_tagline",
+      tValue:
+        "We encountered an unexpected error on our server. Please refresh the page.",
     },
     server_request_successful: {
       tKey: "common:feedback.server_request_successful",

@@ -1,39 +1,23 @@
-import {
-  IUserPreferredTopic,
-  TopicModel,
-  UserSettingsModel,
-} from "@repo/database";
+import { IUserPreferredTopic, UserSettingsModel } from "@repo/database";
 import { ClientSession } from "mongoose";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { fetchUserSettings } from "../user/settings";
 import { UserSettingsResult } from "../../types/general";
 
-export interface PreferenceTopicInput {
-  topicId: string;
-  title: string;
-}
-
 export interface UserTopicsParams {
   userId: string;
-  topics: PreferenceTopicInput[];
-  mode?: "ADD" | "REMOVE";
+  topics: IUserPreferredTopic[];
   updateMetadata?: boolean;
   session?: ClientSession;
 }
 
 /**
- * Updates user topic preferences based on operational mode and metadata options.
+ * Syncs user topic preferences by adding selected topics from the topics database.
  */
 export const executeUserTopicsSync = async (
   params: UserTopicsParams,
 ): Promise<UserSettingsResult> => {
-  const {
-    userId,
-    topics,
-    mode = "ADD",
-    updateMetadata = false,
-    session,
-  } = params;
+  const { userId, topics, updateMetadata = false, session } = params;
 
   if (!userId) {
     return {
@@ -61,34 +45,25 @@ export const executeUserTopicsSync = async (
     ),
   );
 
-  const toAdd: PreferenceTopicInput[] = [];
-  const toRemoveIds: string[] = [];
+  const toAdd: IUserPreferredTopic[] = [];
   const toUpdateMetadataIds: string[] = [];
 
   for (const topic of topics) {
-    const exists = existingPrefIds.has(topic.topicId);
+    const exists = existingPrefIds.has(topic.topicId.toString());
 
-    if (mode === "REMOVE") {
-      if (exists) {
-        toRemoveIds.push(topic.topicId);
-      }
-    } else if (mode === "ADD") {
-      if (!exists) {
-        toAdd.push(topic);
-      }
+    if (!exists) {
+      toAdd.push(topic);
     }
 
-    // Process standalone metadata updates independently from topic addition
     if (updateMetadata && exists) {
-      toUpdateMetadataIds.push(topic.topicId);
+      toUpdateMetadataIds.push(topic.topicId.toString());
     }
   }
 
   const bulkOps: Promise<unknown>[] = [];
 
-  // Add missing topics to user preferences and update total count
+  // Append new topic preferences to user settings
   if (toAdd.length > 0) {
-    const addIds = toAdd.map((t) => t.topicId);
     bulkOps.push(
       UserSettingsModel.updateOne(
         { userId },
@@ -99,43 +74,17 @@ export const executeUserTopicsSync = async (
                 topicId: t.topicId,
                 title: t.title,
                 lastViewed: new Date(),
+                addedBy: t.addedBy,
               })),
             },
           },
         },
         { session },
       ),
-      TopicModel.updateMany(
-        { _id: { $in: addIds } },
-        { $inc: { userCount: 1 } },
-        { session },
-      ),
     );
   }
 
-  // Remove existing topics from user preferences and update total count
-  if (toRemoveIds.length > 0) {
-    bulkOps.push(
-      UserSettingsModel.updateOne(
-        { userId },
-        {
-          $pull: {
-            "display.contentPreferences.preferredTopics": {
-              topicId: { $in: toRemoveIds },
-            },
-          },
-        },
-        { session },
-      ),
-      TopicModel.updateMany(
-        { _id: { $in: toRemoveIds } },
-        { $inc: { userCount: -1 } },
-        { session },
-      ),
-    );
-  }
-
-  // Update lastViewed timestamp for targeted topics
+  // Update lastViewed timestamp for already existing preferred topics
   if (toUpdateMetadataIds.length > 0) {
     bulkOps.push(
       UserSettingsModel.updateOne(
@@ -175,7 +124,7 @@ export const executeUserTopicsSync = async (
 };
 
 /**
- * Drops targeted topics profiles from a specific user preferred preference sequence.
+ * Removes targeted topics from a user's preferred topics list.
  */
 export const removeTopicsFromUser = async (
   userId: string,
@@ -198,7 +147,7 @@ export const removeTopicsFromUser = async (
     };
   }
 
-  const settingsUpdate = await UserSettingsModel.updateOne(
+  await UserSettingsModel.updateOne(
     { userId },
     {
       $pull: {
@@ -209,16 +158,6 @@ export const removeTopicsFromUser = async (
     },
     { session },
   );
-
-  if (settingsUpdate.modifiedCount > 0) {
-    await Promise.all([
-      TopicModel.updateMany(
-        { _id: { $in: topicIds } },
-        { $inc: { userCount: -1 } },
-        { session },
-      ),
-    ]);
-  }
 
   return {
     status: "SUCCESS",

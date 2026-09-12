@@ -5,12 +5,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   AUTH_FEEDBACK,
   ApiError,
+  COMMON_FEEDBACK,
   QUERY_KEYS,
   TransitPurpose,
   useGlobalStore,
 } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
-import { TotpActionType, VerifyIdentityService } from "../service";
+import { TotpActionType, VerifyIdentityService } from "../services";
 import { useFeedback } from "../useFeedback";
 import {
   createVerificationStrategies,
@@ -82,6 +83,8 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
   const {
     data: setupData,
     isLoading: isLoadingSetup,
+    isError: isSetupError,
+    error: setupError,
     refetch: fetchSetup,
   } = useQuery({
     queryKey: QUERY_KEYS.TOTP_CONFIG(activeTransit?.identifier, authUser?._id),
@@ -94,8 +97,44 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
       });
       return response.payload;
     },
-    enabled: currStep === "CONFIGURE_TOTP",
+    enabled: false, // currStep === "CONFIGURE_TOTP",
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
+
+  /**
+   * Handles setup API error state feedback.
+   */
+  useEffect(() => {
+    if (isSetupError && currStep === "CONFIGURE_TOTP") {
+      const apiErr = setupError as ApiError;
+
+      if (apiErr?.httpStatus === 429) {
+        const canTriggerChallenge = isBotChallengeAllowed
+          ? isBotChallengeAllowed()
+          : true;
+
+        if (canTriggerChallenge) {
+          onRateLimitExceeded?.();
+          return;
+        }
+      }
+      setInlineMsg(
+        apiErr?.localizedErrMsg ||
+          translateTxtString(COMMON_FEEDBACK.server_error_tagline),
+      );
+    }
+  }, [
+    isSetupError,
+    setupError,
+    currStep,
+    isBotChallengeAllowed,
+    onRateLimitExceeded,
+    setInlineMsg,
+    translateTxtString,
+  ]);
 
   const verificationStrategies = useMemo(
     () =>
@@ -164,7 +203,7 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
       if (!activeTransit && !authUser) {
         return setInlineMsg(
           translateTxtString(
-            AUTH_FEEDBACK.missing_verification_session("Authenticator"),
+            AUTH_FEEDBACK.missing_verification_session("TOTP"),
           ),
         );
       }
@@ -181,6 +220,22 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
       translateTxtString,
     ],
   );
+
+  /**
+   * Switches view state to code verification step after setup.
+   */
+  const proceedToVerification = useCallback(() => {
+    setInlineMsg(null);
+    setCurrStep("VERIFY_TOTP_CODE");
+  }, [setInlineMsg]);
+
+  /**
+   * Switches view state back to configuration setup step.
+   */
+  const switchToConfiguration = useCallback(() => {
+    setInlineMsg(null);
+    setCurrStep("CONFIGURE_TOTP");
+  }, [setInlineMsg]);
 
   /**
    * Copies the manual setup key to the clipboard.
@@ -206,5 +261,8 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
     isConfigured,
     handleCopyKey,
     copied,
+    proceedToVerification,
+    switchToConfiguration,
+    isSetupError,
   };
 };

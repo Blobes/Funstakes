@@ -5,7 +5,7 @@ import { DrawerProps, ModalProps } from "@repo/core";
 import { ComfirmLogout } from "../apps/auth/logout/Logout";
 import { Theme } from "@mui/material/styles";
 import { DisplayFeedbackUI } from "@repo/shared-ui";
-import { ConfirmSessionTermination } from "../apps/auth/verify-identity/EndSession";
+import { ConfirmSessionTermination } from "../apps/auth/verify-identity/Session";
 
 export type PopupName =
   | "CONFIRM_LOGOUT"

@@ -1,9 +1,11 @@
-import { TransInfo } from "../../../types/general";
-import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
-import { getAccountStatusMsg } from "../../../utils/status";
-import { totpService } from "./service";
-import { fetchSingleUser } from "../../user/retrieve/fetchUser";
-import { determineCheckType } from "../../../utils/sanitizeData";
+import {
+  detectIdentifierType,
+  fetchSingleUser,
+  getAccountStatusMsg,
+  MESSAGES_REGISTRY,
+  totpService,
+  TransInfo,
+} from "@repo/shared";
 
 export type TotpActionType = "AUTHENTICATE" | "CONFIGURE";
 
@@ -45,8 +47,8 @@ export const executeTotpSetup = async (
       };
     }
 
-    const isEmail = determineCheckType(identifier) === "EMAIL";
-    const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
+    const isEmail = detectIdentifierType(identifier) === "EMAIL";
+    const isPhone = detectIdentifierType(identifier) === "PHONE_NUMBER";
 
     if (!isEmail && !isPhone) {
       return {

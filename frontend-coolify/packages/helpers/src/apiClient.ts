@@ -16,7 +16,7 @@ const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
  */
 export const translateAPIMessage = (
   payload: APITransMsg,
-  fallbackKey: string = COMMON_FEEDBACK.server_error.tKey,
+  fallbackKey: string = COMMON_FEEDBACK.server_error_tagline.tKey,
 ): string => {
   const storeState = useGlobalStore.getState();
   const I18nInstance = storeState.i18nInstance;
@@ -89,7 +89,7 @@ export const apiClient = async <T>(
       if (i18nKey || rawMessage) {
         const fallbackKey = response.ok
           ? COMMON_FEEDBACK.server_request_successful.tKey
-          : COMMON_FEEDBACK.server_error.tKey;
+          : COMMON_FEEDBACK.server_error_tagline.tKey;
 
         localizedString = translateAPIMessage(
           { i18nKey, interpolations, message: rawMessage },
@@ -131,7 +131,7 @@ export const apiClient = async <T>(
             i18nKey: responseData?.i18nKey || responseData?.error?.i18nKey,
             message: rawServerMessage,
           },
-          COMMON_FEEDBACK.server_error.tKey,
+          COMMON_FEEDBACK.server_error_tagline.tKey,
         );
 
       throw error;
@@ -164,8 +164,8 @@ export const apiClient = async <T>(
       error instanceof TypeError
     ) {
       apiErr.localizedErrMsg = translateAPIMessage({
-        i18nKey: COMMON_FEEDBACK.server_error.tKey,
-        message: COMMON_FEEDBACK.server_error.tValue,
+        i18nKey: COMMON_FEEDBACK.server_error_tagline.tKey,
+        message: COMMON_FEEDBACK.server_error_tagline.tValue,
       });
       apiErr.httpStatus = 0;
       apiErr.status = "NETWORK_ERROR";

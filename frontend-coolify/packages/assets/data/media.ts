@@ -37,4 +37,5 @@ export const asset = {
   networkGlitch: "/svgs/network-glitch.svg",
   hashedStars: "/svgs/hashed-stars.svg",
   authenticator: "/svgs/authenticator.svg",
+  whatsapp: "/svgs/whatsapp.svg",
 };

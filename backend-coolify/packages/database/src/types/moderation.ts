@@ -1,6 +1,6 @@
 import { Document, Types } from "mongoose";
 import { PostModelType } from "./post";
-import { EntityType } from "./misc";
+import { EntityType } from "./others";
 
 export interface IFlaggedPost extends Document {
   postId: Types.ObjectId;

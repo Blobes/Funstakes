@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  ALLOWED_VERIFICATION_METHODS,
+  IDENTIFIER_TYPES,
+  MESSAGING_CHANNELS,
+  VERIFY_IDENTITY_METHODS,
+} from "../constants/others";
 import { IUser } from "./payloads/modified";
 import { StepName } from "./ui-props";
 
@@ -35,14 +41,14 @@ export type AuthStepName =
 
 export type OtpStepName = "BOT_CHALLENGE" | "VERIFY_IDENTITY";
 
-export type VerifyIdentityMethod = "MESSAGING" | "TOTP" | "SECURITY_QUESTIONS";
-export type IdentifierType = "EMAIL" | "PHONE_NUMBER";
-export type OtpMessageChannel = "EMAIL" | "SMS" | "WHATSAPP";
+export type VerifyIdentityMethod = keyof typeof VERIFY_IDENTITY_METHODS;
+
+export type IdentifierType = keyof typeof IDENTIFIER_TYPES;
+
+export type OtpMessageChannel = keyof typeof MESSAGING_CHANNELS;
 
 export type AllowedVerificationTypes =
-  | OtpMessageChannel
-  | "TOTP"
-  | "SECURITY_QUESTIONS";
+  keyof typeof ALLOWED_VERIFICATION_METHODS;
 
 export type CheckPurpose =
   | "REGISTRATION"

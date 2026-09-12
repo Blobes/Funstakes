@@ -8,19 +8,11 @@ import {
 } from "mongoose";
 import {
   AccountStatus,
+  ILocation,
   ITotpData,
   IUserPreferredTopic,
   VerificationStatus,
-} from "./misc";
-
-export interface ILocation {
-  name?: string | null;
-  city?: string | null;
-  state?: string | null;
-  country?: string | null;
-  type: "Point";
-  coordinates: [number, number]; // [longitude, latitude]
-}
+} from "./others";
 
 export type AccountVisibility = "PRIVATE" | "PUBLIC";
 
@@ -91,7 +83,7 @@ export interface IUserDocument extends Document {
   about?: string | null;
   occupation?: string | null;
   relationship?: string | null;
-  interests: string[];
+  interests: string[]; // Might not be needed again since we have user preffered topics
   website?: string | null;
 
   // --- PROFILE ASSETS ---
@@ -190,7 +182,6 @@ export interface IUserSettingsDocument {
     };
     localization: {
       language: string;
-      region: string;
       currency: string;
     };
     contentPreferences: {

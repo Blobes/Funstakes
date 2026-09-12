@@ -8,6 +8,7 @@ import {
   PermissionName,
   SubscriptionTier,
   SubscriptionStatus,
+  UserTopicAddedBy,
 } from "@repo/database";
 import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
@@ -154,7 +155,9 @@ export interface IModResult {
   reason: string | null;
   needsReview: boolean;
   status: PostContentStatus;
+  newTopicsFromAi?: string[];
   hasSensitiveGraphic?: boolean;
+  topicsSource?: UserTopicAddedBy;
 }
 
 type ModEventType = "POST_CREATION" | "POST_UPDATE";
@@ -166,6 +169,7 @@ export interface FinalizePostReq {
   caption?: string;
   media: IMedia[];
   event: ModEventType;
+  topicsSource?: UserTopicAddedBy;
   modResult: IModResult;
   session: mongoose.ClientSession;
 }
@@ -177,6 +181,7 @@ export interface IPostModData {
   caption?: string;
   media?: IMedia[];
   topics?: string[];
+  topicsSource?: UserTopicAddedBy;
   event: ModEventType;
   moderationTaskMode: ModerationTaskMode;
 }

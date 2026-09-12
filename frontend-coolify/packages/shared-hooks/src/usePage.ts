@@ -143,7 +143,7 @@ export const usePage = () => {
     setGlobalLoading(false);
 
     if (routeGuards.isRedirecting) {
-      if (!temporarySession) return;
+      if (!temporarySession) return; // Temporarily disabled check for testing purposes
 
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)

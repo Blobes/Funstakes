@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import { markPostAsSeen } from "./markPost/markAsSeen";
 import { optionallyAuthenticate, authenticate } from "../envVars";
 import { translateCaption } from "./translate/translateCaption";
-import { lookupTopics } from "./topic/lookup";
+import { getTopics } from "./topic/get";
 import { syncPostTopics } from "./topic/sync";
 import { autoInvalidatePostCache } from "@repo/shared";
 import { requirePermission } from "@repo/security";
@@ -31,7 +31,7 @@ router.post(
   "/topic/search",
   authenticate,
   requirePermission(PERMISSIONS.POST.VIEW_TOPICS),
-  lookupTopics,
+  getTopics,
 );
 
 // Sync topics attached to posts

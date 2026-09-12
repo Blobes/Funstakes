@@ -8,22 +8,29 @@ import {
   InlineMsgUI,
   OtpInput,
   ProgressIcon,
-  SVGWrapper,
   TransText,
 } from "@repo/shared-ui";
 import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, TransitPurpose } from "@repo/core";
-
-import { asset } from "@repo/assets";
 import { useTotp } from "./useTotp";
+import { useMisc } from "@repo/shared-hooks";
 import { BaseVerificationProps } from "../useVerifyIdentity";
+import { ShieldKeyhole } from "lucide-react";
 
 export const VerifyTotpCode = <P extends TransitPurpose>(
   props: BaseVerificationProps<P>,
 ) => {
   const { style } = props;
   const theme = useTheme();
+  const { isMobile } = useMisc();
 
-  const { code, setCode, isVerifying, handleVerify, inlineMsg } = useTotp({
+  const {
+    code,
+    setCode,
+    isVerifying,
+    switchToConfiguration,
+    handleVerify,
+    inlineMsg,
+  } = useTotp({
     ...props,
     viewMode: "VERIFY_TOTP_CODE",
   });
@@ -40,22 +47,14 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
       <Stack
         sx={{ gap: theme.gap(2), textAlign: "center", alignItems: "center" }}
       >
-        <SVGWrapper
-          src={asset.authenticator}
-          size={90}
-          fallbackUIType="SKELETON"
-          sx={{
-            marginBottom: theme.boxSpacing(8),
-            flex: "none",
-            alignSelf: "center",
-          }}
+        <ShieldKeyhole size={isMobile ? 50 : 60} />
+        <TransText
+          component="h3"
+          {...AUTH_FEEDBACK.verify_without_msg_channel("TOTP")}
+          sx={{ ...theme.typography.h6, fontWeight: 500, textAlign: "center" }}
         />
         <TransText
-          {...AUTH_FEEDBACK.verify_code_from_auth_app_headline}
-          sx={{ ...theme.typography.h5, fontWeight: 500, textAlign: "center" }}
-        />
-        <TransText
-          {...AUTH_FEEDBACK.verify_code_from_auth_app_tagline}
+          {...AUTH_FEEDBACK.verify_with_auth_app_tagline}
           style={{
             ...theme.typography.text3,
             color: theme.palette.gray[200],
@@ -65,6 +64,7 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
       </Stack>
 
       <Stack
+        component="form"
         sx={{
           width: "80%",
           [theme.breakpoints.down("lg")]: { width: "100%" },
@@ -84,6 +84,7 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
           style={{ input: { width: "100%" } }}
         />
         <AppButton
+          submit
           variant="contained"
           onClick={() => handleVerify()}
           style={{ width: "100%" }}
@@ -94,6 +95,28 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
           )}
+        </AppButton>
+      </Stack>
+
+      <Stack
+        sx={{
+          width: "100%",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 0,
+        }}
+      >
+        <TransText
+          {...AUTH_FEEDBACK.need_to_scan_qr_code_again}
+          sx={{ ...theme.typography.text3, width: "fit-content" }}
+        />
+        <AppButton
+          variant="text"
+          onClick={switchToConfiguration}
+          style={{ width: "100%", color: theme.palette.primary.main }}
+        >
+          <TransText {...AUTH_BUTTON_LABELS.reconfigure} noComponent />
         </AppButton>
       </Stack>
     </Stack>

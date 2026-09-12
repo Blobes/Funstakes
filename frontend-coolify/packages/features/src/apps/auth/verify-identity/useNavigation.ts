@@ -20,9 +20,10 @@ import {
   STORAGE_KEYS,
   useGlobalStore,
   IPage,
+  SNACKBAR_DURATION,
 } from "@repo/core";
 import { useCachedData, usePage, useSnackbar } from "@repo/shared-hooks";
-import { VerifyIdentityService } from "./service";
+import { VerifyIdentityService } from "./services";
 
 type TransitKeyType = readonly string[] | readonly (readonly string[])[];
 
@@ -112,7 +113,7 @@ export const useVerificationNavigation = () => {
               msg: {
                 tagline: msg,
                 msgStatus: "SUCCESS",
-                duration: 6,
+                duration: SNACKBAR_DURATION.SECS_6,
               },
             });
           }

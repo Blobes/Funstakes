@@ -11,8 +11,7 @@ export * from "./types/authorization";
 export * from "./services/otp/email/emailDispatch";
 export * from "./services/otp/phone/smsDispatch";
 export * from "./services/otp/phone/whatsappDispatch";
-export * from "./services/otp/totp/setupTotp";
-export * from "./services/otp/totp/verifyTotp";
+export * from "./services/otp/totp";
 // Redis
 export * from "./services/redis/cache/service";
 export * from "./services/redis/socket";
@@ -42,7 +41,7 @@ export * from "./services/media/softDelete";
 export * from "./services/analytics";
 // Topic
 export * from "./services/topic/prune";
-export * from "./services/topic/lookup";
+export * from "./services/topic/fetch";
 export * from "./services/topic/postSync";
 export * from "./services/topic/userSync";
 // Moderation

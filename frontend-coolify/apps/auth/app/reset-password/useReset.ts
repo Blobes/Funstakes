@@ -143,7 +143,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
         }
         setInlineMsg(
           error.localizedErrMsg ||
-            translateTxtString(COMMON_FEEDBACK.server_error),
+            translateTxtString(COMMON_FEEDBACK.server_error_tagline),
         );
       },
       onMutate: () => {
@@ -234,7 +234,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
         }
         setInlineMsg(
           error.localizedErrMsg ||
-            translateTxtString(COMMON_FEEDBACK.server_error),
+            translateTxtString(COMMON_FEEDBACK.server_error_tagline),
         );
       },
       onMutate: () => {

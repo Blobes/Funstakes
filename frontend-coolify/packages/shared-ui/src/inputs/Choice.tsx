@@ -14,6 +14,7 @@ import {
 import { BasicTooltip } from "../Tooltips";
 import { Check, CircleQuestionMark } from "lucide-react";
 import { InputEventHandlers, InputProps } from "./Dynamic";
+import { DisabledClickWrapper } from "../ElementTap";
 
 export interface ChoiceInputProps extends InputProps, InputEventHandlers {
   choiceType?: "checkbox" | "radio" | "switch";
@@ -46,6 +47,7 @@ export const ChoiceInput = ({
   required = false,
   tooltipGuide,
   onChoiceChange,
+  onDisabledClick,
   style,
 }: ChoiceInputProps) => {
   const theme = useTheme();
@@ -221,7 +223,7 @@ export const ChoiceInput = ({
     }
   };
 
-  return (
+  const renderInputField = () => (
     <Box
       sx={{
         display: "flex",
@@ -299,5 +301,13 @@ export const ChoiceInput = ({
         </FormHelperText>
       )}
     </Box>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

@@ -18,7 +18,6 @@ export * from "./src/useKeyboard";
 export * from "./src/useFeedbackUI";
 export * from "./src/useOverlay";
 export * from "./src/useBot";
-export * from "./src/useWhatsapp";
 // Input fields
 export * from "./src/input/useValMsg";
 export * from "./src/input/useDynamic";

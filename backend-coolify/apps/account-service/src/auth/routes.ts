@@ -15,8 +15,8 @@ import { removeDevice } from "./device/removeDevice";
 import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
-import { verifyTotpCode } from "./verification/totp/verify";
-import { setupTotp } from "./verification/totp/setup";
+import { verifyTotpCode } from "./verification/totp/controller/verify";
+import { setupTotp } from "./verification/totp/controller/setup";
 import { autoInvalidateUserCache } from "@repo/shared";
 import { turnstileVerification } from "./turnstile/controller";
 import { commitAccountUpdate } from "./verification/messaging/controllers/commitUpdate";
@@ -31,6 +31,7 @@ import { checkWhatsAppStatus } from "./verification/whatsapp/checkStatus";
 import { resetMessagingOtp } from "./verification/messaging/controllers/resetOtp";
 import { verifySecurityQuestions } from "./verification/security-questions/controller/verify";
 import { setupSecurityQuestions } from "./verification/security-questions/controller/setup";
+import { fetchSecurityQuestions } from "./verification/security-questions/controller/fetch";
 
 const router: Router = express.Router();
 
@@ -83,9 +84,18 @@ router.post("/otp/reset", resetMessagingOtp);
 router.patch("/otp/update-account", commitAccountUpdate);
 router.post("/totp/setup", optionallyAuthenticate, setupTotp);
 router.post("/totp/verify", optionallyAuthenticate, verifyTotpCode);
-router.post("/security-questions/setup", setupSecurityQuestions);
-router.post("/security-questions/verify", verifySecurityQuestions);
-router.post("/whatsapp-status", checkWhatsAppStatus);
+router.post(
+  "/security-questions/setup",
+  optionallyAuthenticate,
+  setupSecurityQuestions,
+);
+router.get("/security-questions/:identifier", fetchSecurityQuestions);
+router.post(
+  "/security-questions/verify",
+  optionallyAuthenticate,
+  verifySecurityQuestions,
+);
+router.get("/whatsapp-status/:phoneNumber", checkWhatsAppStatus);
 
 // --- DEVICE MANAGEMENT ---
 router.get(

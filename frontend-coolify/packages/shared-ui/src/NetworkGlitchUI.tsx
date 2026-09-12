@@ -13,6 +13,7 @@ import { asset } from "@repo/assets";
 interface Props {
   checkingSignal: boolean;
   isUnstableNetwork: boolean;
+  isServerError?: boolean;
 }
 
 const AUTO_REFRESH_MS = 2 * 60 * 1000;
@@ -20,6 +21,7 @@ const AUTO_REFRESH_MS = 2 * 60 * 1000;
 export const NetworkGlitchUI = ({
   checkingSignal,
   isUnstableNetwork,
+  isServerError,
 }: Props) => {
   const theme = useTheme();
   const { translateTxtString } = useStaticTranslation();
@@ -38,7 +40,8 @@ export const NetworkGlitchUI = ({
         alignItems: "center",
         justifyContent: "center",
         gap: theme.gap(30),
-      }}>
+      }}
+    >
       {isUnstableNetwork && checkingSignal ? (
         <ProgressIcon
           label={translateTxtString(COMMON_FEEDBACK.retrieving_connection)}
@@ -46,11 +49,13 @@ export const NetworkGlitchUI = ({
         />
       ) : (
         <DisplayFeedbackUI
-          type="NETWORK_GLITCH"
+          type={isServerError ? "SERVER_ERROR" : "NETWORK_GLITCH"}
           icon={
             <SVGWrapper
-              src={asset.networkGlitch}
-              size={100}
+              src={
+                isServerError ? asset.NotFoundAnimation : asset.networkGlitch
+              }
+              size={130}
               color={theme.palette.gray[200]}
             />
           }

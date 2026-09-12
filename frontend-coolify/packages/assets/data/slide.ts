@@ -1,7 +1,7 @@
 "use client";
 
 import { COMMON_CAROUSEL, IBGFadeSlideData, ITranslation } from "@repo/core";
-import { asset } from "./exports";
+import { asset } from "./media";
 
 export const BG_SLIDER_DATA = (
   translator?: (transData: ITranslation) => string,

@@ -665,6 +665,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.security_anchor_rotated",
       message: "Security anchor rotated. Please log in again.",
     },
+    SECURITY_QUESTIONS_FETCHED: {
+      i18nKey: "auth.security_questions_fetched",
+      message: "Security questions fetched successfully.",
+    },
     SECURITY_QUESTIONS_EXACT_THREE_REQUIRED: {
       i18nKey: "auth.security_questions.exact_three_required",
       message:
@@ -1252,6 +1256,26 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.timestamp_updated",
       message: "Timestamp updated",
     },
+
+    MISSING_TOPIC_IDENTIFIER: {
+      i18nKey: "post.missing_identifier",
+      message: "Please provide a valid topic ID or title to proceed.",
+    },
+    TOPIC_REMOVED_SUCCESS: {
+      i18nKey: "post.remove_success",
+      message: "The topic has been successfully removed.",
+    },
+    TOPIC_REMOVAL_FAILED: {
+      i18nKey: "post.remove_failed",
+      message:
+        "Unable to remove the selected topic right now. Please try again later.",
+    },
+    TOPIC_REMOVAL_FALLBACK_ERROR: {
+      i18nKey: "post.remove_fallback_error",
+      message:
+        "An unexpected error occurred while processing your topic removal request.",
+    },
+
     TRANSLATION_API_ERROR: (errorMessage: string): TransInfo => ({
       i18nKey: "post.translation_api_error",
       message: "Cloudflare API execution block exception: {{errorMessage}}",

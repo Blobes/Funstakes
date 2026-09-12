@@ -3,29 +3,21 @@ import {
   executePostTopicsSync,
   forwardError,
   IAuthRequest,
+  ManageTopicsParams,
   MESSAGES_REGISTRY,
-  TopicUpdateEvent,
 } from "@repo/shared";
-
-interface ManageRequest extends IAuthRequest {
-  body: {
-    topics: string[];
-    targetId?: string;
-    targetModel?: "Gist" | "Stake" | "User";
-    eventType: TopicUpdateEvent;
-  };
-}
 
 /**
  * Controller endpoint processing ingestion configurations to match up taxonomy tags safely against target updates.
  */
 export const syncPostTopics = async (
-  req: ManageRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { topics, targetId, targetModel, eventType } = req.body;
+  const { topics, targetId, targetModel, eventType, addedBy } =
+    req.body as ManageTopicsParams;
 
   if (!userId) {
     return res.status(401).json({
@@ -42,6 +34,7 @@ export const syncPostTopics = async (
       targetId,
       targetModel,
       eventType,
+      addedBy,
     });
 
     if (serviceResult.status === "INVALID_INPUT") {

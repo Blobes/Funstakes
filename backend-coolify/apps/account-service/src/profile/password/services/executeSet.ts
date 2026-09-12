@@ -5,7 +5,7 @@ import {
   MESSAGES_REGISTRY,
   getAccountStatusMsg,
   fetchSingleUser,
-  determineCheckType,
+  detectIdentifierType,
 } from "@repo/shared";
 
 export type PasswordPurpose =
@@ -65,8 +65,8 @@ export const executePasswordUpdate = async (
       };
     }
 
-    const isEmail = determineCheckType(identifier) === "EMAIL";
-    const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
+    const isEmail = detectIdentifierType(identifier) === "EMAIL";
+    const isPhone = detectIdentifierType(identifier) === "PHONE_NUMBER";
 
     if (!isEmail && !isPhone) {
       return {

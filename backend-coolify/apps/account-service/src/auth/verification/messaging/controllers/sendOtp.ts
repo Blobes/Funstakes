@@ -16,7 +16,7 @@ export const sendMsgCode = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const { recipient, messageChannel = "EMAIL" } = req.body as {
+  const { recipient, messageChannel } = req.body as {
     recipient?: string;
     messageChannel?: OtpMessageChannel;
   };

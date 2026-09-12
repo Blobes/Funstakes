@@ -53,7 +53,6 @@ export interface IdentifierChangeResult {
 }
 
 export interface SetupSecurityQuestionsRequest {
-  userId: string;
   questions: {
     question: string;
     answer: string;
@@ -61,6 +60,9 @@ export interface SetupSecurityQuestionsRequest {
 }
 export interface SetupSecurityQuestionsResponse {
   isMfaActive: boolean;
+}
+export interface FetchSecurityQuestionsResponse {
+  questions: string[];
 }
 export interface VerifySecurityQuestionsRequest {
   identifier: string;
@@ -74,6 +76,12 @@ export interface VerifySecurityQuestionsResponse {
   invalidQuestions?: string[];
 }
 
+export interface CheckStatusResponse {
+  exists: boolean;
+  phoneNumber: string;
+  waId?: string;
+}
+
 export const VerifyIdentityService = () => {
   /**
    * Dispatches an OTP code over specified messaging channels (EMAIL, WHATSAPP, SMS).
@@ -81,10 +89,10 @@ export const VerifyIdentityService = () => {
   const dispatchMsgCode = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<OtpRequest>> => {
-    const { recipient } = request;
+    const { recipient, messageChannel } = request;
     return await apiClient<ISinglePayload<OtpRequest>>(SERVER_API.sendMsgCode, {
       method: "POST",
-      body: JSON.stringify({ recipient }),
+      body: JSON.stringify({ recipient, messageChannel }),
     });
   };
 
@@ -99,6 +107,20 @@ export const VerifyIdentityService = () => {
       method: "POST",
       body: JSON.stringify({ code, recipient, purpose }),
     });
+  };
+
+  /**
+   * Sends request to verify WhatsApp registration status for a target phone number.
+   */
+  const checkWhatsappStatus = async (
+    phoneNumber: string,
+  ): Promise<ISinglePayload<CheckStatusResponse>> => {
+    return await apiClient(
+      `${SERVER_API.checkWhatsappStatus}/phoneNumber=${phoneNumber}`,
+      {
+        method: "GET",
+      },
+    );
   };
 
   /**
@@ -186,12 +208,26 @@ export const VerifyIdentityService = () => {
   const setupSecurityQuestions = async (
     request: SetupSecurityQuestionsRequest,
   ): Promise<ISinglePayload<SetupSecurityQuestionsResponse>> => {
-    const { userId, questions } = request;
+    const { questions } = request;
     return await apiClient<ISinglePayload<SetupSecurityQuestionsResponse>>(
       SERVER_API.setupSecurityQuestions,
       {
         method: "POST",
-        body: JSON.stringify({ userId, questions }),
+        body: JSON.stringify({ questions }),
+      },
+    );
+  };
+
+  /**
+   * Fetches user security questions.
+   */
+  const fetchSecurityQuestions = async (
+    identifier: string,
+  ): Promise<ISinglePayload<FetchSecurityQuestionsResponse>> => {
+    return await apiClient(
+      `${SERVER_API.fetchSecurityQuestions}/identifier=${identifier}`,
+      {
+        method: "GET",
       },
     );
   };
@@ -227,6 +263,7 @@ export const VerifyIdentityService = () => {
   return {
     dispatchMsgCode,
     verifyMsgCode,
+    checkWhatsappStatus,
     commitAccountUpdate,
     finalizeEmailUpdateOtp,
     finalizePhoneUpdateOtp,
@@ -235,5 +272,6 @@ export const VerifyIdentityService = () => {
     resetMsgCode,
     setupSecurityQuestions,
     verifySecurityQuestions,
+    fetchSecurityQuestions,
   };
 };

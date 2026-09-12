@@ -10,19 +10,16 @@ import {
   ApiError,
   IdentifierType,
   SMS_DISPATCH_COUNTRY_CODES,
+  SNACKBAR_DURATION,
 } from "@repo/core";
-import {
-  useSnackbar,
-  useStaticTranslation,
-  useWhatsAppStatus,
-} from "@repo/shared-hooks";
+import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import {
   extractCountryCode,
   extractPayloadKeys,
   getFromLocalStorage,
   saveToLocalStorage,
 } from "@repo/helpers";
-import { VerifyIdentityService, OtpRequest } from "../service";
+import { VerifyIdentityService, OtpRequest } from "../services";
 import { useFeedback } from "../useFeedback";
 import {
   createVerificationStrategies,
@@ -30,6 +27,7 @@ import {
   resolveChannelRecipient,
 } from "../helpers";
 import { BaseVerificationProps } from "../useVerifyIdentity";
+import { useWhatsAppStatus } from "./useWhatsapp";
 
 const HOUR_IN_MS = 12 * 60 * 60 * 1000; // 12 Hours
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
@@ -91,13 +89,6 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   const hasUserCtx =
     authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
 
-  const defaultChannel: OtpMessageChannel = useMemo(() => {
-    if (purpose === "MFA_ACTIVATION") return "WHATSAPP";
-    return activeTransit?.otpMessageChannel || "EMAIL";
-  }, [purpose, activeTransit?.otpMessageChannel]);
-
-  const [msgChannel, setMsgChannel] =
-    useState<OtpMessageChannel>(defaultChannel);
   const [recipient, setRecipient] = useState<string | undefined>(
     activeTransit?.identifier,
   );
@@ -144,6 +135,28 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     );
   }, [targetPhone]);
 
+  /**
+   * Resolves default channel based on availability and transit context.
+   */
+  const defaultChannel: OtpMessageChannel = useMemo(() => {
+    const preferredChannel = activeTransit?.otpMessageChannel;
+    if (purpose === "MFA_ACTIVATION") {
+      if (isWhatsappActive) return "WHATSAPP";
+      if (targetPhone && isSmsAllowed) return "SMS";
+      return preferredChannel || "EMAIL";
+    }
+    return preferredChannel || "EMAIL";
+  }, [
+    purpose,
+    isWhatsappActive,
+    targetPhone,
+    isSmsAllowed,
+    activeTransit?.otpMessageChannel,
+  ]);
+
+  const [msgChannel, setMsgChannel] =
+    useState<OtpMessageChannel>(defaultChannel);
+
   const verificationStrategies = useMemo(
     () =>
       createVerificationStrategies({
@@ -172,16 +185,10 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     if (activeTransit?.identifier && !recipient) {
       setRecipient(activeTransit.identifier);
     }
-    if (activeTransit?.otpMessageChannel && purpose !== "MFA_ACTIVATION") {
-      setMsgChannel(activeTransit.otpMessageChannel);
-    }
-  }, [
-    activeTransit?.identifier,
-    activeTransit?.otpMessageChannel,
-    recipient,
-    purpose,
-  ]);
+    setMsgChannel(defaultChannel);
+  }, [activeTransit?.identifier, defaultChannel, recipient]);
 
+  // Cooldown Timer for otp resend
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -210,7 +217,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
             ),
           ),
           msgStatus: "SUCCESS",
-          duration: 6,
+          duration: SNACKBAR_DURATION.SECS_6,
         },
       });
     },
@@ -303,13 +310,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
         });
       }
     }
-  }, [
-    activeTransit,
-    hasUserCtx,
-    dispatchOnload,
-    handleSendOtp,
-    canAutoDispatchOtp,
-  ]);
+  }, [activeTransit, hasUserCtx, dispatchOnload, handleSendOtp]);
 
   const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
     mutationFn: async (params: {
@@ -370,7 +371,9 @@ export const useMessagingOtp = <P extends TransitPurpose>(
 
       if (!activeTransit) {
         setInlineMsg(
-          translateTxtString(AUTH_FEEDBACK.missing_verification_session("OTP")),
+          translateTxtString(
+            AUTH_FEEDBACK.missing_verification_session("MESSAGING"),
+          ),
         );
         return;
       }
@@ -476,6 +479,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
             tagline: translateTxtString(
               AUTH_FEEDBACK.no_email_or_phone(targetChannel.toLowerCase()),
             ),
+            duration: SNACKBAR_DURATION.SECS_6,
           },
         });
         return;
@@ -514,6 +518,13 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     ],
   );
 
+  const alternativeChannels = allowedChannels.filter((ch) => {
+    if (ch === msgChannel) return false;
+    if (ch === "SMS") return isSmsAllowed;
+    if (ch === "WHATSAPP") return isWhatsappActive;
+    return true;
+  });
+
   return {
     code,
     setCode,
@@ -530,5 +541,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     isSmsAllowed,
     isWhatsappActive,
     allowedChannels,
+    alternativeChannels,
+    isMfaActivationPurpose,
   };
 };

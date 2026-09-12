@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handlePostFinalizer } from "./handlers";
+import { handleFetchTopics, handlePostFinalizer } from "./handlers";
 
 const router: Router = Router();
 
@@ -8,5 +8,6 @@ const router: Router = Router();
  * Node acts strictly as a data-access layer for Go engine outputs.
  */
 router.post("/finalize-post", handlePostFinalizer);
+router.get("/topics", handleFetchTopics);
 
 export { router as internalRouter };

@@ -5,7 +5,6 @@ import { hardDeleteMedia } from "../media/hardDelete";
 import { createMediaBatch } from "../media/createBatch";
 import { executePostTopicsSync } from "../topic/postSync";
 import { franc } from "franc-min";
-import { topicsExtractor } from "../../utils/topic";
 import { to2ISOCode } from "../../constants/others";
 import { executeCaseReport, IEvidenceSnapshot } from "../moderation/reportCase";
 import { notifyUser } from "../redis/socket";
@@ -22,7 +21,8 @@ export const finalizeGistCreation = async (
   params: FinalizePostReq,
   config: Config,
 ) => {
-  const { postId, userId, caption, media, modResult, session } = params;
+  const { postId, userId, caption, media, modResult, topicsSource, session } =
+    params;
 
   if (modResult.status === "BANNED") {
     await UserModel.findByIdAndUpdate(
@@ -112,10 +112,8 @@ export const finalizeGistCreation = async (
   const determinedSensitiveGraphic =
     !existingGistShell?.hasSensitiveGraphic || !modResult.hasSensitiveGraphic;
 
-  let targetTopics = modResult.extractedTopics || [];
-  if (targetTopics.length === 0 && caption) {
-    targetTopics = topicsExtractor(caption);
-  }
+  const targetTopics =
+    modResult.extractedTopics || modResult.newTopicsFromAi || [];
 
   if (targetTopics.length > 0) {
     await executePostTopicsSync(
@@ -124,6 +122,7 @@ export const finalizeGistCreation = async (
         targetId: postId,
         targetModel: "Gist",
         eventType: "POST_CREATION_OR_UPDATE",
+        addedBy: topicsSource,
       },
       session,
     );
@@ -222,7 +221,7 @@ export const finalizeGistUpdate = async (
   params: FinalizePostReq,
   config: Config,
 ) => {
-  const { postId, userId, caption, modResult, session } = params;
+  const { postId, userId, caption, modResult, session, topicsSource } = params;
 
   if (modResult.status === "BANNED") {
     await UserModel.findByIdAndUpdate(
@@ -269,10 +268,7 @@ export const finalizeGistUpdate = async (
   const determinedSensitiveGraphic =
     !gist.hasSensitiveGraphic || !modResult.hasSensitiveGraphic;
 
-  let targetTopics = modResult.extractedTopics || [];
-  if (targetTopics.length === 0 && caption) {
-    targetTopics = topicsExtractor(caption);
-  }
+  const targetTopics = modResult.extractedTopics || [];
 
   if (targetTopics.length > 0) {
     await executePostTopicsSync(
@@ -281,6 +277,7 @@ export const finalizeGistUpdate = async (
         targetId: postId,
         targetModel: "Gist",
         eventType: "POST_CREATION_OR_UPDATE",
+        addedBy: topicsSource,
       },
       session,
     );

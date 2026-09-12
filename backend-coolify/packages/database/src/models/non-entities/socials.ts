@@ -1,5 +1,5 @@
 import { Model, Schema, model } from "mongoose";
-import { IBlockedUserDocument, IFollowDocument } from "../../types/misc";
+import { IBlockedUserDocument, IFollowDocument } from "../../types/others";
 
 // User follows
 const FollowSchema = new Schema<IFollowDocument>(

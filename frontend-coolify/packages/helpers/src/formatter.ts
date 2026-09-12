@@ -64,7 +64,7 @@ export const formatPhoneNumber = (
  * Combines a selected country code with a local subscriber number.
  * Ensures the "Trunk Prefix" (leading 0) is removed if present.
  * * @param localNumber - The raw string from the input field (e.g., "0805 764")
- * @param selectedCode - The code from your dropdown (e.g., "+234")
+ * @param selectedCode - The code from input field dropdowns (e.g., "+234")
  * @returns A clean E.164 formatted string (e.g., "+2348057648520")
  */
 export const sanitizePhoneNumber = (

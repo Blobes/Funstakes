@@ -1,9 +1,11 @@
-import { TransInfo } from "../../../types/general";
-import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
-import { totpService } from "./service";
+import {
+  detectIdentifierType,
+  fetchSingleUser,
+  MESSAGES_REGISTRY,
+  totpService,
+  TransInfo,
+} from "@repo/shared";
 import { TotpActionType } from "./setupTotp";
-import { fetchSingleUser } from "../../user/retrieve/fetchUser";
-import { determineCheckType } from "../../../utils/sanitizeData";
 
 export interface ITotpVerificationInput {
   actionType: TotpActionType;
@@ -52,8 +54,8 @@ export const executeTotpVerification = async (
       };
     }
 
-    const isEmail = determineCheckType(identifier) === "EMAIL";
-    const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
+    const isEmail = detectIdentifierType(identifier) === "EMAIL";
+    const isPhone = detectIdentifierType(identifier) === "PHONE_NUMBER";
 
     if (!isEmail && !isPhone) {
       return {

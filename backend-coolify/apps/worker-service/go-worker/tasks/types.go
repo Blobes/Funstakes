@@ -3,6 +3,12 @@ package tasks
 type Severity string
 type PostStatus string
 type ModerationTaskMode string
+type UserTopicAddedBy string
+
+const (
+	TopicAddedBySystemAI   UserTopicAddedBy = "SYSTEM"
+	TopicAddedByManualUser UserTopicAddedBy = "USER"
+)
 
 const (
 	SeverityCritical Severity = "CRITICAL"
@@ -43,13 +49,15 @@ type DependencyContext struct {
 }
 
 type ModerationReport struct {
-	Status              PostStatus `json:"status"`
-	Severity            Severity   `json:"severity"`
-	RuleViolated        string     `json:"ruleViolated"`
-	ExtractedTopics     []string   `json:"extractedTopics"`
-	Reason              string     `json:"reason"`
-	NeedsReview         bool       `json:"needsReview"`
-	HasSensitiveGraphic bool       `json:"hasSensitiveGraphic"`
+	Status              PostStatus       `json:"status"`
+	Severity            Severity         `json:"severity"`
+	RuleViolated        string           `json:"ruleViolated"`
+	ExtractedTopics     []string         `json:"extractedTopics"`
+	NewTopicsFromAi     []string         `json:"newTopicsFromAi,omitempty"`
+	TopicsSource        UserTopicAddedBy `json:"topicsSource,omitempty"`
+	Reason              string           `json:"reason"`
+	NeedsReview         bool             `json:"needsReview"`
+	HasSensitiveGraphic bool             `json:"hasSensitiveGraphic"`
 }
 
 type ValidationResult struct {
@@ -94,6 +102,7 @@ type BasePostMetadata struct {
 type PostModData struct {
 	BasePostMetadata
 	Topics             []string           `json:"topics,omitempty"`
+	TopicsSource       UserTopicAddedBy   `json:"topicsSource,omitempty"`
 	ModerationTaskMode ModerationTaskMode `json:"moderationTaskMode"`
 	Event              string             `json:"event"`
 }

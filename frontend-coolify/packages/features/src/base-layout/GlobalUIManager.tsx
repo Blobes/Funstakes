@@ -163,18 +163,19 @@ export const GlobalUIManager = ({
 
   // Logic for displaying Network Glitches or Critical Auth Errors
   const hasNetworkGlitch = isUnstableNetwork && !isOffline;
-  const hasAuthError = authStatus === "ERROR";
+  const hasServerError = authStatus === "ERROR";
   const isGuestOffline = isOffline && !wasLoggedIn;
 
   const showNetworkGlitchUI =
     includesNetworkErrorUI &&
-    (hasNetworkGlitch || hasAuthError || isGuestOffline);
+    (hasNetworkGlitch || hasServerError || isGuestOffline);
 
   if (showNetworkGlitchUI) {
     return (
       <NetworkGlitchUI
         checkingSignal={checkingSignal}
         isUnstableNetwork={isUnstableNetwork}
+        isServerError={hasServerError}
       />
     );
   }

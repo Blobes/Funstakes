@@ -20,6 +20,7 @@ import {
   LucideShieldOff,
   Milestone,
   Unplug,
+  CloudAlert,
 } from "lucide-react";
 import { usePage } from "./usePage";
 import { useStaticTranslation } from "./useTrans";
@@ -80,6 +81,28 @@ export const useDisplayFBConfig = (): Record<
         action: () => window.location.reload(),
       },
       icon: <Unplug />,
+      style: {
+        container: {
+          backgroundColor: "transparent",
+          border: "none",
+          [theme.breakpoints.up("md")]: {
+            maxWidth: "40%",
+          },
+        },
+        icon: {
+          width: 60,
+        },
+      },
+    },
+    SERVER_ERROR: {
+      headline: translateTxtString(COMMON_FEEDBACK.server_error_headline),
+      tagline: translateTxtString(COMMON_FEEDBACK.server_error_tagline),
+      primaryCta: {
+        label: translateTxtString(COMMON_BUTTON_LABELS.refresh),
+        variant: "outlined",
+        action: () => window.location.reload(),
+      },
+      icon: <CloudAlert />,
       style: {
         container: {
           backgroundColor: "transparent",

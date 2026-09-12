@@ -1,12 +1,39 @@
 "use client";
 
 import { Components, Theme } from "@mui/material/styles";
-import { display, fontWeight, width } from "@mui/system";
+
+/**
+ * Central design tokens used across component style overrides.
+ */
+const VARS = {
+  color_primary_main: "var(--mui-palette-primary-main)",
+  color_primary_dark: "var(--mui-palette-primary-dark)",
+  color_primary_light: "var(--mui-palette-primary-dark)",
+  color_primary_trans: "var(--mui-fixedColors-pTrans)",
+  color_gray0: "var(--mui-palette-gray-0)",
+  color_gray50: "var(--mui-palette-gray-50)",
+  color_gray100: "var(--mui-palette-gray-100)",
+  color_gray200: "var(--mui-palette-gray-200)",
+  color_gray300: "var(--mui-palette-gray-300)",
+  color_gray_trans_1: "var(--mui-palette-gray-trans-1)",
+  color_gray_trans_2: "var(--mui-palette-gray-trans-2)",
+  color_gray_trans_overlay: "var(--mui-palette-gray-trans-overlay)",
+  color_fixed_gray800: "var(--mui-fixedColors-gray800)",
+  color_success: "var(--mui-palette-info-main)",
+  color_error: "var(--mui-palette-error-main)",
+  color_error_trans: "var(--mui-palette-error-trans)",
+  text_fontsize: "calc(1rem * var(--ui-font-scale, 1))",
+  text_align: "var(--ui-text-align, inherit)" as any,
+  text_helper_fontsize: "calc(0.875rem * var(--ui-font-scale, 1))",
+} as const;
 
 interface BaseStylesContainer {
   components: Components<Omit<Theme, "components">>;
 }
 
+/**
+ * Base MUI theme components configuration with dynamic style overrides.
+ */
 const defaultUIStyles: BaseStylesContainer = {
   components: {
     MuiCssBaseline: {
@@ -47,7 +74,7 @@ const defaultUIStyles: BaseStylesContainer = {
           transition: "var(--theme-transition)",
         },
         svg: {
-          stroke: "var(--mui-palette-gray-200)",
+          stroke: VARS.color_gray200,
           flexShrink: "0!important",
         },
         "input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active":
@@ -89,32 +116,32 @@ const defaultUIStyles: BaseStylesContainer = {
           },
         }),
         contained: () => ({
-          backgroundColor: "var(--mui-palette-primary-main)",
-          color: "var(--mui-fixedColors-gray50)",
-          "&:hover": { backgroundColor: "var(--mui-palette-primary-dark)" },
+          backgroundColor: VARS.color_primary_main,
+          color: VARS.color_gray300,
+          "&:hover": { backgroundColor: VARS.color_primary_dark },
           "&:disabled": {
-            backgroundColor: "var(--mui-palette-primary-main)",
-            color: "var(--mui-fixedColors-gray50)",
+            backgroundColor: VARS.color_primary_main,
+            color: VARS.color_gray300,
             opacity: 0.6,
           },
         }),
         outlined: () => ({
-          borderColor: "var(--mui-palette-gray-trans-2)",
-          color: "var(--mui-palette-gray-300)",
+          borderColor: VARS.color_gray_trans_2,
+          color: VARS.color_gray300,
           "&:hover": {
-            backgroundColor: "var(--mui-fixedColors-pTrans)",
-            borderColor: "var(--mui-fixedColors-pTrans)",
+            backgroundColor: VARS.color_primary_trans,
+            borderColor: VARS.color_primary_trans,
           },
           "&:disabled": {
-            color: "var(--mui-palette-gray-300)",
-            backgroundColor: "var(--mui-palette-gray-trans-2)",
+            color: VARS.color_gray300,
+            backgroundColor: VARS.color_gray_trans_2,
             borderColor: "transparent",
             opacity: 0.6,
           },
         }),
         text: () => ({
           "&:disabled": {
-            color: "var(--mui-palette-gray-300)",
+            color: VARS.color_gray300,
             opacity: 0.7,
           },
         }),
@@ -126,17 +153,17 @@ const defaultUIStyles: BaseStylesContainer = {
         tooltip: ({ theme }) => ({
           ...theme.typography.text6,
           padding: theme.boxSpacing(3, 5),
-          backgroundColor: "var(--mui-fixedColors-gray800)",
-          color: "var(--mui-fixedColors-gray50)",
+          backgroundColor: VARS.color_fixed_gray800,
+          color: VARS.color_gray50,
           borderRadius: theme.radius[3],
           boxShadow: "var(--mui-shadows-1)",
           maxWidth: 420,
           margin: theme.boxSpacing(0, 6),
-          border: `1px solid var(--mui-palette-gray-trans-2)`,
+          border: `1px solid ${VARS.color_gray_trans_2}`,
         }),
         arrow: ({ theme }) => ({
           ...theme.typography.text6,
-          color: "var(--mui-fixedColors-gray800)",
+          color: VARS.color_fixed_gray800,
         }),
       },
     },
@@ -146,9 +173,9 @@ const defaultUIStyles: BaseStylesContainer = {
         root: ({ theme }) => ({
           padding: theme.boxSpacing(3),
           margin: 0,
-          "&:hover": { backgroundColor: "var(--mui-fixedColors-pTrans)" },
+          "&:hover": { backgroundColor: VARS.color_primary_trans },
           "&:disabled": {
-            backgroundColor: "var(--mui-palette-gray-trans-overlay)",
+            backgroundColor: VARS.color_gray_trans_overlay,
             opacity: 0.6,
           },
         }),
@@ -182,7 +209,7 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiCard: {
       styleOverrides: {
         root: ({ theme }) => ({
-          backgroundColor: "var(--mui-fixedColors-pTrans)",
+          backgroundColor: VARS.color_primary_trans,
           borderRadius: theme.radius[4],
           boxShadow: "unset",
         }),
@@ -201,13 +228,13 @@ const defaultUIStyles: BaseStylesContainer = {
       styleOverrides: {
         root: ({ theme }) => ({ borderRadius: theme.radius[4] }),
         elevation: () => ({
-          backgroundColor: "var(--mui-palette-gray-0)",
+          backgroundColor: VARS.color_gray0,
           backgroundImage:
             "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
         }),
         outlined: () => ({
           backgroundColor: "unset",
-          border: `1px solid var(--mui-palette-gray-trans-1)`,
+          border: `1px solid ${VARS.color_gray_trans_1}`,
         }),
         elevation8: {
           boxShadow: "4px 8px 24px rgba(0, 0, 0, 0.2)",
@@ -218,7 +245,7 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiMenu: {
       styleOverrides: {
         paper: ({ theme }) => ({
-          backgroundColor: "var(--mui-palette-gray-0)",
+          backgroundColor: VARS.color_gray0,
           borderRadius: theme.radius[4],
         }),
       },
@@ -262,21 +289,76 @@ const defaultUIStyles: BaseStylesContainer = {
       },
     },
 
+    MuiFormControl: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          "&.custom-select-form-style": {
+            "& .MuiInputLabel-root": {
+              width: "100%",
+              height: "100%",
+              padding: theme.boxSpacing(3, 4),
+              borderRadius: theme.radius[1],
+              transform: "unset",
+              pointerEvents: "none",
+              opacity: 0,
+              fontWeight: 600,
+              color: VARS.color_gray200,
+              "&.Mui-focused, &.MuiFormLabel-filled": {
+                width: "unset",
+                height: "unset",
+                transform: "translate(12px, -14px) scale(0.8)",
+                backgroundColor: VARS.color_gray0,
+                opacity: 1,
+              },
+              "&.Mui-focused": {
+                color: VARS.color_primary_main,
+              },
+            },
+          },
+        }),
+      },
+    },
+
+    MuiSelect: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          fontSize: VARS.text_fontsize,
+          fontWeight: 500,
+          backgroundColor: "transparent",
+          border: `1px solid ${VARS.color_gray100}`,
+          cursor: "pointer",
+          padding: theme.boxSpacing(7, 4, 7, 9),
+          borderRadius: theme.radius[4],
+          "&:hover": {
+            border: `1px solid ${VARS.color_primary_main}`,
+            opacity: 1,
+            color: VARS.color_primary_main,
+          },
+          "&.Mui-focused": {
+            border: `1px solid ${VARS.color_primary_main}`,
+          },
+          "&.Mui-disabled": {
+            cursor: "not-allowed",
+            opacity: 0.6,
+          },
+          "& .MuiSelect-select": {
+            padding: "0 !important",
+            display: "flex",
+            alignItems: "center",
+            "&:hover": { opacity: 1 },
+          },
+        }),
+      },
+    },
+
     MuiTextField: {
       styleOverrides: {
         root: ({ theme }) => ({
-          "--TextField-main": "var(--mui-palette-primary-main)",
-          "--TextField-default": "var(--mui-palette-gray-200)",
-          "--TextField-success": "var(--mui-palette-info-main)",
-          "--TextField-error": "var(--mui-palette-error-main)",
-          "--TextField-gray0": "var(--mui-palette-gray-0)",
-          "--TextField-gray50": "var(--mui-palette-gray-50)",
-          "--TextField-fontSize": "calc(1rem * var(--ui-font-scale, 1))",
-
           "& .MuiInputBase-input": {
-            fontSize: "var(--TextField-fontSize)",
-            fontWeight: "600",
-            textAlign: "var(--ui-text-align, inherit)" as any,
+            fontSize: VARS.text_fontsize,
+            fontWeight: 500,
+            textAlign: VARS.text_align,
+            "&.Mui-disabled": { cursor: "not-allowed !important" },
           },
 
           "& .MuiInputLabel-root": {
@@ -286,10 +368,11 @@ const defaultUIStyles: BaseStylesContainer = {
             overflow: "unset",
             width: "100%",
             maxWidth: "calc(97% - 24px)",
-            fontSize: "var(--TextField-fontSize)",
+            fontSize: VARS.text_fontsize,
             transform: "translate(16px, 17px)",
             fontWeight: "500",
-            color: "var(--TextField-default)",
+            color: VARS.color_gray200,
+            pointerEvents: "none",
           },
 
           "&:has(.MuiInputBase-adornedEnd .MuiInputAdornment-positionEnd) .MuiInputLabel-root":
@@ -299,7 +382,7 @@ const defaultUIStyles: BaseStylesContainer = {
 
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
             position: "absolute",
-            color: "var(--TextField-default)",
+            color: VARS.color_gray200,
             transform: "translate(16px, 7px) scale(0.83)",
             borderRadius: theme.radius[1],
             padding: 0,
@@ -309,23 +392,23 @@ const defaultUIStyles: BaseStylesContainer = {
           },
           "& label.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
             {
-              color: "var(--TextField-error)",
+              color: VARS.color_error,
             },
 
           "& .MuiInputLabel-asterisk": {
             fontSize: 26,
             fontWeight: 600,
-            color: "var(--TextField-error)",
+            color: VARS.color_error,
             transform: "translateY(6px)",
           },
 
           "& .MuiFormHelperText-root": {
-            fontSize: "calc(0.875rem * var(--ui-font-scale, 1))",
+            fontSize: VARS.text_helper_fontsize,
             lineHeight: "1.2em",
             fontWeight: "500",
-            color: "var(--TextField-default)",
+            color: VARS.color_gray200,
             margin: theme.boxSpacing(4, 0, 0, 0),
-            textAlign: "var(--ui-text-align, inherit)" as any,
+            textAlign: VARS.text_align,
           },
           "& .MuiFormHelperText-root.Mui-focused": {
             padding: 0,
@@ -340,27 +423,33 @@ const defaultUIStyles: BaseStylesContainer = {
           maxWidth: "600px",
           minWidth: "150px",
           borderRadius: theme.radius[4],
-          border: "1px solid var(--TextField-gray50)",
-          backgroundColor: "var(--TextField-gray50)",
+          border: `1px solid ${VARS.color_gray50}`,
+          backgroundColor: VARS.color_gray50,
           padding: theme.boxSpacing(4.5, 5, 4.5, 0),
           transition: "all 0.2s ease-in-out",
           "&:hover": {
             backgroundColor: "transparent",
-            borderColor: "var(--TextField-main)",
+            borderColor: VARS.color_primary_main,
           },
           "&.Mui-focused": {
             backgroundColor: "transparent",
-            borderColor: "var(--TextField-main)",
-            outline: `2px solid var(--mui-fixedColors-pTrans)`,
-            boxShadow: `0 0 0 4px var(--mui-fixedColors-pTrans)`,
+            borderColor: VARS.color_primary_main,
+            outline: `2px solid ${VARS.color_primary_trans}`,
+            boxShadow: `0 0 0 4px ${VARS.color_primary_trans}`,
             outlineOffset: "1px",
           },
+          "&.Mui-disabled": {
+            cursor: "not-allowed",
+            backgroundColor: VARS.color_gray50,
+            borderColor: "transparent",
+            opacity: 0.5,
+          },
           "&.Mui-error, &.Mui-error:hover": {
-            borderColor: "var(--TextField-error)",
-            backgroundColor: "var(--mui-palette-error-trans)",
+            borderColor: VARS.color_error,
+            backgroundColor: VARS.color_error_trans,
           },
           "&.Mui-error.Mui-focused": {
-            boxShadow: `0 0 0 4px var(--mui-palette-error-trans)`,
+            boxShadow: `0 0 0 4px ${VARS.color_error_trans}`,
             backgroundColor: "transparent",
           },
           "& .MuiOutlinedInput-notchedOutline": {

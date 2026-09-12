@@ -2,21 +2,15 @@ import { NextFunction, Request, Response } from "express";
 import { MESSAGES_REGISTRY, forwardError } from "@repo/shared";
 import { executeWhatsappCheck } from "./executeStatus";
 
-interface WhatsAppStatusRequest extends Request {
-  body: {
-    phoneNumber: string;
-  };
-}
-
 /**
  * Controller endpoint to handle WhatsApp registration checks.
  */
 export const checkWhatsAppStatus = async (
-  req: WhatsAppStatusRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<unknown> => {
-  const { phoneNumber } = req.body;
+  const phoneNumber = req.params.phoneNumber as string;
 
   if (!phoneNumber) {
     return res.status(400).json({

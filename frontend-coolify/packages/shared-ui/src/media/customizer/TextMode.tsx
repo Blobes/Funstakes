@@ -8,7 +8,7 @@ import { ColorType, FontType, TextOnMedia } from "@repo/core";
 import { FONT_TYPES, useTextMode } from "@repo/shared-hooks";
 import { COLOR_CONFIGS } from "@repo/shared-hooks";
 import { AppButton } from "../../Buttons";
-import { DynamicInput } from "../../input/Dynamic";
+import { DynamicInput } from "../../inputs/Dynamic";
 
 export interface TextModeProps {
   texts: TextOnMedia[];
@@ -92,7 +92,8 @@ export const TextMode = ({
               padding: theme.boxSpacing(1, 3),
               backgroundColor: colorCfg.backgroundColor,
               transition: "border 0.2s ease, background-color 0.2s ease",
-            }}>
+            }}
+          >
             {isFocused && (
               <IconButton
                 size="small"
@@ -108,7 +109,8 @@ export const TextMode = ({
                   color: theme.palette.common.white,
                   padding: "2px",
                   "&:hover": { backgroundColor: theme.palette.error.dark },
-                }}>
+                }}
+              >
                 <X size={12} />
               </IconButton>
             )}
@@ -154,7 +156,8 @@ export const TextMode = ({
                 backgroundColor: isSelected
                   ? theme.palette.gray[0]
                   : theme.fixedColors.grayTrans(0.5, "dark"),
-              }}>
+              }}
+            >
               Aa
             </AppButton>
           );

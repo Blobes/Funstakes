@@ -6,7 +6,7 @@ import {
   genVerificationCode,
   getAccountStatusMsg,
   fetchSingleUser,
-  determineCheckType,
+  detectIdentifierType,
   OtpMessageChannel,
   OtpIdentifierType,
   VerificationMethod,
@@ -56,8 +56,8 @@ export const executeResetInitiation = async (
     };
   }
 
-  const isEmail = determineCheckType(identifier) === "EMAIL";
-  const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
+  const isEmail = detectIdentifierType(identifier) === "EMAIL";
+  const isPhone = detectIdentifierType(identifier) === "PHONE_NUMBER";
 
   if (!isEmail && !isPhone) {
     return {

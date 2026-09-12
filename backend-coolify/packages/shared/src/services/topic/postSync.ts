@@ -1,8 +1,12 @@
 import mongoose, { ClientSession } from "mongoose";
-import { TopicModel } from "@repo/database";
+import {
+  ITopicDocument,
+  TopicModel,
+  UserSettingsModel,
+  UserTopicAddedBy,
+} from "@repo/database";
 import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { executeUserTopicsSync } from "./userSync";
 import { INVALIDATE_CACHE } from "../../constants/invalidators";
 
 export type TopicUpdateEvent = "POST_CREATION_OR_UPDATE" | "POST_ENGAGEMENT";
@@ -11,37 +15,44 @@ export interface ManageTopicsParams {
   topics: string[];
   userId?: string;
   targetId?: string;
-  targetModel?: "Gist" | "Stake" | "User";
+  targetModel?: "Gist" | "Stake";
   eventType: TopicUpdateEvent;
+  addedBy?: UserTopicAddedBy;
 }
 
 export interface ManageTopicsResult {
   status: "INVALID_INPUT" | "SUCCESS";
   transInfo: TransInfo;
-  payload: any[];
+  payload: ITopicDocument[];
 }
 
 /**
  * Attaches new topic IDs to a post and increments global postCount.
+ *
+ * @param targetId Target entity ID.
+ * @param targetModel Dynamic model name.
+ * @param topicDocs Processed topic documents.
+ * @param session Optional Mongoose client session.
  */
 export const createOnPostCreation = async (
   targetId: string,
   targetModel: string,
-  topicDocs: any[],
+  topicDocs: ITopicDocument[],
   session?: ClientSession,
 ): Promise<void> => {
   const DynamicModel = mongoose.model(targetModel);
-  const post = await DynamicModel.findById(targetId)
+
+  const postData = await DynamicModel.findById(targetId)
     .session(session || null)
     .select("topics");
 
-  if (!post) {
+  if (!postData) {
     throw new Error(
       MESSAGES_REGISTRY.SYSTEM.TARGET_MODEL_NOT_FOUND(targetModel).message,
     );
   }
 
-  const existingPostTopicIds = (post.topics || []).map((id: any) =>
+  const existingPostTopicIds = (postData.topics || []).map((id: any) =>
     id.toString(),
   );
   const newTopicIds = topicDocs
@@ -66,29 +77,42 @@ export const createOnPostCreation = async (
 };
 
 /**
- * Updates user preferences and metadata timestamps upon post engagement.
+ * Syncs engaged topic preferences into user settings content preferences.
+ *
+ * @param userId Target user identifier.
+ * @param topicDocs Processed topic documents.
+ * @param session Optional Mongoose client session.
  */
 export const syncWithUserViaPostEngagement = async (
   userId: string,
-  topicDocs: any[],
+  topicDocs: ITopicDocument[],
   session?: ClientSession,
 ): Promise<void> => {
   const preferenceTopics = topicDocs.map((t) => ({
-    topicId: t._id.toString(),
+    topicId: t._id,
     title: t.title,
+    addedBy: "SYSTEM" as const,
+    lastViewed: new Date(),
   }));
 
-  await executeUserTopicsSync({
-    userId,
-    topics: preferenceTopics,
-    mode: "ADD",
-    updateMetadata: true,
-    session,
-  });
+  await UserSettingsModel.updateOne(
+    { userId },
+    {
+      $addToSet: {
+        "display.contentPreferences.preferredTopics": {
+          $each: preferenceTopics,
+        },
+      },
+    },
+    { session, upsert: true },
+  );
 };
 
 /**
- * Synchronizes topic entities and processes post-related actions.
+ * Synchronizes topic entities and processes post-related actions with role-based topic creation controls.
+ *
+ * @param params Operational configuration parameters.
+ * @param session Optional Mongoose client session.
  */
 export const executePostTopicsSync = async (
   params: ManageTopicsParams,
@@ -100,6 +124,7 @@ export const executePostTopicsSync = async (
     targetId,
     targetModel,
     eventType: actionType,
+    addedBy = "USER",
   } = params;
 
   if (!topics || !Array.isArray(topics) || topics.length === 0) {
@@ -112,21 +137,39 @@ export const executePostTopicsSync = async (
 
   const uniqueTitles = [...new Set(topics.map((t) => t.trim().toLowerCase()))];
 
-  const topicOps = uniqueTitles.map((title) => ({
-    updateOne: {
-      filter: { title },
-      update: { $setOnInsert: { title, userCount: 0, postCount: 0 } },
-      upsert: true,
-    },
-  }));
+  let topicDocs: ITopicDocument[] = [];
 
-  await TopicModel.bulkWrite(topicOps, { session });
+  if (addedBy === "USER") {
+    topicDocs = await TopicModel.find({
+      title: { $in: uniqueTitles },
+    })
+      .session(session || null)
+      .lean();
 
-  const topicDocs = await TopicModel.find({
-    title: { $in: uniqueTitles },
-  })
-    .session(session || null)
-    .lean();
+    if (topicDocs.length === 0) {
+      return {
+        status: "INVALID_INPUT",
+        transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_LIST_REQUIRED,
+        payload: [],
+      };
+    }
+  } else {
+    const topicOps = uniqueTitles.map((title) => ({
+      updateOne: {
+        filter: { title },
+        update: { $setOnInsert: { title, userCount: 0, postCount: 0 } },
+        upsert: true,
+      },
+    }));
+
+    await TopicModel.bulkWrite(topicOps, { session });
+
+    topicDocs = await TopicModel.find({
+      title: { $in: uniqueTitles },
+    })
+      .session(session || null)
+      .lean();
+  }
 
   switch (actionType) {
     case "POST_CREATION_OR_UPDATE":

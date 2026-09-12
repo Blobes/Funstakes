@@ -1,29 +1,28 @@
-import { NextFunction, Request, Response } from "express";
-import { forwardError, MESSAGES_REGISTRY } from "@repo/shared";
+import { NextFunction, Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
 import {
   executeVerifySecurityQuestions,
-  IAnswerPair,
+  IVerificationInput,
 } from "../services/verify";
 
-interface VerifyQuestions extends Request {
-  body: {
-    identifier: string;
-    answers: IAnswerPair[];
-  };
+interface VerificationQuestions extends IAuthRequest {
+  body: IVerificationInput;
 }
 
 /**
  * Controller endpoint managing verification of MFA security questions.
  */
 export const verifySecurityQuestions = async (
-  req: VerifyQuestions,
+  req: VerificationQuestions,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const { identifier, answers } = req.body;
+  const userId = req.user?.id;
 
   try {
     const serviceResult = await executeVerifySecurityQuestions({
+      userId,
       identifier,
       answers,
     });

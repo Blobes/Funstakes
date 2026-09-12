@@ -14,7 +14,6 @@ export interface DisplaySettingsInput {
   };
   localization?: {
     language?: string;
-    region?: string;
     currency?: string;
   };
   session?: ClientSession;
@@ -73,9 +72,6 @@ export const executeDisplaySettingsUpdate = async (
   if (localization) {
     if (localization.language) {
       updateOps["display.localization.language"] = localization.language;
-    }
-    if (localization.region) {
-      updateOps["display.localization.region"] = localization.region;
     }
     if (localization.currency) {
       updateOps["display.localization.currency"] = localization.currency;

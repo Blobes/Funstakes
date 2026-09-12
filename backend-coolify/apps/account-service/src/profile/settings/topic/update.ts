@@ -16,7 +16,7 @@ export const syncUserTopics = async (
   next: NextFunction,
 ): Promise<void> => {
   const userId = req.user?.id;
-  const { topics, mode, updateMetadata } = req.body as UserTopicsParams;
+  const { topics, updateMetadata } = req.body as UserTopicsParams;
 
   if (!userId) {
     res.status(401).json({
@@ -31,7 +31,6 @@ export const syncUserTopics = async (
     const serviceResult = await executeUserTopicsSync({
       userId,
       topics,
-      mode,
       updateMetadata,
     });
 

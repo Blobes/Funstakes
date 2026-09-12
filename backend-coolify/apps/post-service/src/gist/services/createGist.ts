@@ -15,6 +15,7 @@ import {
   FinalizePostReq,
   ModerationTaskMode,
   enqueueMediaTask,
+  extractTopicsFromCaption,
 } from "@repo/shared";
 
 export interface CreateGistInput {
@@ -88,7 +89,18 @@ export const executeCreateGist = async (
       } as ILocation)
     : undefined;
 
-  const hasUserTopics = topics && topics.length > 0;
+  // Auto-extract topics from caption if user provided no topics
+  const userTopics = topics && topics.length > 0 ? topics : [];
+  const hasUserTopics = userTopics.length > 0;
+
+  let systemTopics: string[] = [];
+  if (!hasUserTopics && hasCaption) {
+    systemTopics = await extractTopicsFromCaption(caption);
+  }
+  const hasSytemTopics = systemTopics.length > 0;
+
+  const finalTopics = userTopics || systemTopics;
+
   const initialStatus: PostContentStatus = skipModeration
     ? "PUBLISHED"
     : "UNDER_REVIEW";
@@ -97,7 +109,7 @@ export const executeCreateGist = async (
     authorId: userId,
     status: initialStatus,
     location,
-    latestCaption: { caption: caption?.trim() || "Processing..." },
+    latestCaption: { caption: caption?.trim() },
     hasSensitiveGraphic,
   });
 
@@ -117,7 +129,8 @@ export const executeCreateGist = async (
           severity: "NONE",
           reason:
             "Moderation skipped by administrative directive bypass constraints.",
-          extractedTopics: topics,
+          extractedTopics: finalTopics,
+          topicsSource: hasUserTopics ? "USER" : "SYSTEM",
           needsReview: false,
         },
       } as FinalizePostReq,
@@ -135,9 +148,10 @@ export const executeCreateGist = async (
   if (skipModeration) {
     modTaskMode = "EXTRACT_KEYWORDS_ONLY";
   } else {
-    modTaskMode = hasUserTopics
-      ? "MODERATE_ONLY"
-      : "MODERATE_AND_EXTRACT_KEYWORDS";
+    modTaskMode =
+      hasUserTopics || hasSytemTopics
+        ? "MODERATE_ONLY"
+        : "MODERATE_AND_EXTRACT_KEYWORDS";
   }
 
   // Enqueue media processing task
@@ -151,11 +165,12 @@ export const executeCreateGist = async (
   const moderationData: IPostModData = {
     postId: newGist._id.toString(),
     postType: "GIST",
+    event: "POST_CREATION",
     userId: userId.toString(),
     caption,
     media,
     topics: topics || [],
-    event: "POST_CREATION",
+    topicsSource: hasUserTopics ? "USER" : "SYSTEM",
     moderationTaskMode: modTaskMode,
   };
 

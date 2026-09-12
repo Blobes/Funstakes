@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import {
-  executeLookupTopics,
+  executeTopicsFetch,
   forwardError,
   IAuthRequest,
   MESSAGES_REGISTRY,
@@ -20,15 +20,15 @@ interface LookupRequest extends IAuthRequest {
 /**
  * Controller endpoint to manage request parameters and route responses for taxonomy lookups.
  */
-export const lookupTopics = async (
+export const getTopics = async (
   req: LookupRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { keyword, alreadySelected = [] } = req.body;
+  const { keyword, alreadySelected } = req.body || {};
   const userId = req.user?.id;
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 20;
+  const page = parseInt(req.query?.page as string, 10) || 1;
+  const limit = parseInt(req.query?.limit as string, 10) || 20;
 
   if (!userId) {
     return res.status(401).json({
@@ -39,7 +39,7 @@ export const lookupTopics = async (
   }
 
   try {
-    const serviceResult = await executeLookupTopics({
+    const serviceResult = await executeTopicsFetch({
       keyword,
       alreadySelected,
       page,

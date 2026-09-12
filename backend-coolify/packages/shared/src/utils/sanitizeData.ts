@@ -1,5 +1,6 @@
 import { IUserDocument, PermissionName, RoleName } from "@repo/database";
 import { IJwtUser, InputCheckType } from "../types/general";
+import { normalizeValue } from "./hash";
 
 export const userSensitiveFields = (): string[] => {
   return [
@@ -106,8 +107,9 @@ export const toJwtUser = (
 /**
  * Resolves the verification input check-type based on input text structure.
  */
-export const determineCheckType = (identifier: string): InputCheckType => {
-  if (identifier.includes("@")) return "EMAIL";
-  if (/^\+?\d+$/.test(identifier.replace(/\s+/g, ""))) return "PHONE_NUMBER";
+export const detectIdentifierType = (identifier: string): InputCheckType => {
+  const normalized = normalizeValue(identifier);
+  if (normalized.includes("@")) return "EMAIL";
+  if (/^\+?\d+$/.test(normalized.replace(/\s+/g, ""))) return "PHONE_NUMBER";
   return "USERNAME";
 };

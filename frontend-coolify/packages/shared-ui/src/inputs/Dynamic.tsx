@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { useTheme } from "@mui/material/styles";
+import { Theme, useTheme } from "@mui/material/styles";
 import {
   Box,
   IconButton,
@@ -19,8 +19,10 @@ import {
   useVirtualKeyboard,
 } from "@repo/shared-hooks";
 import { BasicTooltip } from "../Tooltips";
+import { DisabledClickWrapper } from "../ElementTap";
 
 export interface InputEventHandlers {
+  onClick?: () => void;
   onChange?: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
@@ -31,6 +33,7 @@ export interface InputEventHandlers {
     event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
   onClear?: () => void;
+  onDisabledClick?: () => void;
 }
 
 export interface InputProps {
@@ -47,6 +50,7 @@ export interface InputProps {
   allowReset?: boolean;
   required?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
   error?: boolean;
   affix?: React.ReactNode;
   affixPosition?: "start" | "end";
@@ -55,8 +59,8 @@ export interface InputProps {
 }
 
 interface SharedStyle {
-  theme: any;
-  style: any;
+  theme: Theme;
+  style?: GenericStyle;
   value: any;
   currLang?: SupportedIsoCode;
 }
@@ -120,13 +124,16 @@ export const DynamicInput = ({
   allowReset = true,
   required = false,
   disabled = false,
+  readOnly = false,
   error = false,
   affix,
   affixPosition = "start",
-  onChange: onChange,
+  onClick,
+  onChange,
   onFocus,
   onBlur,
   onClear,
+  onDisabledClick,
   style,
 }: InputProps & InputEventHandlers) => {
   const theme = useTheme();
@@ -157,7 +164,7 @@ export const DynamicInput = ({
 
   const showResetIcon = allowReset && value && value?.length > 0;
 
-  return (
+  const renderInputField = () => (
     <TextField
       inputRef={inputRef}
       variant={variant}
@@ -174,6 +181,7 @@ export const DynamicInput = ({
       fullWidth
       slotProps={{
         input: {
+          readOnly,
           // Render the start surface only if explicitly targeted by affix configuration
           ...(affix &&
             affixPosition === "start" && {
@@ -181,8 +189,8 @@ export const DynamicInput = ({
                 <InputAdornment position="start">{affix}</InputAdornment>
               ),
             }),
-          // Consolidated end surface wrapper to handle overlaps seamlessly
 
+          // Consolidated end surface wrapper to handle overlaps seamlessly
           ...((showResetIcon ||
             affix ||
             shouldUseVKeyboard ||
@@ -192,7 +200,8 @@ export const DynamicInput = ({
                 <Stack
                   flexDirection="row"
                   alignItems="center"
-                  gap={theme.gap?.(1) || 0.5}>
+                  gap={theme.gap?.(1) || 0.5}
+                >
                   {/* Virtual keyboard */}
                   {shouldUseVKeyboard && (
                     <IconButton
@@ -209,7 +218,8 @@ export const DynamicInput = ({
                               stroke: theme.palette.primary.dark,
                             },
                           }),
-                      }}>
+                      }}
+                    >
                       <Keyboard size={18} />
                     </IconButton>
                   )}
@@ -228,7 +238,8 @@ export const DynamicInput = ({
                           "&:hover": {
                             backgroundColor: theme.palette.gray.trans[1],
                           },
-                        }}>
+                        }}
+                      >
                         <CircleQuestionMark size={18} />
                       </Box>
                     </BasicTooltip>
@@ -256,6 +267,7 @@ export const DynamicInput = ({
         ...styleConfig({ theme, style, value, currLang }),
         ...style,
       }}
+      onClick={() => onClick && onClick()}
       onChange={(e) => onChange && onChange(e)}
       onFocus={(e) => {
         registerAsActiveInput();
@@ -265,5 +277,13 @@ export const DynamicInput = ({
         onBlur && onBlur(e);
       }}
     />
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

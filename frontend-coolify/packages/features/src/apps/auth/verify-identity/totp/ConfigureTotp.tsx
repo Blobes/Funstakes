@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { Stack, Box, Divider } from "@mui/material";
+import { Stack, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
+  DisplayFeedbackUI,
   InlineMsgUI,
-  OtpInput,
   ProgressIcon,
   SVGWrapper,
   TransText,
@@ -14,13 +14,13 @@ import {
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
+  COMMON_BUTTON_LABELS,
   TransitPurpose,
-  useGlobalStore,
 } from "@repo/core";
-import { asset } from "@repo/assets";
 import { useTotp } from "./useTotp";
 import { BaseVerificationProps } from "../useVerifyIdentity";
-import { Logout } from "../../logout/Logout";
+import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
+import { QrCode, SquaresExclude } from "lucide-react";
 
 /**
  * Renders the initial enrollment and configuration flow for Time-based One-Time Passwords (TOTP).
@@ -29,28 +29,27 @@ import { Logout } from "../../logout/Logout";
 export const ConfigureTotp = <P extends TransitPurpose>(
   props: BaseVerificationProps<P>,
 ) => {
-  const { onSwitchMethod, availableMethods, style } = props;
+  const { style } = props;
+  const { isMobile } = useMisc();
   const theme = useTheme();
-  const authStatus = useGlobalStore((state) => state.authStatus);
 
   const {
-    code,
-    setCode,
-    isVerifying,
-    handleVerify,
+    fetchSetup,
     inlineMsg,
     setupData,
     isLoadingSetup,
     handleCopyKey,
     copied,
+    proceedToVerification,
+    isSetupError,
   } = useTotp({ ...props, viewMode: "CONFIGURE_TOTP" });
 
-  const supportsMessagingFallback = availableMethods?.includes("MESSAGING");
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Stack
       sx={{
-        gap: theme.gap(16),
+        gap: theme.gap(28),
         width: "100%",
         alignItems: "center",
         ...style,
@@ -58,24 +57,16 @@ export const ConfigureTotp = <P extends TransitPurpose>(
     >
       {/* Visual Branding & Instruction Section */}
       <Stack
-        sx={{ gap: theme.gap(2), textAlign: "center", alignItems: "center" }}
+        sx={{ gap: theme.gap(8), textAlign: "center", alignItems: "center" }}
       >
-        <SVGWrapper
-          src={asset.authenticator}
-          size={80}
-          fallbackUIType="SKELETON"
-          sx={{
-            marginBottom: theme.boxSpacing(4),
-            flex: "none",
-            alignSelf: "center",
-          }}
+        <QrCode size={isMobile ? 50 : 60} />
+        <TransText
+          component="h3"
+          {...AUTH_FEEDBACK.mfa_setup_without_msg_channel("TOTP")}
+          sx={{ ...theme.typography.h6, fontWeight: 500, textAlign: "center" }}
         />
         <TransText
-          {...AUTH_FEEDBACK.setup_authenticator_headline}
-          sx={{ ...theme.typography.h5, fontWeight: 500, textAlign: "center" }}
-        />
-        <TransText
-          {...AUTH_FEEDBACK.setup_authenticator_tagline}
+          {...AUTH_FEEDBACK.totp_mfa_setup_tagline}
           style={{
             ...theme.typography.text3,
             color: theme.palette.gray[200],
@@ -89,141 +80,104 @@ export const ConfigureTotp = <P extends TransitPurpose>(
         sx={{
           gap: theme.gap(12),
           alignItems: "center",
-          width: "100%",
+          width: "80%",
+          [theme.breakpoints.down("lg")]: { width: "100%" },
+          background: theme.palette.gray.trans[1],
+          borderRadius: theme.radius[3],
         }}
       >
         {isLoadingSetup ? (
           <Box sx={{ padding: theme.boxSpacing(12) }}>
-            <ProgressIcon options={{ size: 32 }} />
+            <ProgressIcon
+              options={{ size: 24 }}
+              label={translateTxtString(AUTH_FEEDBACK.loading_auth_data)}
+            />
           </Box>
         ) : (
           <>
             {/* Render scanned QR Code canvas once backend payload is fetched */}
-            {setupData?.qrCodeDataUrl && (
-              <Box
-                component="img"
-                src={setupData.qrCodeDataUrl}
-                alt="Authenticator QR Code"
-                sx={{
-                  width: 160,
-                  height: 160,
-                  borderRadius: theme.radius[2],
-                  border: `1px solid ${theme.palette.gray[100]}`,
-                  padding: theme.boxSpacing(4),
+            {!isSetupError &&
+            (setupData?.qrCodeDataUrl || setupData?.manualEntryKey) ? (
+              <>
+                {setupData?.qrCodeDataUrl && (
+                  <Box
+                    component="img"
+                    src={setupData.qrCodeDataUrl}
+                    alt="Authenticator QR Code"
+                    sx={{
+                      width: 160,
+                      height: 160,
+                      borderRadius: theme.radius[2],
+                      border: `1px solid ${theme.palette.gray[100]}`,
+                      padding: theme.boxSpacing(4),
+                    }}
+                  />
+                )}
+                {/* Fallback entry option for manual key entry */}
+                {setupData?.manualEntryKey && (
+                  <Stack
+                    sx={{
+                      alignItems: "center",
+                      gap: theme.gap(2),
+                      width: "100%",
+                    }}
+                  >
+                    <TransText
+                      {...AUTH_FEEDBACK.enter_code_manually}
+                      style={{
+                        ...theme.typography.text3,
+                        color: theme.palette.gray[200],
+                        textAlign: "center",
+                      }}
+                    />
+                    <AppButton
+                      variant="text"
+                      size="small"
+                      onClick={handleCopyKey}
+                      style={{ color: theme.palette.primary.dark }}
+                    >
+                      {copied ? "Copied!" : setupData.manualEntryKey}
+                    </AppButton>
+                  </Stack>
+                )}
+
+                <AppButton
+                  variant="contained"
+                  onClick={proceedToVerification}
+                  style={{ width: "100%" }}
+                  options={{ disabled: isLoadingSetup }}
+                >
+                  <TransText
+                    {...AUTH_BUTTON_LABELS.create_account}
+                    noComponent
+                  />
+                </AppButton>
+              </>
+            ) : (
+              // Render runtime error response messages
+              <DisplayFeedbackUI
+                type="NETWORK_GLITCH"
+                headline={translateTxtString(
+                  AUTH_FEEDBACK.failed_to_load_auth_data,
+                )}
+                tagline={inlineMsg}
+                primaryCta={{
+                  label: translateTxtString(COMMON_BUTTON_LABELS.retry),
+                  variant: "outlined",
+                  action: () => {
+                    fetchSetup();
+                  },
+                }}
+                icon={<SquaresExclude />}
+                style={{
+                  container: {
+                    width: "100%",
+                    backgroundColor: "transparent",
+                    border: "none",
+                  },
                 }}
               />
             )}
-
-            {/* Fallback entry option for manual key entry */}
-            {setupData?.manualEntryKey && (
-              <Stack
-                sx={{
-                  alignItems: "center",
-                  gap: theme.gap(2),
-                  width: "100%",
-                }}
-              >
-                <TransText
-                  {...AUTH_FEEDBACK.enter_code_manually}
-                  style={{
-                    ...theme.typography.text3,
-                    color: theme.palette.gray[200],
-                    textAlign: "center",
-                  }}
-                />
-                <AppButton
-                  variant="text"
-                  size="small"
-                  onClick={handleCopyKey}
-                  style={{ color: theme.palette.primary.dark }}
-                >
-                  {copied ? "Copied!" : setupData.manualEntryKey}
-                </AppButton>
-              </Stack>
-            )}
-          </>
-        )}
-      </Stack>
-
-      {/* Interactive Verification Input Block */}
-      <Stack
-        sx={{
-          width: "80%",
-          [theme.breakpoints.down("lg")]: { width: "100%" },
-          gap: theme.gap(16),
-          alignItems: "center",
-        }}
-      >
-        {/* Render runtime error response messages */}
-        {!isVerifying && inlineMsg && (
-          <InlineMsgUI msg={inlineMsg} type="ERROR" />
-        )}
-
-        <OtpInput
-          length={6}
-          onComplete={handleVerify}
-          onChange={setCode}
-          disabled={isVerifying || isLoadingSetup}
-          style={{ input: { width: "100%" } }}
-        />
-
-        <AppButton
-          variant="contained"
-          onClick={() => handleVerify()}
-          style={{ width: "100%" }}
-          options={{ disabled: code.length < 6 || isVerifying }}
-        >
-          {isVerifying ? (
-            <ProgressIcon options={{ size: 24 }} />
-          ) : (
-            <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
-          )}
-        </AppButton>
-      </Stack>
-
-      {/* Auxiliary Action Handlers (Fallback methods & Active session exit) */}
-      <Stack
-        sx={{
-          width: "100%",
-          gap: theme.gap(10),
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {/* Switch to alternative MFA delivery option if supported by payload */}
-        {supportsMessagingFallback && (
-          <AppButton
-            variant="text"
-            size="small"
-            onClick={() => onSwitchMethod?.("MESSAGING")}
-            style={{ color: theme.palette.primary.dark }}
-          >
-            <TransText
-              {...AUTH_BUTTON_LABELS.verify_with_email_phone}
-              noComponent
-            />
-          </AppButton>
-        )}
-
-        {/* Allow authenticated user session destruction directly within setup interface */}
-        {authStatus === "AUTHENTICATED" && (
-          <>
-            <Divider sx={{ width: "100%" }} />
-            <Logout
-              containerStyle={{
-                gap: theme.gap(4),
-                hover: {
-                  "& svg": { stroke: theme.palette.primary.dark },
-                },
-              }}
-              textStyle={{
-                ...theme.typography.text3,
-                width: "fit-content",
-                fontWeight: 600,
-                color: theme.palette.gray[200],
-              }}
-              iconStyle={{ size: 18 }}
-            />
           </>
         )}
       </Stack>

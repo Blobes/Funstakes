@@ -5,7 +5,7 @@ import { useColorScheme, useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { MoonStar, Sun } from "lucide-react";
 import { TransText } from "./Text";
-import { ChoiceInput } from "./input/Choice";
+import { ChoiceInput } from "./inputs/Choice";
 
 /**
  * Renders theme toggle using ChoiceInput switch configuration.
@@ -29,14 +29,16 @@ export const ThemeSwitcher: React.FC = () => {
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      sx={{ width: "100%" }}>
+      sx={{ width: "100%" }}
+    >
       <Stack
         direction="row"
         sx={{
           alignItems: "center",
           gap: theme.gap(10),
           "& svg": { width: "22px", height: "22px" },
-        }}>
+        }}
+      >
         {isDark ? <MoonStar /> : <Sun />}
         <TransText sx={{ ...theme.typography.text3, fontWeight: "600" }}>
           {isDark ? "Dark theme" : "Light theme"}

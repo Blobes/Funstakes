@@ -10,6 +10,7 @@ import {
   TransInfo,
   sanitizeUserResult,
   buildLocationFromIp,
+  normalizeValue,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import mongoose from "mongoose";
@@ -28,7 +29,11 @@ interface IRegistrationInput {
 }
 
 interface IRegistrationResult {
-  status: "SUCCESS" | "DEACTIVATED";
+  status:
+    | "SUCCESS"
+    | "DEACTIVATED"
+    | "CONFLICT_EMAIL_IN_USE"
+    | "CONFLICT_PHONE_IN_USE";
   transInfo?: TransInfo;
   userId?: string;
   safeData?: any;
@@ -43,7 +48,8 @@ export const registerUserAccount = async (
   input: IRegistrationInput,
 ): Promise<IRegistrationResult> => {
   const { email, password, phone, deviceToken, ipAddress, userAgent } = input;
-  const normalizedEmail = email.toLowerCase().trim();
+  const normalizedEmail = normalizeValue(email.toLowerCase());
+  const normalizedPhone = normalizeValue(phone?.toString());
 
   // Validate email availability and security state using unified service check layer
   const emailCheckResult = await executeAccountCheck({
@@ -60,18 +66,24 @@ export const registerUserAccount = async (
         userId: emailCheckResult.payload.userId.toString(),
       };
     }
-    throw new Error("CONFLICT_EMAIL_IN_USE");
+    return {
+      status: "CONFLICT_EMAIL_IN_USE",
+      transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_CONFLICT,
+    };
   }
 
   // Validate phone number availability if provided during flow step
-  if (phone) {
+  if (normalizedPhone) {
     const phoneCheckResult = await executeAccountCheck({
       identifierType: "PHONE_NUMBER",
-      identifier: phone,
+      identifier: normalizedPhone,
       purpose: "REGISTRATION",
     });
     if (phoneCheckResult.isExisting) {
-      throw new Error("CONFLICT_PHONE_IN_USE");
+      return {
+        status: "CONFLICT_PHONE_IN_USE",
+        transInfo: MESSAGES_REGISTRY.AUTH.PHONE_CONFLICT,
+      };
     }
   }
 
@@ -88,7 +100,7 @@ export const registerUserAccount = async (
     const newUser: IUserDocument = new UserModel({
       email: normalizedEmail,
       password: hashedPassword,
-      phoneNumber: phone,
+      phoneNumber: normalizedPhone,
       location,
       otpCode: hashCode(code),
       otpCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),

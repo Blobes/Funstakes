@@ -8,8 +8,8 @@ import { getOrSetCache } from "../redis/cache/helpers";
 export interface LookupTopicsInput {
   keyword?: string;
   alreadySelected?: string[];
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface LookupTopicsResult {
@@ -27,17 +27,24 @@ export interface LookupTopicsResult {
 
 /**
  * Executes paginated calculations across cache lookups and indexed database queries to evaluate matches for topic categories.
+ *
+ * @param input - Operational parameters including keyword, exclusions, page, and limit.
+ * @returns Paginated topic search results with metadata.
  */
-export const executeLookupTopics = async (
-  input: LookupTopicsInput,
+export const executeTopicsFetch = async (
+  input: LookupTopicsInput = {},
 ): Promise<LookupTopicsResult> => {
-  const { keyword, alreadySelected = [], page, limit } = input;
+  const { keyword, alreadySelected = [], page = 1, limit = 20 } = input;
   const skip = (page - 1) * limit;
   const cleanKeyword = keyword ? keyword.trim() : "";
 
+  const sanitizedExclusions = alreadySelected
+    .map((item) => item?.trim())
+    .filter((item): item is string => Boolean(item && item.length > 0));
+
   const exclusionHash = crypto
     .createHash("md5")
-    .update([...alreadySelected].sort().join(","))
+    .update([...sanitizedExclusions].sort().join(","))
     .digest("hex");
 
   const cacheKey = CACHE_KEYS.TOPICS_LOOKUP(
@@ -50,9 +57,11 @@ export const executeLookupTopics = async (
   const { topics, totalCount } = await getOrSetCache(
     cacheKey,
     async () => {
-      const filter: any = {
-        title: { $nin: alreadySelected },
-      };
+      const filter: Record<string, any> = {};
+
+      if (sanitizedExclusions.length > 0) {
+        filter.title = { $nin: sanitizedExclusions };
+      }
 
       if (cleanKeyword !== "") {
         filter.title = {
@@ -77,7 +86,7 @@ export const executeLookupTopics = async (
     300,
   );
 
-  const totalPages = Math.ceil(totalCount / limit);
+  const totalPages = Math.ceil(totalCount / limit) || 1;
   const hasNextPage = page < totalPages;
 
   return {

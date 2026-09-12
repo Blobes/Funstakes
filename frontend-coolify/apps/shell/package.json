@@ -12,6 +12,7 @@
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
     "lucide-react": "catalog:",
+    "@lucide/lab": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",

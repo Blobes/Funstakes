@@ -12,7 +12,7 @@ import { Box, Menu } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { MenuRef, GenericStyle, IMenuItem, ListType, LISTS } from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
-import { SearchBar } from "./input/Search";
+import { SearchBar } from "./inputs/Search";
 import { scrollBarStyle } from "@repo/helpers";
 import { ProgressIcon } from "./LoadingUIs";
 import { useStaticTranslation } from "@repo/shared-hooks";
@@ -103,7 +103,8 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
         sx={{
           alignItems: "center",
           padding: theme.boxSpacing(2, 0),
-        }}>
+        }}
+      >
         {cleanChildren}
       </Menu>
     );
@@ -247,7 +248,8 @@ export const DisplayList = <T extends IMenuItem>({
           maxWidth: "unset",
         },
         ...(style?.container as any),
-      }}>
+      }}
+    >
       {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (
         <SearchBar
           onChange={handleChange}
@@ -275,9 +277,11 @@ export const DisplayList = <T extends IMenuItem>({
       )}
       {feedback() ? (
         <Box
-          sx={{ width: "100%", p: theme.boxSpacing(4), textAlign: "center" }}>
+          sx={{ width: "100%", p: theme.boxSpacing(4), textAlign: "center" }}
+        >
           <TransText
-            sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}>
+            sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}
+          >
             {feedback()}
             {isSearchEmpty && (
               <b style={{ display: "block" }}>"{currentQuery}"</b>
@@ -308,7 +312,8 @@ export const DisplayList = <T extends IMenuItem>({
                 display: "flex",
                 justifyContent: "center",
                 minHeight: "40px",
-              }}>
+              }}
+            >
               {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
             </Box>
           ),

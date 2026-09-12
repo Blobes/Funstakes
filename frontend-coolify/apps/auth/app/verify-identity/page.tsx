@@ -6,6 +6,7 @@ import { IconButton, Stack } from "@mui/material";
 import {
   useBotVerification,
   useCachedData,
+  useMisc,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import {
@@ -40,6 +41,7 @@ export default function VerificationPage() {
   const { translateTxtString } = useStaticTranslation();
   const { handleLogout } = useLogout();
   const { openPopup } = usePopup();
+  const { isMobile } = useMisc();
 
   const [shouldRestrict, setShouldRestrict] = useState<boolean>(false);
   const [currStep, setCurrStep] = useState<OtpStepName>("BOT_CHALLENGE");
@@ -103,7 +105,7 @@ export default function VerificationPage() {
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
-        padding: theme.boxSpacing(20, 10),
+        padding: theme.boxSpacing(40, 15),
         minHeight: "fit-content",
       }}
     >
@@ -113,10 +115,19 @@ export default function VerificationPage() {
           <Stack
             sx={{
               flexDirection: "row",
-              gap: theme.gap(8),
-              position: "absolute",
+              gap: theme.gap(12),
+              position: "fixed",
               top: 20,
               left: 30,
+              zIndex: 20,
+              backgroundColor: theme.palette.gray[0],
+              padding: theme.boxSpacing(4),
+              borderRadius: theme.radius.full,
+              [theme.breakpoints.down("md")]: {
+                gap: theme.gap(4),
+                top: 6,
+                left: 6,
+              },
             }}
           >
             <BasicTooltip
@@ -134,15 +145,22 @@ export default function VerificationPage() {
                   padding: theme.boxSpacing(4, 4),
                   color: theme.palette.gray[300],
                   flex: "none",
+                  "& svg": {
+                    stroke: theme.palette.gray[300],
+                  },
+                  [theme.breakpoints.down("md")]: {
+                    width: 36,
+                    height: 36,
+                  },
                 }}
                 onClick={() => {
                   openPopup("CONFIRM_SESSION_TERMINATION");
                 }}
               >
-                <ArrowLeft size={28} stroke={theme.palette.gray[300]} />
+                <ArrowLeft size={isMobile ? 22 : 26} />
               </IconButton>
             </BasicTooltip>
-            <AppLogo />
+            <AppLogo size={isMobile ? 36 : 40} />
           </Stack>
 
           {/* Verification UI View */}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from "react";
-import { Box } from "@mui/material";
+import { Box, SxProps, Theme } from "@mui/material";
 import { Heart } from "lucide-react";
 import { heartPop, vibrate } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
@@ -108,7 +108,8 @@ export const ElementTap = ({
         height: "100%",
         touchAction: "pan-y",
         ...style,
-      }}>
+      }}
+    >
       {showHeart && (
         <Box
           sx={{
@@ -118,7 +119,8 @@ export const ElementTap = ({
             pointerEvents: "none",
             animation: `${heartPop} 1.2s linear alternate`,
             zIndex: 5,
-          }}>
+          }}
+        >
           <Heart
             size={iconSize}
             style={{
@@ -129,6 +131,37 @@ export const ElementTap = ({
           />
         </Box>
       )}
+      {children}
+    </Box>
+  );
+};
+
+export interface DisabledClickWrapperProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  style?: GenericStyle;
+}
+/**
+ * Wraps disabled UI elements to capture click events despite native browser event suppression.
+ */
+export const DisabledClickWrapper: React.FC<DisabledClickWrapperProps> = ({
+  children,
+  onClick,
+  style,
+}) => {
+  return (
+    <Box
+      onClick={onClick}
+      sx={{
+        width: "100%",
+        pointerEvents: "auto",
+        cursor: "not-allowed",
+        "& > *": {
+          pointerEvents: "none",
+        },
+        ...style,
+      }}
+    >
       {children}
     </Box>
   );

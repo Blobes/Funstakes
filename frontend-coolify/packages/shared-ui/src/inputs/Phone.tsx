@@ -12,6 +12,7 @@ import {
 } from "@repo/shared-hooks";
 import { BasicTooltip } from "../Tooltips";
 import { InputEventHandlers, InputProps, styleConfig } from "./Dynamic";
+import { DisabledClickWrapper } from "../ElementTap";
 
 export interface PhoneInputProps extends InputProps, InputEventHandlers {
   includeCountryCode?: boolean;
@@ -38,6 +39,7 @@ export const PhoneInput = ({
   onBlur,
   onFocus,
   onClearInlineMsg,
+  onDisabledClick,
   style,
 }: PhoneInputProps) => {
   const theme = useTheme();
@@ -70,7 +72,7 @@ export const PhoneInput = ({
   const showResetIcon = allowReset && value && value?.length > 0;
   const showTooltip = tooltipGuide && (!value || value?.length === 0);
 
-  return (
+  const renderInputField = () => (
     <Box sx={{ position: "relative", width: "100%" }}>
       <TextField
         inputRef={inputRef}
@@ -190,5 +192,13 @@ export const PhoneInput = ({
         />
       )}
     </Box>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

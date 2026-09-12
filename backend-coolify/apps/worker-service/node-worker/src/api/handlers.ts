@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import { TopicModel } from "@repo/database";
 import { POST_STRATEGIES } from "../helpers/postStrategies";
-import { FinalizePostReq, INVALIDATE_CACHE } from "@repo/shared";
+import {
+  executeTopicsFetch,
+  FinalizePostReq,
+  INVALIDATE_CACHE,
+} from "@repo/shared";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
 
 /**
@@ -14,7 +19,6 @@ export const handlePostFinalizer = async (
   const { postId, postType, userId, caption, media, modResult, event } =
     req.body as FinalizePostReq;
 
-  // Dynamically compound the strategies matching mapping variants safely
   const strategyKey = `${postType}_${event}`;
   const strategy = POST_STRATEGIES[strategyKey as keyof typeof POST_STRATEGIES];
 
@@ -53,7 +57,6 @@ export const handlePostFinalizer = async (
         invalidateGlobalFirstPage: true,
       });
     }
-    console.log(modResult);
 
     res.status(200).json({ success: true, data: updatedData });
   } catch (error: any) {
@@ -64,5 +67,26 @@ export const handlePostFinalizer = async (
     res.status(500).json({ error: "State update transaction failed" });
   } finally {
     session.endSession();
+  }
+};
+
+/**
+ * Fetches all registered topic names from MongoDB for the Go moderation worker.
+ */
+export const handleFetchTopics = async (
+  _req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const serviceResult = await executeTopicsFetch({});
+
+    const topicNames = (serviceResult.payload || []).map(
+      (t: { title: string }) => t.title,
+    );
+
+    res.status(200).json({ success: true, topics: topicNames });
+  } catch (error: any) {
+    console.error(`Failed to fetch topics for Go worker: ${error.message}`);
+    res.status(500).json({ success: false, topics: [] });
   }
 };

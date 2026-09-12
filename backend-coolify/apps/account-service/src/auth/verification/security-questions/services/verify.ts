@@ -1,6 +1,6 @@
 import { SecurityQuestionModel } from "@repo/database";
 import {
-  determineCheckType,
+  detectIdentifierType,
   fetchSingleUser,
   MESSAGES_REGISTRY,
   TransInfo,
@@ -12,12 +12,13 @@ export interface IAnswerPair {
   answer: string;
 }
 
-export interface IVerifySecurityQuestionsInput {
-  identifier: string;
+export interface IVerificationInput {
+  userId?: string;
+  identifier?: string;
   answers: IAnswerPair[];
 }
 
-export interface IVerifySecurityQuestionsResult {
+export interface IVerificationResult {
   status:
     | "SUCCESS"
     | "MISSING_INPUT"
@@ -36,11 +37,12 @@ export interface IVerifySecurityQuestionsResult {
  * Validates provided answers against stored security question hashes.
  */
 export const executeVerifySecurityQuestions = async (
-  input: IVerifySecurityQuestionsInput,
-): Promise<IVerifySecurityQuestionsResult> => {
-  const { identifier, answers } = input;
+  input: IVerificationInput,
+): Promise<IVerificationResult> => {
+  const { identifier, answers, userId } = input;
 
   if (
+    !userId ||
     !identifier ||
     !answers ||
     !Array.isArray(answers) ||
@@ -53,8 +55,8 @@ export const executeVerifySecurityQuestions = async (
     };
   }
 
-  const isEmail = determineCheckType(identifier) === "EMAIL";
-  const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
+  const isEmail = detectIdentifierType(identifier) === "EMAIL";
+  const isPhone = detectIdentifierType(identifier) === "PHONE_NUMBER";
 
   if (!isEmail && !isPhone) {
     return {

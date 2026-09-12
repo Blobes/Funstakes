@@ -7,13 +7,15 @@ import { Stack } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
 import { usePopup } from "@repo/features";
 import { TrendingPosts } from "./TrendingPosts";
-import { useGlobalStore } from "@repo/core";
+import { AUTH_BUTTON_LABELS, useGlobalStore } from "@repo/core";
 import { DisplayFeedbackUI } from "@repo/shared-ui";
+import { useStaticTranslation } from "../../../../packages/shared-hooks";
 
 export default function LoginPage() {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
   const { openPopup } = usePopup();
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Stack
@@ -29,7 +31,8 @@ export default function LoginPage() {
           padding: theme.boxSpacing(0),
           minHeight: "unset",
         },
-      }}>
+      }}
+    >
       {authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY" ? (
         <Stack
           sx={{
@@ -58,7 +61,8 @@ export default function LoginPage() {
               scrollbarWidth: "none",
               "&::-webkit-scrollbar": { display: "none" },
             },
-          }}>
+          }}
+        >
           <Login
             style={{
               container: {
@@ -84,7 +88,7 @@ export default function LoginPage() {
         <DisplayFeedbackUI
           type="ALREADY_LOGGED_IN"
           secondaryCta={{
-            label: "Logout",
+            label: translateTxtString(AUTH_BUTTON_LABELS.logout),
             action: () => openPopup("CONFIRM_LOGOUT"),
           }}
         />

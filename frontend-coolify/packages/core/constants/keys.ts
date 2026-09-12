@@ -9,6 +9,10 @@ export const QUERY_KEYS = {
     identifier,
     userId,
   ],
+  SECURITY_QUESTIONS_CONFIG: (identifier?: string) => [
+    "security_questions",
+    identifier,
+  ],
 } as const;
 
 export const STORAGE_KEYS = {

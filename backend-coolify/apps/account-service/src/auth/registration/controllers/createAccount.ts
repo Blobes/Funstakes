@@ -48,11 +48,17 @@ export const createAccount = async (
       userAgent,
     });
 
-    if (serviceResult.status === "DEACTIVATED") {
+    const isDeactivated = serviceResult.status === "DEACTIVATED";
+
+    if (
+      isDeactivated ||
+      serviceResult.status === "CONFLICT_EMAIL_IN_USE" ||
+      serviceResult.status === "CONFLICT_PHONE_IN_USE"
+    ) {
       return res.status(409).json({
-        status: "DEACTIVATED",
+        status: isDeactivated ? "DEACTIVATED" : "ERROR",
         ...serviceResult.transInfo,
-        payload: { userId: serviceResult.userId },
+        payload: { userId: isDeactivated ? serviceResult.userId : null },
       });
     }
 
@@ -70,30 +76,14 @@ export const createAccount = async (
       refreshToken: serviceResult.refreshToken,
     });
   } catch (error: any) {
-    if (error.message === "CONFLICT_EMAIL_IN_USE") {
-      return res.status(409).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.EMAIL_CONFLICT,
-        payload: null,
-      });
-    }
-
-    if (error.message === "CONFLICT_PHONE_IN_USE") {
-      return res.status(409).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.PHONE_CONFLICT,
-        payload: null,
-      });
-    }
-
-    if (error.code === 11000) {
-      const fieldName = Object.keys(error.keyValue)[0] || "record";
-      return res.status(409).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.RECORD_ALREADY_EXISTS(fieldName),
-        payload: null,
-      });
-    }
+    // if (error.code === 11000) {
+    //   const fieldName = Object.keys(error.keyValue)[0] || "record";
+    //   return res.status(409).json({
+    //     status: "ERROR",
+    //     ...MESSAGES_REGISTRY.AUTH.RECORD_ALREADY_EXISTS(fieldName),
+    //     payload: null,
+    //   });
+    // }
     console.error("Registration Error:", error);
     return forwardError(
       next,

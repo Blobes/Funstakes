@@ -14,11 +14,13 @@ import {
   useOtpInputValidation,
   useStaticTranslation,
 } from "@repo/shared-hooks";
+import { DisabledClickWrapper } from "../ElementTap";
 
 export interface OtpInputProps {
   length?: number;
   onComplete?: (code: string) => void;
   onChange?: (code: string) => void;
+  onDisabledClick?: () => void;
   error?: boolean;
   helperText?: string;
   label?: string;
@@ -33,6 +35,7 @@ export const OtpInput = ({
   length = 6,
   onComplete,
   onChange,
+  onDisabledClick,
   error = false,
   helperText: helperText,
   label,
@@ -59,18 +62,18 @@ export const OtpInput = ({
 
   const tLabel = label ?? translateTxtString(AUTH_INPUT.label.enter_code);
 
-  return (
+  const renderInputField = () => (
     <Stack sx={{ flexDirection: "column", gap: theme.gap(4), ...style }}>
       {label && (
         <TransText
           sx={{
             ...theme.typography.text5,
             color: theme.palette.gray[200],
-          }}>
+          }}
+        >
           {tLabel}
         </TransText>
       )}
-
       <Stack sx={{ gap: theme.gap(3), flexDirection: "row" }}>
         {digits.map((digit, index) => (
           <TextField
@@ -132,5 +135,13 @@ export const OtpInput = ({
         </FormHelperText>
       )}
     </Stack>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

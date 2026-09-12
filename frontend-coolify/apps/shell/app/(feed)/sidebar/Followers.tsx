@@ -27,7 +27,8 @@ export const Followers = () => {
           sx={{
             padding: theme.boxSpacing(12, 4),
             alignItems: "center",
-          }}>
+          }}
+        >
           <ProgressIcon options={{ size: 30 }} />
         </Stack>
       ) : authUser && followers && followers.length < 1 ? (
@@ -48,7 +49,8 @@ export const Followers = () => {
             gap: "unset",
             height: "fit-content",
             padding: theme.boxSpacing(0),
-          }}>
+          }}
+        >
           {followers.map((follower) => {
             return <FollowerCard key={follower._id} follower={follower} />;
           })}
@@ -56,7 +58,9 @@ export const Followers = () => {
       ) : (
         <DisplayFeedbackUI
           type="UNKNOWN"
-          tagline={message || translateTxtString(COMMON_FEEDBACK.server_error)}
+          tagline={
+            message || translateTxtString(COMMON_FEEDBACK.server_error_tagline)
+          }
           icon={<UserMinus />}
         />
       )}

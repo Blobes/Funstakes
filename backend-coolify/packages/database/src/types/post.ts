@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 import { IContentModeration } from "./moderation";
 import { Types } from "mongoose";
-import { ILocation } from "./user";
+import { ILocation } from "./others";
 
 export type PostVisibility =
   | "DRAFT"

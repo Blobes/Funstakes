@@ -15,6 +15,11 @@ type NodeClient struct {
 	HTTPClient *http.Client
 }
 
+type TopicsResponse struct {
+	Success bool     `json:"success"`
+	Topics  []string `json:"topics"`
+}
+
 /**
  * Builds a reusable HTTP client for internal callbacks.
  */
@@ -32,7 +37,37 @@ func NewNodeClient(baseURL string) *NodeClient {
 	}
 }
 
-/* Sends the final moderation payload to a specific routing path on the Node service.
+/**
+ * Fetches existing topic names from the primary MongoDB collection via the Node backend service.
+ */
+func (nc *NodeClient) FetchDBTopics(ctx context.Context) ([]string, error) {
+	targetEndpoint := fmt.Sprintf("%s/topics", nc.BaseURL)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetEndpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed constructing fetch topics request: %w", err)
+	}
+
+	resp, err := nc.HTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("network failure fetching DB topics: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("node engine returned non-200 status fetching topics: %d", resp.StatusCode)
+	}
+
+	var res TopicsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return nil, fmt.Errorf("failed decoding topics payload: %w", err)
+	}
+
+	return res.Topics, nil
+}
+
+/**
+ * Sends the final moderation payload to a specific routing path on the Node service.
  */
 func (nc *NodeClient) DispatchFinalization(ctx context.Context, path string, payload *PostModCallbackPayload) error {
 	callbackBytes, err := json.Marshal(payload)
@@ -40,7 +75,6 @@ func (nc *NodeClient) DispatchFinalization(ctx context.Context, path string, pay
 		return fmt.Errorf("failed to marshal finalization payload: %w", err)
 	}
 
-	// Build the destination endpoint dynamically per call slice context
 	targetEndpoint := fmt.Sprintf("%s/%s", nc.BaseURL, strings.TrimLeft(path, "/"))
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetEndpoint, bytes.NewBuffer(callbackBytes))

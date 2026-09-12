@@ -2,37 +2,20 @@
 
 import { useCallback, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { AUTH_FEEDBACK, ISinglePayload, SERVER_API } from "@repo/core";
-import { apiClient } from "@repo/helpers";
-import { useStaticTranslation } from "./useTrans";
+import { AUTH_FEEDBACK } from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
+import { VerifyIdentityService } from "../services";
 
-interface CheckStatusRequest {
+interface CheckStatusInput {
   phoneNumber?: string;
 }
-
-export interface CheckStatusResponse {
-  exists: boolean;
-  phoneNumber: string;
-  waId?: string;
-}
-
-/**
- * Sends request to verify WhatsApp registration status for a target phone number.
- */
-const checkWhatsappStatus = async (
-  phoneNumber: string,
-): Promise<ISinglePayload<CheckStatusResponse>> => {
-  return await apiClient(SERVER_API.checkWhatsappStatus, {
-    method: "POST",
-    body: JSON.stringify({ phoneNumber }),
-  });
-};
 
 /**
  * Manages WhatsApp status validation and user feedback states.
  */
-export const useWhatsAppStatus = ({ phoneNumber }: CheckStatusRequest) => {
+export const useWhatsAppStatus = ({ phoneNumber }: CheckStatusInput) => {
   const { translateTxtString } = useStaticTranslation();
+  const { checkWhatsappStatus } = VerifyIdentityService();
 
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [isWhatsappActive, setIsWhatsappActive] = useState<boolean>(false);

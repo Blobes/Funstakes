@@ -20,7 +20,7 @@ import {
 import { AppButton } from "../../Buttons";
 import { TabUI } from "../../TabUI";
 import { Drawer } from "../../Drawer";
-import { SearchBar } from "../../input/Search";
+import { SearchBar } from "../../inputs/Search";
 import { TransText } from "../../Text";
 
 export interface StickerModeProps {
@@ -93,7 +93,8 @@ const StickerLibraryDrawer = ({
           <Stack
             direction="row"
             alignItems="center"
-            justifyContent="space-between">
+            justifyContent="space-between"
+          >
             <IconButton onClick={onClose}>
               <X />
             </IconButton>
@@ -109,7 +110,8 @@ const StickerLibraryDrawer = ({
               variant="contained"
               size="medium"
               onClick={onBatchAddSelected}
-              options={{ disabled: selectedLibraryIds.length === 0 }}>
+              options={{ disabled: selectedLibraryIds.length === 0 }}
+            >
               <TransText
                 {...COMMON_BUTTON_LABELS.add(selectedLibraryIds.length)}
                 noComponent
@@ -121,7 +123,8 @@ const StickerLibraryDrawer = ({
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            gap={theme.gap(2)}>
+            gap={theme.gap(2)}
+          >
             <SearchBar
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -175,7 +178,8 @@ const StickerLibraryDrawer = ({
                           ? theme.palette.gray.trans[1]
                           : "transparent",
                         transition: "background-color 0.2s ease",
-                      }}>
+                      }}
+                    >
                       {item.content}
                       {isSelected && (
                         <Check
@@ -266,7 +270,8 @@ export const StickerMode = ({
   return (
     <Box
       ref={containerRef}
-      sx={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" }}>
+      sx={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" }}
+    >
       {stickers.map((item) => {
         const isFocused = item.id === focusedStickerId;
         return (
@@ -287,7 +292,8 @@ export const StickerMode = ({
               cursor: "move",
               pointerEvents: "auto",
               userSelect: "none",
-            }}>
+            }}
+          >
             {isFocused && (
               <IconButton
                 size="small"
@@ -302,7 +308,8 @@ export const StickerMode = ({
                   backgroundColor: theme.palette.error.main,
                   color: theme.palette.common.white,
                   padding: "2px",
-                }}>
+                }}
+              >
                 <X size={12} />
               </IconButton>
             )}
@@ -325,7 +332,8 @@ export const StickerMode = ({
               transform: `translate(-50%, -${dragOffset}px) !important`,
               transition: "none !important",
             }),
-        }}>
+        }}
+      >
         <IconButton onClick={() => setIsMaximized(true)}>
           <ChevronUp />
         </IconButton>
@@ -337,7 +345,8 @@ export const StickerMode = ({
               fontSize: "24px",
               cursor: "pointer",
               padding: theme.boxSpacing(1),
-            }}>
+            }}
+          >
             {item.content}
           </Box>
         ))}

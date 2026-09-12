@@ -83,18 +83,20 @@ export const ProgressIcon = (props: ProgressProps) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: theme.gap(2),
+        gap: theme.gap(6),
         width: type === "linear" ? "100%" : "auto",
-      }}>
+      }}
+    >
       {renderProgress()}
       {label && (
         <TransText
           sx={{
-            ...theme.typography.text3,
+            ...theme.typography.text4,
             textAlign: "center",
             fontWeight: "500",
             fontStyle: "italic",
-          }}>
+          }}
+        >
           {label}
         </TransText>
       )}
@@ -111,7 +113,8 @@ export const PageLoaderUI = () => {
       style={{
         alignItems: "center",
         justifyContent: "center",
-      }}>
+      }}
+    >
       <SVGWrapper src={asset.LoadingAnimation} size={46} preserveColor />
     </RootUIContainer>
   );
@@ -151,7 +154,8 @@ export const SplashUI = ({ duration = 2500 }: SplashUIProps) => {
         alignItems: "center",
         justifyContent: "center",
         gap: theme.gap(10),
-      }}>
+      }}
+    >
       <AppLogo withName size={200} />
       <ProgressIcon
         type="linear"

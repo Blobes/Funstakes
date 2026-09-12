@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Accordion as MuiAccordion,
-  AccordionSummary as MuiAccordionSummary,
-  AccordionDetails as MuiAccordionDetails,
-  Typography,
-  Stack,
-} from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ChevronDown } from "lucide-react";
 import { GenericStyle } from "@repo/core";
@@ -36,8 +30,7 @@ export interface AccordionProps {
 }
 
 /**
- * Reusable application accordion supporting single/multi expandable sections,
- * custom styling overrides, and theme-consistent typography.
+ * Clean accordion component built with flat MUI Box and Stack layout structures.
  */
 export const Accordion = ({
   items,
@@ -49,145 +42,113 @@ export const Accordion = ({
 }: AccordionProps) => {
   const theme = useTheme();
   const [expanded, setExpanded] = useState<string[]>(defaultExpandedIds);
-
   const isExpanded = (id: string) => expanded.includes(id);
 
-  const handleChange =
-    (id: string) => (_event: React.SyntheticEvent, isNowExpanded: boolean) => {
-      if (allowMultiple) {
-        setExpanded((prev) =>
-          isNowExpanded ? [...prev, id] : prev.filter((item) => item !== id),
-        );
-      } else {
-        setExpanded(isNowExpanded ? [id] : []);
-      }
-    };
+  /**
+   * Toggles the target item's expanded state.
+   */
+  const handleToggle = (id: string, disabled?: boolean) => {
+    if (disabled) return;
+    if (allowMultiple) {
+      setExpanded((prev) =>
+        prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+      );
+    } else {
+      setExpanded((prev) => (prev.includes(id) ? [] : [id]));
+    }
+  };
 
   /**
-   * Renders either the provided custom toggle element or a Lucide ChevronDown fallback.
+   * Renders the standard chevron or provided expand icon with active rotation state.
    */
-  const renderExpandIcon = () => {
+  const renderExpandIcon = (expandedState: boolean) => {
     if (expandIcon) return expandIcon;
-
     return (
       <ChevronDown
         size={expandIconSize}
-        color={theme.palette.gray[300]}
         style={{
           transition: "transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+          transform: expandedState ? "rotate(180deg)" : "rotate(0deg)",
         }}
       />
     );
   };
 
   return (
-    <Stack
-      sx={{
-        width: "100%",
-        gap: theme.gap(4),
-        ...style?.container,
-      }}
-    >
+    <Stack sx={{ width: "100%", gap: theme.gap(4), ...style?.container }}>
       {items.map((item) => {
         const expandedState = isExpanded(item.id);
+
         return (
-          <MuiAccordion
+          <Stack
             key={item.id}
-            expanded={expandedState}
-            onChange={handleChange(item.id)}
-            disabled={item.disabled}
-            disableGutters
-            elevation={0}
-            square={false}
             sx={{
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: theme.radius[2],
-              border: `1px solid ${theme.palette.gray[100]}`,
+              width: "100%",
               overflow: "hidden",
-              transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-              "&:before": {
-                display: "none",
-              },
-              "&:hover": {
-                borderColor: theme.palette.gray[200],
-              },
-              "&.Mui-expanded": {
-                borderColor: theme.palette.primary.main,
-                // boxShadow: theme.shadows[1],
-              },
-              "&.Mui-disabled": {
-                backgroundColor: theme.palette.action.disabledBackground,
-                opacity: 0.6,
-              },
+              opacity: item.disabled ? 0.6 : 1,
               ...style?.item,
             }}
           >
-            <MuiAccordionSummary
-              expandIcon={renderExpandIcon()}
+            {/* Summary / Header */}
+            <Box
+              role="button"
+              tabIndex={item.disabled ? -1 : 0}
+              aria-expanded={expandedState}
+              aria-disabled={item.disabled}
+              onClick={() => handleToggle(item.id, item.disabled)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleToggle(item.id, item.disabled);
+                }
+              }}
               sx={{
-                padding: theme.boxSpacing(6, 8),
-                minHeight: "unset",
-                "& .MuiAccordionSummary-content": {
-                  margin: 0,
-                  gap: theme.gap(4),
-                  alignItems: "center",
-                  "&.Mui-expanded": {
-                    margin: 0,
-                  },
-                },
-                "& .MuiAccordionSummary-expandIconWrapper": {
-                  transition: "transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                  "&.Mui-expanded": {
-                    transform: "rotate(180deg)",
-                  },
-                },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: theme.boxSpacing(8),
+                gap: theme.gap(4),
+                cursor: item.disabled ? "not-allowed" : "pointer",
+                borderRadius: theme.radius[2],
+                backgroundColor: theme.palette.gray.trans[1],
+                "& svg": { stroke: theme.palette.gray[300] },
                 ...style?.summary,
               }}
             >
-              <Stack sx={{ flex: 1, gap: theme.gap(1) }}>
-                {typeof item.title === "string" ? (
-                  <Typography
-                    sx={{
-                      ...theme.typography.text3,
-                      fontWeight: 600,
-                      color: theme.palette.text.primary,
-                    }}
-                  >
-                    {item.title}
-                  </Typography>
-                ) : (
-                  item.title
-                )}
+              {item.icon && item.icon}
 
-                {item.subtitle &&
-                  (typeof item.subtitle === "string" ? (
-                    <Typography
-                      sx={{
-                        ...theme.typography.text5,
-                        color: theme.palette.gray[200],
-                      }}
-                    >
-                      {item.subtitle}
-                    </Typography>
-                  ) : (
-                    item.subtitle
-                  ))}
+              <Stack sx={{ gap: theme.gap(2) }}>
+                {item.title}
+                {item.subtitle && item.subtitle}
               </Stack>
 
-              {item.icon}
-            </MuiAccordionSummary>
+              {renderExpandIcon(expandedState)}
+            </Box>
 
-            <MuiAccordionDetails
+            {/* Flat Collapsible Content Container */}
+            <Box
               sx={{
-                padding: theme.boxSpacing(0, 8, 6, 8),
-                ...theme.typography.text4,
-                color: theme.palette.text.secondary,
-                ...style?.details,
+                display: "grid",
+                gridTemplateRows: expandedState ? "1fr" : "0fr",
+                transition:
+                  "grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                overflow: "hidden",
               }}
             >
-              {item.content}
-            </MuiAccordionDetails>
-          </MuiAccordion>
+              <Stack
+                sx={{
+                  minHeight: 0,
+                  gap: theme.gap(4),
+                  visibility: expandedState ? "visible" : "hidden",
+                  cursor: "pointer",
+                  transition: " visibility 0.2s ease",
+                  ...style?.details,
+                }}
+              >
+                {item.content}
+              </Stack>
+            </Box>
+          </Stack>
         );
       })}
     </Stack>

@@ -1,5 +1,5 @@
 import { Model, Schema, model } from "mongoose";
-import { IUserPreferredTopic } from "../../../types/misc";
+import { IUserPreferredTopic } from "../../../types/others";
 import { IUserSettingsDocument } from "../../../types/user";
 
 /**
@@ -16,6 +16,11 @@ const PreferredTopicSchema = new Schema<IUserPreferredTopic>(
       type: String,
       required: true,
       trim: true,
+    },
+    addedBy: {
+      type: String,
+      enum: ["USER", "SYSTEM", "ADMIN"],
+      default: "SYSTEM",
     },
     lastViewed: {
       type: Date,
@@ -95,7 +100,6 @@ const UserSettingsSchema = new Schema<IUserSettingsDocument>(
       },
       localization: {
         language: { type: String, default: "en" },
-        region: { type: String, default: "US" },
         currency: { type: String, default: "USD" },
       },
       contentPreferences: {

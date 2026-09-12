@@ -138,7 +138,6 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     about: { type: String, default: null },
     occupation: { type: String, default: null },
     relationship: { type: String, default: null },
-    interests: { type: [String], default: [] },
     website: { type: String, default: null },
     address: { type: String, default: null },
 
@@ -156,6 +155,8 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       city: { type: String, default: null },
       state: { type: String, default: null },
       country: { type: String, default: null },
+      region: { type: String, default: null },
+      continent: { type: String, default: null },
       type: {
         type: String,
         enum: ["Point"],

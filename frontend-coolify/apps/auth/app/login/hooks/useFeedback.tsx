@@ -232,7 +232,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       }
       setInlineMsg?.(
         error?.localizedErrMsg ||
-          translateTxtString(COMMON_FEEDBACK.server_error),
+          translateTxtString(COMMON_FEEDBACK.server_error_tagline),
       );
     },
     [translateTxtString],

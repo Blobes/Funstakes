@@ -13,6 +13,7 @@ import { GenericStyle } from "@repo/core";
 import { scrollBarStyle } from "@repo/helpers";
 import { useVirtualKeyboard } from "@repo/shared-hooks";
 import { InputEventHandlers, InputProps } from "./Dynamic";
+import { DisabledClickWrapper } from "../ElementTap";
 
 interface TextAreaProps extends InputProps, InputEventHandlers {
   maxRows?: number;
@@ -83,9 +84,11 @@ export const ResponsiveTextarea = ({
   label,
   value = "",
   maxLength = null,
-  onChange: onChange,
+  disabled = false,
+  onChange,
   onFocus,
   onBlur,
+  onDisabledClick,
 }: TextAreaProps) => {
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -100,7 +103,7 @@ export const ResponsiveTextarea = ({
 
   const shrink = focused || value.length > 0;
 
-  return (
+  const renderInputField = () => (
     <Box sx={{ position: "relative", width: "100%" }}>
       {label && (
         <StyledLabel htmlFor="textarea" shrink={shrink}>
@@ -122,7 +125,8 @@ export const ResponsiveTextarea = ({
                   stroke: theme.palette.primary.dark,
                 },
               }),
-          }}>
+          }}
+        >
           <Keyboard size={18} />
         </IconButton>
       )}
@@ -150,5 +154,13 @@ export const ResponsiveTextarea = ({
         }}
       />
     </Box>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

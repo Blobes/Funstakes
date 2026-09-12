@@ -74,7 +74,8 @@ type OpenRouterRequest struct {
 	ResponseFormat OpenRouterResponseFormat `json:"response_format"`
 }
 
-/* Returns the structural validation JSON schema format compliant with OpenRouter specification standards.
+/**
+ * Returns the structural validation JSON schema format compliant with OpenRouter specification standards.
  */
 func getModerationResponseSchema() *ResponseFormatSchemaWrapper {
 	return &ResponseFormatSchemaWrapper{
@@ -115,9 +116,10 @@ func getModerationResponseSchema() *ResponseFormatSchemaWrapper {
 	}
 }
 
-/* Initializes a new instance of the OpenRouter moderation processor.
+/**
+ * Initializes a new instance of the OpenRouter moderation processor with active database topics awareness.
  */
-func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []string, fallbackModels []string) (*Moderator, error) {
+func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []string, fallbackModels []string, existingDBTopics []string) (*Moderator, error) {
 	textCriticalJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityCritical])
 	textModerateJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityModerate])
 	textLowJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityLow])
@@ -126,12 +128,20 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 	mediaModerateJSON, _ := json.Marshal(GlobalContentPolicy.Media.Rules[SeverityModerate])
 	mediaLowJSON, _ := json.Marshal(GlobalContentPolicy.Media.Rules[SeverityLow])
 
+	existingTopicsFormatted := "NONE (Database has no active topics yet)"
+	if len(existingDBTopics) > 0 {
+		existingTopicsFormatted = strings.Join(existingDBTopics, ", ")
+	}
+
 	systemInstructionText := fmt.Sprintf(`
 		Role: Senior Content Safety & Taxonomy Discovery Engine.
 
 		OUTPUT FORMAT RULES:
 		- You must output exactly and ONLY a valid JSON object matching the requested schema.
 		- Do NOT include conversational text prefixes or suffixes.
+
+		EXISTING SYSTEM TOPICS IN DATABASE:
+		[%s]
 
 		CORE OPERATION MODES (Look at the "Mode:" variable passed in the prompt):
 		1. EXTRACT_KEYWORDS_ONLY: You must completely bypass safety policy evaluation. Do NOT look for rules violations. Set isFlagged to false, severity to "NONE", ruleViolated to "", and violationSource to "NONE". Your sole job is to process the fields to populate extractedKeywords.
@@ -153,9 +163,14 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 		- LOW MEDIA RULES: %s
 
 		TAXONOMY EXTRACTION RULES (extractedKeywords):
-		- If the operational mode requests keyword extraction (EXTRACT_KEYWORDS_ONLY or MODERATE_AND_EXTRACT_KEYWORDS), extract exactly 2 relevant thematic topics or categories from the post payload content into extractedKeywords.
+		- If the operational mode requests keyword extraction (EXTRACT_KEYWORDS_ONLY or MODERATE_AND_EXTRACT_KEYWORDS), analyze the post payload caption and media assets to extract up to 3 relevant thematic topics.
+		- STRICT TOPIC SELECTION HIERARCHY:
+		  1. FIRST, check the "EXISTING SYSTEM TOPICS IN DATABASE" list provided above. If the post content matches or closely relates to any of those existing topics, YOU MUST PICK AND USE THOSE EXACT TOPIC NAMES IN THE DB.
+		  2. ONLY if the topics perceived in the post are SIGNIFICANTLY DIFFERENT from every topic listed in the database are you permitted to generate entirely new topic names.
+		- Ensure all extracted topics are distinct, descriptive and not more than two (2) words.
 		- If the mode is MODERATE_ONLY, do NOT extract new topics; leave the extractedKeywords array completely empty.
 		`,
+		existingTopicsFormatted,
 		textCriticalJSON, textModerateJSON, textLowJSON,
 		mediaCriticalJSON, mediaModerateJSON, mediaLowJSON,
 	)
@@ -169,14 +184,15 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 	}, nil
 }
 
-/* Closes connections gracefully (Kept for interface compatibility signatures).
+/**
+ * Closes connections gracefully.
  */
 func (gm *Moderator) Close() {}
 
-/*
-Evaluates full post content packages using OpenRouter's multimodal routing pipelines.
-Rotates through models in sequential chunks of 3 if primary routing paths fail.
-*/
+/**
+ * Evaluates full post content packages using OpenRouter's multimodal routing pipelines.
+ * Rotates through models in sequential chunks of 3 if primary routing paths fail.
+ */
 func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModData, mediaTarget []MediaInput, mode string) (ValidationResult, error) {
 	if len(gm.primaryModels) == 0 {
 		return ValidationResult{}, fmt.Errorf("no primary operational models supplied to infrastructure config")
@@ -185,7 +201,6 @@ func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModDat
 	allModels := append([]string{}, gm.primaryModels...)
 	allModels = append(allModels, gm.fallbackModels...)
 
-	// Enforce a strict overall processing limit across all connection attempts
 	loopCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
@@ -194,11 +209,9 @@ func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModDat
 	requestSuccessful := false
 	const maxChunkSize = 3
 
-	// Reuse a single client instance with a shorter individual request deadline
 	client := &http.Client{Timeout: 25 * time.Second}
 
 	for i := 0; i < len(allModels); i += maxChunkSize {
-		// Check if the overall operation context has already expired before starting a new chunk
 		if loopCtx.Err() != nil {
 			lastErr = fmt.Errorf("overall moderation lifecycle deadline exceeded: %w", loopCtx.Err())
 			break
@@ -289,7 +302,6 @@ func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModDat
 			continue
 		}
 
-		// Handle inner execution scope stream allocations manually to support sequential chunk retry blocks cleanly
 		err = func() error {
 			defer resp.Body.Close()
 

@@ -9,7 +9,8 @@ export const VerifyIdentityPreview = () => {
   return (
     <VerifyIdentity
       transitData={mockTransitData("MFA_ACTIVATION")}
-      customMethods={["MESSAGING", "TOTP", "SECURITY_QUESTIONS"]}
+      // customMethods={["MESSAGING", "TOTP", "SECURITY_QUESTIONS"]}
+
       onSuccess={() => console.log("Verification succeeded")}
       onRateLimitExceeded={() => console.warn("Rate limit exceeded")}
       isBotChallengeAllowed={() => false}

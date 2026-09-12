@@ -4,7 +4,7 @@ export * from "./types/post";
 export * from "./types/media";
 export * from "./types/device";
 export * from "./types/moderation";
-export * from "./types/misc";
+export * from "./types/others";
 export * from "./types/authorization";
 
 // Constants
@@ -42,3 +42,5 @@ export * from "./models/non-entities/topic";
 export * from "./models/non-entities/logs";
 
 export * from "./models/non-entities/securityQuestions";
+
+export * from "./migration/syncTopics";

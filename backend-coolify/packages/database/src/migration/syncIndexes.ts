@@ -30,6 +30,7 @@ import { BlockedModel, FollowModel } from "../models/non-entities/socials";
 import { TopicModel } from "../models/non-entities/topic";
 import { RelationTupleModel } from "../models/non-entities/authorization/relation";
 import { SubscriptionModel } from "../models/non-entities/identity/subscription";
+import { SecurityQuestionModel } from "../models/non-entities/securityQuestions";
 
 const MONGO_URI = process.env.MONGO_URI || "";
 
@@ -69,6 +70,7 @@ async function syncIndexes(): Promise<void> {
     await PostViewModel.syncIndexes();
     await RelationTupleModel.syncIndexes();
     await SubscriptionModel.syncIndexes();
+    await SecurityQuestionModel.syncIndexes();
 
     // Moderation Models
     await ModerationCaseModel.syncIndexes();

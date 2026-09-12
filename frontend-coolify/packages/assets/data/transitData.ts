@@ -51,8 +51,8 @@ export const mockTransitData = (
       {
         transitId: "mfa_activation_preview_session",
         purpose: "MFA_ACTIVATION",
-        identifier: "developer@example.com",
-        otpMessageChannel: "EMAIL",
+        identifier: "+23456789012",
+        otpMessageChannel: "SMS",
         verificationMethod: "TOTP",
         reason: "UNTRUSTED_DEVICE",
         dispatchOnload: false,

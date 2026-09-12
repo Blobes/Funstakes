@@ -10,6 +10,8 @@ export type AccountStatus =
 // | "NOT_ONBOARDED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
+export type UserTopicAddedBy = "USER" | "SYSTEM" | "ADMIN";
+
 export type ChangedByType = ModeratorType | "OWNER";
 
 export type EntityType =
@@ -64,12 +66,14 @@ export interface IBlockedUserDocument extends Document {
  * Interface defining topic preference tracking subdocument.
  */
 export interface IUserPreferredTopic {
-  topicId: Types.ObjectId;
+  topicId: Types.ObjectId | string;
   title: string;
+  addedBy?: UserTopicAddedBy;
   lastViewed?: Date;
 }
 export interface ITopicDocument extends Document {
   title: string;
+  oldTitle?: string | null;
   userCount: number;
   postCount: number;
   createdAt: Date;
@@ -85,4 +89,15 @@ export interface ISecurityQuestionDocument extends Document {
   questions: ISecurityQuestionItem[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ILocation {
+  continent?: string | null;
+  name?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  region?: string | null;
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
 }

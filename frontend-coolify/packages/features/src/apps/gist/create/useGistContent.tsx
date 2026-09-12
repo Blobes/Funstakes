@@ -10,6 +10,7 @@ import {
   MenuRef,
   POST_FEEDBACK,
   PostStepName,
+  SNACKBAR_DURATION,
   StepperProps,
   useGlobalStore,
 } from "@repo/core";
@@ -122,7 +123,7 @@ export const useGistContent = ({
               : POST_FEEDBACK.published_success_tagline("Gist"),
           ),
           behavior: "TIMED",
-          duration: 5,
+          duration: SNACKBAR_DURATION.SECS_6,
           hasClose: true,
         },
       });
@@ -146,7 +147,7 @@ export const useGistContent = ({
             : POST_FEEDBACK.content_violation_tagline,
         ),
         behavior: "TIMED",
-        duration: 6,
+        duration: SNACKBAR_DURATION.SECS_6,
         hasClose: true,
       },
     });
@@ -164,6 +165,7 @@ export const useGistContent = ({
             translateTxtString(POST_FEEDBACK.creation_failed_tagline("Gist")),
           behavior: "TIMED",
           hasClose: true,
+          duration: SNACKBAR_DURATION.SECS_6,
         },
       });
     }
@@ -197,7 +199,7 @@ export const useGistContent = ({
         headline: translateTxtString(COMMON_MEDIA.media_transfer_progress),
         customContent: <MediaUploadTracker uploadStates={uploadStatesOnly} />,
         behavior: hasActiveUploads ? "FIXED" : "TIMED",
-        duration: hasActiveUploads ? undefined : 4,
+        duration: hasActiveUploads ? undefined : SNACKBAR_DURATION.SECS_6,
       },
     });
   }, [processingStates, moderationTrackingId, setSBMessage]);
@@ -217,6 +219,7 @@ export const useGistContent = ({
             <span>Analyzing text and attachments against system rules...</span>
           </div>
         ),
+        duration: SNACKBAR_DURATION.SECS_6,
       },
     });
   }, [moderationTrackingId, setSBMessage]);
@@ -272,7 +275,7 @@ export const useGistContent = ({
               POST_FEEDBACK.published_success_tagline("Gist"),
             ),
             behavior: "TIMED",
-            duration: 5,
+            duration: SNACKBAR_DURATION.SECS_6,
             hasClose: true,
           },
         });
@@ -291,7 +294,9 @@ export const useGistContent = ({
     },
     onError: (error: ApiError) => {
       console.error("Post publication failed:", error);
-      const fallbackError = translateTxtString(COMMON_FEEDBACK.server_error);
+      const fallbackError = translateTxtString(
+        COMMON_FEEDBACK.server_error_tagline,
+      );
       const errorMsg = error.localizedErrMsg || error.message || fallbackError;
       setInlineErrMsg(errorMsg);
     },

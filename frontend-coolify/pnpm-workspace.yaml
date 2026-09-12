@@ -12,7 +12,8 @@ catalog:
   eslint: ^9.39.1
   colorthief: ^2.6.0
   idb-keyval: ^6.2.2
-  lucide-react: ^0.562.0
+  lucide-react: 1.44.0
+  "@lucide/lab": 0.2.0
   socket.io-client: "4.8.3"
   dotenv-cli: ^8.0.0
   framer-motion: ^12.35.1

@@ -7,9 +7,11 @@ import { FileUp } from "lucide-react";
 import { COMMON_INPUT, ITranslation } from "@repo/core";
 import { TransText } from "../Text";
 import { useStaticTranslation } from "@repo/shared-hooks";
+import { DisabledClickWrapper } from "../ElementTap";
 
 export interface FileInputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onDisabledClick?: () => void;
   multiple?: boolean;
   accept?: string;
   disabled?: boolean;
@@ -28,6 +30,7 @@ export const FileInput = ({
   disabled = false,
   selectedCount = 0,
   placeholder,
+  onDisabledClick,
   required,
 }: FileInputProps) => {
   const theme = useTheme();
@@ -36,7 +39,7 @@ export const FileInput = ({
     placeholder ??
     translateTxtString(COMMON_INPUT.placeholder.choose_media_file);
 
-  return (
+  const renderInputField = () => (
     <Box
       sx={{
         border: `1px dashed ${theme.palette.gray[100]}`,
@@ -48,7 +51,8 @@ export const FileInput = ({
         gap: theme.gap(4),
         alignItems: "center",
         width: "100%",
-      }}>
+      }}
+    >
       <Box
         component="label"
         sx={{
@@ -56,7 +60,8 @@ export const FileInput = ({
           alignItems: "center",
           cursor: disabled ? "not-allowed" : "pointer",
           width: "100%",
-        }}>
+        }}
+      >
         <FileUp
           size={20}
           style={{ marginRight: "8px", stroke: theme.palette.gray[200] }}
@@ -76,7 +81,8 @@ export const FileInput = ({
               ...theme.typography.text3,
               color: theme.palette.gray[200],
               flexGrow: 1,
-            }}>
+            }}
+          >
             {tPlaceholer}
           </TransText>
         )}
@@ -91,5 +97,13 @@ export const FileInput = ({
         />
       </Box>
     </Box>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

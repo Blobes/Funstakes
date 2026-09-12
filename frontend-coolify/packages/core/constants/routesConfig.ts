@@ -154,6 +154,7 @@ export const SERVER_API = {
   setupTotp: `${API_BASE.auth}/totp/setup`,
   verifyTotp: `${API_BASE.auth}/totp/verify`,
   setupSecurityQuestions: `${API_BASE.auth}/security-questions/setup`,
+  fetchSecurityQuestions: `${API_BASE.auth}/security-questions`,
   verifySecurityQuestions: `${API_BASE.auth}/security-questions/verify`,
   verifyBot: `${API_BASE.auth}/verify-bot`,
   checkWhatsappStatus: `${API_BASE.auth}/whatsapp-status`,

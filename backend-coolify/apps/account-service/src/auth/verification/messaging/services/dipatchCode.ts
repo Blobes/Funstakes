@@ -10,6 +10,7 @@ import {
   dispatchWhatsAppOtp,
   dispatchSmsOtp,
   checkOtpCooldown,
+  detectIdentifierType,
 } from "@repo/shared";
 
 interface ISendOtpInput {
@@ -51,6 +52,8 @@ export const executeOtpDispatch = async (
     };
   }
 
+  const detectedType = detectIdentifierType(recipient);
+
   if (
     messageChannel !== "EMAIL" &&
     messageChannel !== "SMS" &&
@@ -62,7 +65,7 @@ export const executeOtpDispatch = async (
     };
   }
 
-  const isEmail = messageChannel === "EMAIL";
+  const isEmail = messageChannel === "EMAIL" && detectedType === "EMAIL";
 
   // Bypassing default document transformations to perform administrative context operations
   const user = await fetchSingleUser({

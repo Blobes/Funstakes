@@ -7,12 +7,12 @@ export * from "./src/apps/auth/verify-identity/useNavigation";
 // Verify Identity
 export * from "./src/apps/auth/verify-identity/useVerifyIdentity";
 export * from "./src/apps/auth/verify-identity/VerifyIdentity";
-export * from "./src/apps/auth/verify-identity/EndSession";
+export * from "./src/apps/auth/verify-identity/Session";
 export * from "./src/apps/auth/verify-identity/totp/useTotp";
 export * from "./src/apps/auth/verify-identity/totp/Totp";
 export * from "./src/apps/auth/verify-identity/messaging/useMessaging";
 export * from "./src/apps/auth/verify-identity/messaging/MessagingOtp";
-export * from "./src/apps/auth/verify-identity/service";
+export * from "./src/apps/auth/verify-identity/services";
 // Gist
 export * from "./src/apps/gist/view/hooks/useGists";
 export * from "./src/apps/gist/view/hooks/useGistState";

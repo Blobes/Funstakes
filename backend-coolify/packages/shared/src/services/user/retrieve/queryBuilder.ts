@@ -2,7 +2,7 @@ import mongoose, { Query, QueryFilter } from "mongoose";
 import { IUserDocument, UserModel } from "@repo/database";
 import { InputCheckType } from "../../../types/general";
 import { normalizeValue, transformToASCII } from "../../../utils/hash";
-import { determineCheckType } from "../../../utils/sanitizeData";
+import { detectIdentifierType } from "../../../utils/sanitizeData";
 
 export interface BuildQueryOptions {
   identifier?: string | mongoose.Types.ObjectId;
@@ -42,8 +42,7 @@ export class UserQueryBuilder {
       }
 
       const formattedValue = normalizeValue(identifier.toString());
-      const checkType =
-        identifierType || determineCheckType(identifier.toString());
+      const checkType = identifierType || detectIdentifierType(formattedValue);
 
       if (checkType === "EMAIL") {
         return UserModel.findByEmail({

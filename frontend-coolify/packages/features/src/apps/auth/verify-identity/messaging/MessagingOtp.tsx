@@ -21,19 +21,7 @@ import { useMisc } from "@repo/shared-hooks";
 import { asset } from "@repo/assets";
 import { useMessagingOtp } from "./useMessaging";
 import { BaseVerificationProps } from "../useVerifyIdentity";
-
-const getChannelLabel = (ch: OtpMessageChannel): string => {
-  switch (ch) {
-    case "EMAIL":
-      return "Email";
-    case "WHATSAPP":
-      return "WhatsApp";
-    case "SMS":
-      return "SMS";
-    default:
-      return ch;
-  }
-};
+import { MailCheck, MessageSquareDot } from "lucide-react";
 
 export const MessagingOtpView = <P extends TransitPurpose>(
   props: BaseVerificationProps<P>,
@@ -53,11 +41,10 @@ export const MessagingOtpView = <P extends TransitPurpose>(
     switchChannel,
     recipient,
     inlineMsg,
-    isSmsAllowed,
-    isWhatsappActive,
-    allowedChannels,
+    alternativeChannels,
     isSending,
     isCheckingWhatsapp,
+    isMfaActivationPurpose,
   } = useMessagingOtp(props);
 
   const channelText =
@@ -68,14 +55,16 @@ export const MessagingOtpView = <P extends TransitPurpose>(
         ? "your WhatsApp account"
         : "your Phone number");
 
-  const alternativeChannels = allowedChannels.filter(
-    (ch) =>
-      ch !== msgChannel &&
-      (ch !== "SMS" || isSmsAllowed) &&
-      (ch !== "WHATSAPP" || isWhatsappActive),
-  );
+  const headlineText = isMfaActivationPurpose
+    ? AUTH_FEEDBACK.mfa_setup_with_msg_channel(msgChannel)
+    : AUTH_FEEDBACK.verify_with_msg_channel(msgChannel);
 
   const isBusy = isSending || isCheckingWhatsapp;
+
+  const iconStyle = {
+    width: isDesktop ? 60 : 50,
+    marginBottom: theme.boxSpacing(12),
+  };
 
   return (
     <Stack
@@ -87,27 +76,36 @@ export const MessagingOtpView = <P extends TransitPurpose>(
       }}
     >
       <Stack
-        sx={{ gap: theme.gap(2), textAlign: "center", alignItems: "center" }}
+        sx={{
+          gap: theme.gap(2),
+          width: "100%",
+          textAlign: "center",
+          alignItems: "center",
+        }}
       >
-        <SVGWrapper
-          src={asset.hashedStars}
-          size={100}
-          color={theme.palette.primary.dark}
-          fallbackUIType="SKELETON"
-          sx={{
-            height: "unset",
-            padding: theme.boxSpacing(8),
-            marginBottom: theme.boxSpacing(8),
-            background: theme.fixedColors.pTrans,
-            borderRadius: theme.radius[3],
-            flex: "none",
-            alignSelf: "center",
-          }}
-        />
+        {msgChannel === "EMAIL" ? (
+          <MailCheck size={iconStyle.width} style={{ ...iconStyle }} />
+        ) : msgChannel === "SMS" ? (
+          <MessageSquareDot size={iconStyle.width} style={{ ...iconStyle }} />
+        ) : (
+          <SVGWrapper
+            src={asset.whatsapp}
+            size={iconStyle.width}
+            color={theme.palette.gray[200]}
+            fallbackUIType="SKELETON"
+            sx={{
+              height: "unset",
+              flex: "none",
+              alignSelf: "center",
+              ...iconStyle,
+            }}
+          />
+        )}
 
         <TransText
-          {...AUTH_FEEDBACK.verify_via_credential(getChannelLabel(msgChannel))}
-          sx={{ ...theme.typography.h5, fontWeight: 500, textAlign: "center" }}
+          component="h3"
+          {...headlineText}
+          sx={{ ...theme.typography.h6, fontWeight: 500, textAlign: "center" }}
         />
         <TransText
           {...AUTH_FEEDBACK.otp_code_sent(channelText)}
@@ -120,6 +118,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
       </Stack>
 
       <Stack
+        component="form"
         sx={{
           width: "80%",
           [theme.breakpoints.down("lg")]: { width: "100%" },
@@ -139,6 +138,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
           style={{ input: { width: "100%" } }}
         />
         <AppButton
+          submit
           variant="contained"
           onClick={() => handleVerify()}
           style={{ width: "100%" }}
@@ -234,7 +234,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
                 ) : (
                   <TransText
                     {...AUTH_BUTTON_LABELS.otp_switch_channel(
-                      targetChannel.toLowerCase(),
+                      targetChannel === "WHATSAPP" ? "WhatsApp" : "SMS",
                     )}
                     noComponent
                   />

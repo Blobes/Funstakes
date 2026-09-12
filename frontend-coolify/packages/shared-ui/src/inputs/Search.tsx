@@ -8,6 +8,7 @@ import { COMMON_INPUT } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
 import { TransText } from "../Text";
 import { InputEventHandlers, InputProps } from "./Dynamic";
+import { DisabledClickWrapper } from "../ElementTap";
 
 const InputWrapper = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
@@ -30,15 +31,17 @@ const InputWrapper = styled(Stack)(({ theme }) => ({
 }));
 
 export const SearchBar = ({
-  onChange: onChange,
+  onChange,
+  onDisabledClick,
   focusResizeWidth = true,
+  disabled,
   style,
   placeholder,
 }: InputProps & InputEventHandlers) => {
   const { translateTxtString } = useStaticTranslation();
   const theme = useTheme();
 
-  return (
+  const renderInputField = () => (
     <InputWrapper
       sx={{
         ...style,
@@ -48,7 +51,8 @@ export const SearchBar = ({
               style?.width > 20 ? `calc(${style?.width - 5}%)` : style?.width,
           },
         }),
-      }}>
+      }}
+    >
       <SearchIcon size="20" />
       <InputBase
         placeholder={
@@ -56,12 +60,21 @@ export const SearchBar = ({
         }
         inputProps={{ "aria-label": "search" }}
         onChange={onChange}
+        disabled={disabled}
         sx={{
           ...theme.typography.text4,
           width: "100%",
         }}
       />
     </InputWrapper>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };
 
@@ -76,7 +89,8 @@ export const SearchContainer = () => {
           ...theme.typography.text4,
           color: theme.palette.gray[200],
           width: "100%",
-        }}>
+        }}
+      >
         Search & explore
       </TransText>
     </InputWrapper>

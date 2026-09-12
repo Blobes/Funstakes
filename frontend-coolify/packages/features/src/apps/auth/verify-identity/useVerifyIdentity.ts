@@ -10,6 +10,7 @@ import {
   useGlobalStore,
   STORAGE_KEYS,
   AUTH_BUTTON_LABELS,
+  IUser,
 } from "@repo/core";
 
 export interface BaseVerificationProps<
@@ -56,6 +57,7 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     props;
   const activeTransit = transitData?.[0];
   const authUser = useGlobalStore((state) => state.authUser);
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const {
     checkTotpConfiguration,
     clearTemporarySession,
@@ -95,11 +97,18 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
       return ["MESSAGING"];
     }
 
+    const hasSecurityQuestions = Boolean(
+      authUser?.securityQuestionsId, // ||
+      //  (activeTransit?.payload as IUser)?.securityQuestionsId,
+    );
+
     if (purpose === "MFA_ACTIVATION") {
       const methods: VerifyIdentityMethod[] = ["MESSAGING"];
       if (!userHasTotp) {
         methods.unshift("TOTP");
       }
+      // Allow SECURITY_QUESTIONS if not configured yet (for setup)
+      if (!hasSecurityQuestions) methods.push("SECURITY_QUESTIONS");
       return methods;
     }
 
@@ -107,11 +116,17 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     if (userHasTotp) {
       methods.unshift("TOTP");
     }
-    if (authUser?.securityQuestionsId) {
+    if (hasSecurityQuestions) {
       methods.push("SECURITY_QUESTIONS");
     }
     return methods;
-  }, [customMethods, purpose, userHasTotp, authUser?.securityQuestionsId]);
+  }, [
+    customMethods,
+    purpose,
+    userHasTotp,
+    authUser?.securityQuestionsId,
+    activeTransit?.payload,
+  ]);
 
   const defaultMethod = useMemo<VerifyIdentityMethod>(() => {
     if (initialMethod && availableMethods.includes(initialMethod)) {
@@ -136,11 +151,12 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
    */
   const switchMethod = useCallback(
     (method: VerifyIdentityMethod) => {
+      setInlineMsg(null);
       if (availableMethods.includes(method)) {
         setActiveMethod(method);
       }
     },
-    [availableMethods],
+    [availableMethods, setInlineMsg],
   );
 
   /**

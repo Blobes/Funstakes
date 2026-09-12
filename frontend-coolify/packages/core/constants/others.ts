@@ -23,3 +23,29 @@ export const MIME_TO_EXTENSION: Record<string, string> = {
 
 // Create a type from the array for strict TypeScript checking
 export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
+
+export const IDENTIFIER_TYPES = {
+  EMAIL: "Email",
+  PHONE_NUMBER: "Phone Number",
+} as const;
+
+export const VERIFY_IDENTITY_METHODS = {
+  MESSAGING: "OTP Messaging",
+  TOTP: "Authenticator",
+  SECURITY_QUESTIONS: "Security Questions",
+} as const;
+
+export const MESSAGING_CHANNELS = {
+  EMAIL: "Email",
+  SMS: "SMS",
+  WHATSAPP: "WhatsApp",
+} as const;
+
+export const ALLOWED_VERIFICATION_METHODS = {
+  ...VERIFY_IDENTITY_METHODS,
+  ...MESSAGING_CHANNELS,
+} as const;
+
+export const SNACKBAR_DURATION = {
+  SECS_6: 6,
+} as const;

@@ -1,5 +1,5 @@
 import { Schema, model, Model } from "mongoose";
-import { IAccountStatusHistory } from "../../../types/misc";
+import { IAccountStatusHistory } from "../../../types/others";
 
 const AccountStatusHistorySchema = new Schema<IAccountStatusHistory>(
   {

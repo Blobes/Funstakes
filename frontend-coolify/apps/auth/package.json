@@ -16,6 +16,7 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
+    "@lucide/lab": "catalog:",
     "@lottiefiles/dotlottie-react": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@repo/shared-ui": "workspace:*",

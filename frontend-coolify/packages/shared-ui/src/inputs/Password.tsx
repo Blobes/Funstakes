@@ -7,6 +7,7 @@ import { Eye, EyeClosed, Keyboard } from "lucide-react";
 import { useGlobalStore } from "@repo/core";
 import { useVirtualKeyboard } from "@repo/shared-hooks";
 import { InputEventHandlers, InputProps, styleConfig } from "./Dynamic";
+import { DisabledClickWrapper } from "../ElementTap";
 
 // Password Input component for Validating Passwords
 export const PasswordInput = ({
@@ -22,8 +23,9 @@ export const PasswordInput = ({
   error = false,
   affixPosition = "end",
   onBlur,
-  onChange: onChange,
+  onChange,
   onFocus,
+  onDisabledClick,
   style,
 }: InputProps & InputEventHandlers) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +48,7 @@ export const PasswordInput = ({
     event.preventDefault();
   };
 
-  return (
+  const renderInputField = () => (
     <Stack gap={theme.gap(4)}>
       <TextField
         inputRef={inputRef}
@@ -81,7 +83,8 @@ export const PasswordInput = ({
                     onClick={toggleShowPassword}
                     onMouseDown={handleMouseDown}
                     onMouseUp={handleMouseUp}
-                    size="small">
+                    size="small"
+                  >
                     {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
                   </IconButton>
                 </InputAdornment>
@@ -96,7 +99,8 @@ export const PasswordInput = ({
                   flexDirection: "row",
                   alignItems: "center",
                   gap: theme.gap(0.2),
-                }}>
+                }}
+              >
                 {/* Virtual Keyboard */}
                 {isVirtualActive && (
                   <IconButton
@@ -113,7 +117,8 @@ export const PasswordInput = ({
                             stroke: theme.palette.primary.dark,
                           },
                         }),
-                    }}>
+                    }}
+                  >
                     <Keyboard size={18} />
                   </IconButton>
                 )}
@@ -126,7 +131,8 @@ export const PasswordInput = ({
                   onClick={toggleShowPassword}
                   onMouseDown={handleMouseDown}
                   onMouseUp={handleMouseUp}
-                  size="small">
+                  size="small"
+                >
                   {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
                 </IconButton>
               </InputAdornment>
@@ -147,5 +153,13 @@ export const PasswordInput = ({
       />
       {inputGuideUI && inputGuideUI}
     </Stack>
+  );
+
+  return disabled ? (
+    <DisabledClickWrapper onClick={onDisabledClick}>
+      {renderInputField()}
+    </DisabledClickWrapper>
+  ) : (
+    renderInputField()
   );
 };

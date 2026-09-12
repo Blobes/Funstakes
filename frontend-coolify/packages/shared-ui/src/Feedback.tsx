@@ -52,7 +52,8 @@ export const Feedback: React.FC<FeedbackProps> = ({
             size="small"
             {...primHref}
             style={style?.primaryCta}
-            onClick={primaryCta.action}>
+            onClick={primaryCta.action}
+          >
             {primaryCta.label}
           </AppButton>
         ) : (
@@ -71,7 +72,8 @@ export const Feedback: React.FC<FeedbackProps> = ({
             size="small"
             onClick={secondaryCta.action}
             {...secHref}
-            style={style?.secondaryCta}>
+            style={style?.secondaryCta}
+          >
             {secondaryCta.label}
           </AppButton>
         ) : (
@@ -87,7 +89,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
 
 interface DisplayUIProps extends FeedbackProps {
   type: DisplayFeedbackUIType;
-  showCta?: boolean;
+  showCta?: { primary?: boolean; secondary?: boolean };
 }
 /**
  * A generic UI for restricted access states.
@@ -99,19 +101,20 @@ export const DisplayFeedbackUI = ({
   icon,
   primaryCta,
   secondaryCta,
-  showCta = true,
+  showCta = {},
   style,
 }: DisplayUIProps) => {
   const theme = useTheme();
   const config = useDisplayFBConfig()[type];
+  const { primary = true, secondary = true } = showCta;
 
   const handlePrimaryCta = useMemo(() => {
-    if (!showCta) return undefined;
+    if (!primary) return undefined;
     return primaryCta ?? config.primaryCta;
   }, [config.primaryCta, primaryCta]);
 
   const handleSecondaryCta = useMemo(() => {
-    if (!showCta) return undefined;
+    if (!secondary) return undefined;
     return secondaryCta ?? config.secondaryCta;
   }, [config.secondaryCta, secondaryCta]);
 

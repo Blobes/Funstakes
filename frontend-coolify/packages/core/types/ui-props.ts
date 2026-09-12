@@ -70,7 +70,7 @@ export type GenericStyle = SystemStyleObject<Theme> & {
 export interface ITranslation {
   readonly tKey?: string;
   readonly tValue?: string;
-  readonly interpolations?: Record<string, unknown>;
+  readonly interpolations?: Record<string, any>;
   inlineComponents?: React.ReactElement[] | Record<string, React.ReactElement>;
 }
 
@@ -311,7 +311,8 @@ export type DisplayFeedbackUIType =
   | "NEEDS_OTP_VERIFICATION"
   | "NEEDS_RESTORE"
   | "PASSWORD_RESET_SUCCESS"
-  | "UNKNOWN";
+  | "UNKNOWN"
+  | "SERVER_ERROR";
 
 export interface FeedbackCTA {
   type?: "BUTTON" | "ICON";
