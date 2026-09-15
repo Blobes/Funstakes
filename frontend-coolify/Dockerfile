@@ -18,7 +18,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json ./
 COPY apps ./apps
 COPY packages ./packages
 
-# Install dependencies once
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
 # Build only the target app sequentially (not in parallel)
