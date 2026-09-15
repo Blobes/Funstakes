@@ -67,7 +67,7 @@ const baseTheme = createTheme({
           dark: "#8396FF",
         },
         gray: {
-          0: "#11131B",
+          0: "#0C0D13",
           50: "#272D4F",
           100: "#476183",
           200: "#8399B4",

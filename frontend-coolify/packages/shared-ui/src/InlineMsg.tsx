@@ -73,7 +73,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
         color:
           type === "SUCCESS"
             ? theme.palette.gray[300]
-            : theme.palette.error.main,
+            : theme.palette.error.dark,
         backgroundColor:
           type === "SUCCESS"
             ? theme.palette.info.main

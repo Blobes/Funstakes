@@ -11,6 +11,7 @@ import {
   OtpIdentifierType,
   VerificationMethod,
   checkOtpCooldown,
+  hashCode,
 } from "@repo/shared";
 
 export interface IResetInitiationInput {
@@ -120,7 +121,7 @@ export const executeResetInitiation = async (
   }
 
   const code = genVerificationCode();
-  user.otpCode = code;
+  user.otpCode = hashCode(code);
   user.otpCodeExpiresAt = new Date(Date.now() + 1000 * 60 * 15);
 
   if (isEmail) {
