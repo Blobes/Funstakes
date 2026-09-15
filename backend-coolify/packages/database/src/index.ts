@@ -43,4 +43,4 @@ export * from "./models/non-entities/logs";
 
 export * from "./models/entities/securityQuestions";
 
-export * from "./migration/syncTopics";
+export * from "./migration/topic/syncTopics";

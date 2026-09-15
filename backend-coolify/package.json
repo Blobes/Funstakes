@@ -15,8 +15,8 @@
     "sync:api-messages": "pnpm dlx tsx sync-api-msg.ts",
     "db:migrate": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/migrateModels.ts",
     "db:sync-indexes": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/syncIndexes.ts",
-    "db:sync-topics": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/syncTopics.ts",
-    "db:remove-topic": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/synctopic.ts --remove"
+    "db:sync-topics": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/topic/main.ts",
+    "db:remove-topic": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/topic/main.ts --remove"
   },
   "devDependencies": {
     "@types/node": "catalog:",
