@@ -11,18 +11,16 @@ import {
   SVGWrapper,
   TransText,
 } from "@repo/shared-ui";
-import {
-  AUTH_BUTTON_LABELS,
-  AUTH_FEEDBACK,
-  OtpMessageChannel,
-  TransitPurpose,
-} from "@repo/core";
+import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, TransitPurpose } from "@repo/core";
 import { useMisc } from "@repo/shared-hooks";
 import { asset } from "@repo/assets";
 import { useMessagingOtp } from "./useMessaging";
 import { BaseVerificationProps } from "../useVerifyIdentity";
 import { MailCheck, MessageSquareDot } from "lucide-react";
 
+/**
+ * Renders messaging OTP verification view component.
+ */
 export const MessagingOtpView = <P extends TransitPurpose>(
   props: BaseVerificationProps<P>,
 ) => {
@@ -56,14 +54,27 @@ export const MessagingOtpView = <P extends TransitPurpose>(
         : "your Phone number");
 
   const headlineText = isMfaActivationPurpose
-    ? AUTH_FEEDBACK.mfa_setup_with_msg_channel(msgChannel)
-    : AUTH_FEEDBACK.verify_with_msg_channel(msgChannel);
+    ? msgChannel
+      ? AUTH_FEEDBACK.mfa_setup_with_msg_channel(msgChannel)
+      : AUTH_FEEDBACK.mfa_setup_with_one_time_code
+    : msgChannel
+      ? AUTH_FEEDBACK.verify_with_msg_channel(msgChannel)
+      : AUTH_FEEDBACK.verify_one_time_code;
 
   const isBusy = isSending || isCheckingWhatsapp;
 
   const iconStyle = {
     width: isDesktop ? 60 : 50,
     marginBottom: theme.boxSpacing(12),
+  };
+
+  /**
+   * Resolves label for switching channel button.
+   */
+  const getChannelLabel = (channel: string) => {
+    if (channel === "WHATSAPP") return "WhatsApp";
+    if (channel === "EMAIL") return "Email";
+    return "SMS";
   };
 
   return (
@@ -85,9 +96,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
       >
         {msgChannel === "EMAIL" ? (
           <MailCheck size={iconStyle.width} style={{ ...iconStyle }} />
-        ) : msgChannel === "SMS" ? (
-          <MessageSquareDot size={iconStyle.width} style={{ ...iconStyle }} />
-        ) : (
+        ) : msgChannel === "WHATSAPP" ? (
           <SVGWrapper
             src={asset.whatsapp}
             size={iconStyle.width}
@@ -100,6 +109,8 @@ export const MessagingOtpView = <P extends TransitPurpose>(
               ...iconStyle,
             }}
           />
+        ) : (
+          <MessageSquareDot size={iconStyle.width} style={{ ...iconStyle }} />
         )}
 
         <TransText
@@ -120,7 +131,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
       <Stack
         component="form"
         sx={{
-          width: "80%",
+          width: "100%",
           [theme.breakpoints.down("lg")]: { width: "100%" },
           gap: theme.gap(16),
           alignItems: "center",
@@ -147,7 +158,12 @@ export const MessagingOtpView = <P extends TransitPurpose>(
           {isVerifying ? (
             <ProgressIcon options={{ size: 24 }} />
           ) : (
-            <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
+            <TransText
+              {...(isMfaActivationPurpose
+                ? AUTH_BUTTON_LABELS.verify_and_activate_mfa
+                : AUTH_BUTTON_LABELS.otp_verify_code)}
+              noComponent
+            />
           )}
         </AppButton>
       </Stack>
@@ -199,50 +215,52 @@ export const MessagingOtpView = <P extends TransitPurpose>(
           </AppButton>
         </Stack>
 
-        <Stack
-          sx={{
-            width: "100%",
-            flexDirection: "row",
-            gap: theme.gap(1),
-            alignItems: "center",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            [theme.breakpoints.down("sm")]: {
-              flexDirection: "column",
-            },
-          }}
-        >
-          {alternativeChannels.map((targetChannel, idx) => (
-            <React.Fragment key={targetChannel}>
-              {idx > 0 && isDesktop && (
-                <Divider
-                  orientation="vertical"
-                  sx={{ height: "14px", width: "unset" }}
-                />
-              )}
-              <AppButton
-                variant="text"
-                size="small"
-                onClick={() => switchChannel(targetChannel)}
-                options={{
-                  disabled: timer > 0 || isBusy,
-                }}
-                style={{ color: theme.palette.primary.dark }}
-              >
-                {isBusy ? (
-                  <ProgressIcon options={{ size: 14 }} />
-                ) : (
-                  <TransText
-                    {...AUTH_BUTTON_LABELS.otp_switch_channel(
-                      targetChannel === "WHATSAPP" ? "WhatsApp" : "SMS",
-                    )}
-                    noComponent
+        {alternativeChannels.length > 0 && (
+          <Stack
+            sx={{
+              width: "100%",
+              flexDirection: "row",
+              gap: theme.gap(1),
+              alignItems: "center",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              [theme.breakpoints.down("sm")]: {
+                flexDirection: "column",
+              },
+            }}
+          >
+            {alternativeChannels.map((targetChannel, idx) => (
+              <React.Fragment key={targetChannel}>
+                {idx > 0 && isDesktop && (
+                  <Divider
+                    orientation="vertical"
+                    sx={{ height: "14px", width: "unset" }}
                   />
                 )}
-              </AppButton>
-            </React.Fragment>
-          ))}
-        </Stack>
+                <AppButton
+                  variant="text"
+                  size="small"
+                  onClick={() => switchChannel(targetChannel)}
+                  options={{
+                    disabled: timer > 0 || isBusy,
+                  }}
+                  style={{ color: theme.palette.primary.dark }}
+                >
+                  {isBusy ? (
+                    <ProgressIcon options={{ size: 14 }} />
+                  ) : (
+                    <TransText
+                      {...AUTH_BUTTON_LABELS.otp_switch_channel(
+                        getChannelLabel(targetChannel),
+                      )}
+                      noComponent
+                    />
+                  )}
+                </AppButton>
+              </React.Fragment>
+            ))}
+          </Stack>
+        )}
       </Stack>
     </Stack>
   );

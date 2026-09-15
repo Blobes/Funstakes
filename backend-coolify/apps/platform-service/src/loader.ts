@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import notificationRoutes from "./notification/routes";
 import uploadRoutes from "./upload/routes";
+import topicRoutes from "./topic/routes";
 import auditRoutes from "./audit-log/routes";
 import webhookRoutes from "./webhook/routes";
 import moderationRoutes from "./moderation/routes";
@@ -28,6 +29,7 @@ export default (app: Express) => {
   // Feature Routes
   app.use("/notification", notificationRoutes);
   app.use("/upload", uploadRoutes);
+  app.use("/topic", topicRoutes);
   app.use("/audit", auditRoutes);
   app.use("/moderation", moderationRoutes);
   app.use("/webhook", webhookRoutes);

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
@@ -58,7 +58,10 @@ export const SetupSecurityQuestions = <P extends TransitPurpose>(
       <Stack
         sx={{ gap: theme.gap(8), textAlign: "center", alignItems: "center" }}
       >
-        <ShieldQuestionMark size={isMobile ? 50 : 60} />
+        <ShieldQuestionMark
+          size={isMobile ? 50 : 60}
+          style={{ marginBottom: theme.boxSpacing(12) }}
+        />
 
         <TransText
           component="h3"
@@ -107,6 +110,7 @@ export const SetupSecurityQuestions = <P extends TransitPurpose>(
                 multiline
                 allowReset
               />
+
               <DynamicInput
                 label={translateTxtString(AUTH_INPUT.label.answer)}
                 placeholder={translateTxtString(
@@ -135,7 +139,7 @@ export const SetupSecurityQuestions = <P extends TransitPurpose>(
           {isSettingUp ? (
             <ProgressIcon options={{ size: 24 }} />
           ) : (
-            <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
+            <TransText {...AUTH_BUTTON_LABELS.activate_mfa} noComponent />
           )}
         </AppButton>
       </Stack>

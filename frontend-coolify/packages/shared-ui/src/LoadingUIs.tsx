@@ -30,6 +30,9 @@ export interface LinearProgressTypeProps extends BaseProgressProps {
   options?: LinearProgressProps;
 }
 export type ProgressProps = CircularProgressTypeProps | LinearProgressTypeProps;
+export interface SplashUIProps {
+  duration?: number;
+}
 
 /**
  * Renders a standardized circular or linear loading indicator with dynamic typography support.
@@ -120,9 +123,6 @@ export const PageLoaderUI = () => {
   );
 };
 
-export interface SplashUIProps {
-  duration?: number;
-}
 /**
  * Renders the application splash screen with a linear progress bar driving towards completion.
  */
@@ -161,7 +161,7 @@ export const SplashUI = ({ duration = 2500 }: SplashUIProps) => {
         type="linear"
         value={progress}
         options={{
-          variant: "determinate",
+          variant: "indeterminate",
         }}
         style={{
           width: 200,

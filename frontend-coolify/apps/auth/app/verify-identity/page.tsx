@@ -63,13 +63,13 @@ export default function VerificationPage() {
       {
         name: "VERIFY_IDENTITY",
         element: (
-          // <VerifyIdentity
-          //   transitData={transitEntries}
-          //   setShouldRestrict={setShouldRestrict}
-          //   onRateLimitExceeded={triggerBotChallenge}
-          //   isBotChallengeAllowed={isBotChallengeAllowed}
-          // />
-          <VerifyIdentityPreview />
+          <VerifyIdentity
+            transitData={transitEntries}
+            setShouldRestrict={setShouldRestrict}
+            onRateLimitExceeded={triggerBotChallenge}
+            isBotChallengeAllowed={isBotChallengeAllowed}
+          />
+          // <VerifyIdentityPreview setShouldRestrict={setShouldRestrict} />
         ),
       },
     ],

@@ -5,6 +5,7 @@ import {
   MESSAGES_REGISTRY,
   forwardError,
   generateRandomIp,
+  buildLocationFromRequest,
 } from "@repo/shared";
 import { IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
@@ -32,8 +33,7 @@ export const createGist = async (
   const { caption, media, topics, skipModeration, hasSensitiveGraphic } =
     req.body;
 
-  // Preserving client network address lookup strategy context requirements unchanged
-  const userIp = getClientIp(req) || generateRandomIp();
+  const location = await buildLocationFromRequest(req);
 
   try {
     const serviceResult = await executeCreateGist({
@@ -45,7 +45,7 @@ export const createGist = async (
       hasSensitiveGraphic,
       s3Config,
       redisUrl: FUNSTAKES_REDIS_URL,
-      userIp,
+      location,
     });
 
     if (serviceResult.status === "INVALID_SESSION") {

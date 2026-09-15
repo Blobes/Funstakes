@@ -44,6 +44,9 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
   ) => {
     const theme = useTheme();
     const [anchorElNav, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [anchorWidth, setAnchorWidth] = useState<number | undefined>(
+      undefined,
+    );
 
     const handleClose = () => {
       if (onMenuClose) onMenuClose();
@@ -52,6 +55,9 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
 
     useImperativeHandle(ref, () => ({
       openMenu: (anchor: HTMLElement) => {
+        if (anchor) {
+          setAnchorWidth(anchor.getBoundingClientRect().width);
+        }
         setAnchorEl(anchor);
       },
       closeMenu: () => {
@@ -81,21 +87,27 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
         slotProps={{
           paper: {
             sx: {
-              borderRadius: theme.radius[2],
-              padding: theme.boxSpacing(2),
-              border: `1px solid ${theme.palette.gray[50]}`,
-              width: "fit-content",
-              minWidth: 150,
-              maxWidth: 300,
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: theme.radius[4],
+              border: `1px solid ${theme.palette.gray.trans.overlay(0.08, true)}`,
+              width: anchorWidth ? `${anchorWidth}px` : "fit-content",
+              minWidth: 180,
+              maxWidth: anchorWidth ? `${anchorWidth}px` : "unset",
               maxHeight: `calc(100vh - ${heightThreshold ?? 20}%)`,
               marginTop: theme.gap(4),
-              ...scrollBarStyle(theme),
+              overflow: "hidden",
               "& ul": {
                 display: "flex",
                 flexDirection: "column",
-                ...style?.ul,
+                padding: theme.boxSpacing(3),
+                overflowY: "auto",
+                overflowX: "hidden",
+                flex: 1,
+                minHeight: 0,
+                ...scrollBarStyle(theme),
+                ...style,
               },
-              ...style,
             },
           },
           list: { disablePadding: true },
@@ -121,6 +133,7 @@ interface MenuListProps<T extends IMenuItem> extends RenderListProps<T> {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   fetchNextPage?: () => void;
+  closeOnSelect?: boolean;
   infiniteScrollHook?: (args: {
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
@@ -142,12 +155,13 @@ export const DisplayList = <T extends IMenuItem>({
   onItemClick,
   onMenuClose,
   style,
-  showActiveItem,
+  displayActiveState: showActiveItem,
   menuRef,
-  activeItem,
+  activeItems: activeItem,
   showSearchBar = false,
   externalSearchQuery,
   onExternalSearchChange,
+  closeOnSelect = true,
   isLoading = false,
   hasNextPage = false,
   isFetchingNextPage = false,
@@ -244,7 +258,7 @@ export const DisplayList = <T extends IMenuItem>({
       onMenuClose={onMenuClose}
       style={{
         [theme.breakpoints.down("sm")]: {
-          width: "88%",
+          width: "100%",
           maxWidth: "unset",
         },
         ...(style?.container as any),
@@ -266,6 +280,7 @@ export const DisplayList = <T extends IMenuItem>({
             padding: theme.boxSpacing(6),
             border: "none",
             borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+            marginBottom: theme.gap(2),
             "&:hover": {
               border: "inherit",
               borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
@@ -296,12 +311,14 @@ export const DisplayList = <T extends IMenuItem>({
             list={filteredList}
             listType={listName}
             onItemClick={(item) => {
-              menuRef.current?.closeMenu();
+              if (closeOnSelect) {
+                menuRef.current?.closeMenu();
+              }
               if (onItemClick) onItemClick(item as any);
             }}
             style={itemStyle}
-            showActiveItem={showActiveItem}
-            activeItem={activeItem}
+            displayActiveState={showActiveItem}
+            activeItems={activeItem}
           />,
           hasNextPage && (
             <Box

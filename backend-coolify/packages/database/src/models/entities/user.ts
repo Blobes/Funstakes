@@ -157,6 +157,8 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       country: { type: String, default: null },
       region: { type: String, default: null },
       continent: { type: String, default: null },
+      continentCode: { type: String, default: null },
+      isVpnOrProxy: { type: Boolean, default: false },
       type: {
         type: String,
         enum: ["Point"],

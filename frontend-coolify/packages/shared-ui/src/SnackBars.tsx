@@ -92,7 +92,7 @@ export const SnackBars = ({
                     stroke:
                       msg.msgStatus !== "ERROR"
                         ? theme.palette.gray[0]
-                        : theme.palette.error.main,
+                        : theme.palette.error.dark,
                   },
                 }}
               >

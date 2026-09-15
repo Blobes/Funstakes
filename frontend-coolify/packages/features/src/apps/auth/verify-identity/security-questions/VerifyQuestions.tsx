@@ -54,7 +54,10 @@ export const VerifySecurityQuestions = <P extends TransitPurpose>(
       <Stack
         sx={{ gap: theme.gap(2), textAlign: "center", alignItems: "center" }}
       >
-        <ShieldQuestionMark size={isMobile ? 50 : 60} />
+        <ShieldQuestionMark
+          size={isMobile ? 50 : 60}
+          style={{ marginBottom: theme.boxSpacing(12) }}
+        />
 
         <TransText
           component="h3"

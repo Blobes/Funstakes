@@ -30,7 +30,7 @@ import { BlockedModel, FollowModel } from "../models/non-entities/socials";
 import { TopicModel } from "../models/non-entities/topic";
 import { RelationTupleModel } from "../models/non-entities/authorization/relation";
 import { SubscriptionModel } from "../models/non-entities/identity/subscription";
-import { SecurityQuestionModel } from "../models/non-entities/securityQuestions";
+import { SecurityQuestionModel } from "../models/entities/securityQuestions";
 
 const MONGO_URI = process.env.MONGO_URI || "";
 

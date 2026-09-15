@@ -6,7 +6,7 @@ import { cleanDeviceSessions } from "./session";
 import { CACHE_KEYS } from "../constants/cacheKeys";
 import { getOrSetCache } from "./redis/cache/helpers";
 
-const TRUST_WINDOW = 15 * 24 * 60 * 60 * 1000;
+const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 /**
  * Resolves a device record based on the user ID and the unique device token.
@@ -34,26 +34,28 @@ export async function evaluateDeviceTrust(
   if (!device) {
     return { trusted: false, reason: "NEW_DEVICE" };
   }
-
   const isStale =
     Date.now() - new Date(device.lastVerifiedAt).getTime() > TRUST_WINDOW;
-
   if (isStale) {
     return { trusted: false, reason: "STALE_DEVICE" };
   }
-
   return { trusted: true };
 }
 
+interface DeviceUsertOptions {
+  user: IUserDocument;
+  deviceToken?: string;
+  userAgent: string;
+  session?: mongoose.ClientSession;
+}
 /**
  * Registers or updates a device and ensures a primary anchor exists.
  */
 export async function upsertDevice(
-  user: IUserDocument,
-  deviceToken: string,
-  userAgent: string,
-  session?: mongoose.ClientSession,
+  options: DeviceUsertOptions,
 ): Promise<IDeviceDocument> {
+  const { user, deviceToken, userAgent, session } = options;
+
   let device = await DeviceModel.findOne({
     userId: user._id,
     deviceToken,

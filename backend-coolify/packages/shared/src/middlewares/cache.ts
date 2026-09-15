@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { IAuthRequest, PostType } from "../types/general";
+import { IAuthRequest } from "../types/general";
 import {
   INVALIDATE_CACHE,
   InvalidateEvent,

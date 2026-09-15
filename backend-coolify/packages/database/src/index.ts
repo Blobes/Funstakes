@@ -41,6 +41,6 @@ export * from "./models/entities/media";
 export * from "./models/non-entities/topic";
 export * from "./models/non-entities/logs";
 
-export * from "./models/non-entities/securityQuestions";
+export * from "./models/entities/securityQuestions";
 
 export * from "./migration/syncTopics";

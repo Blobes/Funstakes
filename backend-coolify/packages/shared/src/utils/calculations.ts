@@ -120,3 +120,22 @@ export const calculateLocationScore = (
 
   return 0;
 };
+
+/**
+ * Converts a formatted offset string into total minutes.
+ * @param offsetStr - Formatted offset string (e.g. "GMT+1", "GMT-05:00").
+ * @returns Integer total offset minutes or null if unparseable.
+ */
+export const parseOffsetToMinutes = (offsetStr?: string): number | null => {
+  if (!offsetStr) return null;
+  if (offsetStr === "GMT" || offsetStr === "UTC") return 0;
+
+  const match = offsetStr.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+  if (!match) return null;
+
+  const sign = match[1] === "+" ? 1 : -1;
+  const hours = parseInt(match[2], 10);
+  const minutes = match[3] ? parseInt(match[3], 10) : 0;
+
+  return sign * (hours * 60 + minutes);
+};

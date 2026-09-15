@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import {
   forwardError,
+  generateRandomIp,
+  getClientIp,
   getOrSetDeviceToken,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
@@ -21,6 +23,7 @@ export const commitAccountUpdate = async (
   const { identifier, purpose, verificationToken, otpIdentifierType } =
     req.body as ICommitAccountUpdateInput;
 
+  const userIp = getClientIp(req) || generateRandomIp();
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "unknown";
 

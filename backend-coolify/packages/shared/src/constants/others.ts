@@ -51,80 +51,161 @@ export const to2ISOCode = (threeLetterCode: string): string => {
   return ISO_MAP[threeLetterCode] || "en"; // Default fallback to English if text is ambiguous
 };
 
-export const smsDispatchCountries = ["234"];
+/**
+ * Mapping of Cloudflare 2-letter continent codes to full names.
+ */
+export const CONTINENT_NAME_MAP = {
+  AF: "Africa",
+  AN: "Antarctica",
+  AS: "Asia",
+  EU: "Europe",
+  NA: "North America",
+  OC: "Oceania",
+  SA: "South America",
+} as const satisfies Record<string, string>;
 
-// African country calling code prefixes (digits only)
-export const africanCountryCodes = [
+/**
+ * Generic HTTP header keys for IP, location, and client metadata.
+ */
+export const HTTP_REQ_HEADERS = {
+  // IP, Location & Geo
+  COUNTRY: "cf-ipcountry",
+  CITY: "cf-ipcity",
+  REGION: "cf-region",
+  REGION_CODE: "cf-region-code",
+  CONTINENT: "cf-continent",
+  LATITUDE: "cf-iplatitude",
+  LONGITUDE: "cf-iplongitude",
+  TIMEZONE: "cf-timezone",
+  CONNECTING_IP: "cf-connecting-ip",
+  CLIENT_TIMEZONE: "x-client-timezone",
+  XFF: "x-forwarded-for",
+  X_REAL_IP: "x-real-ip",
+
+  // Rate Limit
+  X_RATE_LIMIT: "X-RateLimit-Limit",
+  X_RATE_LIMIT_REMAINING: "X-RateLimit-Remaining",
+
+  // User
+  USER_ID: "x-user-id",
+  USER_EMAIL: "x-user-email",
+  USER_ROLES: "x-user-roles",
+  SUBSCRIPTION_TIER: "x-subscription-tier",
+  SUBSCRIPTION_STATUS: "x-subscription-status",
+  DEVICE_ID: "x-device-id",
+  SESSION_ID: "x-session-id",
+} as const;
+
+/**
+ * Datacenter and hosting provider keywords commonly associated with VPNs.
+ */
+export const DATACENTER_ISP_PATTERNS = [
+  "m247",
+  "datacamp",
+  "digitalocean",
+  "linode",
+  "vultr",
+  "choopa",
+  "ovh",
+  "leaseweb",
+  "hetzner",
+  "expressvpn",
+  "nordvpn",
+  "surfshark",
+  "cyberghost",
+  "proton",
+  "tzulo",
+  "packet",
+] as const;
+
+/**
+ * Map of African country names to their calling code prefixes.
+ */
+export const AFRICAN_PHONE_CODE_MAP = {
   // West Africa
-  "234", // Nigeria
-  "233", // Ghana
-  "225", // Ivory Coast
-  "221", // Senegal
-  "231", // Liberia
-  "232", // Sierra Leone
-  "228", // Togo
-  "229", // Benin
-  "226", // Burkina Faso
-  "220", // Gambia
-  "224", // Guinea
-  "245", // Guinea-Bissau
-  "223", // Mali
-  "227", // Niger
-  "238", // Cape Verde
+  Nigeria: "234",
+  Ghana: "233",
+  "Ivory Coast": "225",
+  Senegal: "221",
+  Liberia: "231",
+  "Sierra Leone": "232",
+  Togo: "228",
+  Benin: "229",
+  "Burkina Faso": "226",
+  Gambia: "220",
+  Guinea: "224",
+  "Guinea-Bissau": "245",
+  Mali: "223",
+  Niger: "227",
+  "Cape Verde": "238",
 
   // East Africa
-  "254", // Kenya
-  "256", // Uganda
-  "255", // Tanzania
-  "250", // Rwanda
-  "251", // Ethiopia
-  "257", // Burundi
-  "252", // Somalia
-  "211", // South Sudan
-  "253", // Djibouti
-  "269", // Comoros
-  "230", // Mauritius
-  "248", // Seychelles
+  Kenya: "254",
+  Uganda: "256",
+  Tanzania: "255",
+  Rwanda: "250",
+  Ethiopia: "251",
+  Burundi: "257",
+  Somalia: "252",
+  "South Sudan": "211",
+  Djibouti: "253",
+  Comoros: "269",
+  Mauritius: "230",
+  Seychelles: "248",
 
   // Southern Africa
-  "27", // South Africa
-  "260", // Zambia
-  "263", // Zimbabwe
-  "267", // Botswana
-  "264", // Namibia
-  "265", // Malawi
-  "258", // Mozambique
-  "266", // Lesotho
-  "268", // Eswatini
+  "South Africa": "27",
+  Zambia: "260",
+  Zimbabwe: "263",
+  Botswana: "267",
+  Namibia: "264",
+  Malawi: "265",
+  Mozambique: "258",
+  Lesotho: "266",
+  Eswatini: "268",
 
   // Central Africa
-  "237", // Cameroon
-  "242", // Republic of the Congo
-  "243", // Democratic Republic of the Congo
-  "241", // Gabon
-  "235", // Chad
-  "236", // Central African Republic
-  "240", // Equatorial Guinea
-  "239", // São Tomé and Príncipe
+  Cameroon: "237",
+  "Republic of the Congo": "242",
+  "Democratic Republic of the Congo": "243",
+  Gabon: "241",
+  Chad: "235",
+  "Central African Republic": "236",
+  "Equatorial Guinea": "240",
+  "São Tomé and Príncipe": "239",
 
   // North Africa
-  "20", // Egypt
-  "212", // Morocco
-  "213", // Algeria
-  "216", // Tunisia
-  "218", // Libya
-  "249", // Sudan
+  Egypt: "20",
+  Morocco: "212",
+  Algeria: "213",
+  Tunisia: "216",
+  Libya: "218",
+  Sudan: "249",
+} as const satisfies Record<string, string>;
+
+/**
+ * Map of global country names to their calling code prefixes.
+ */
+export const GLOBAL_PHONE_CODE_MAP = {
+  "United States / Canada": "1",
+  India: "91",
+  Brazil: "55",
+  Mexico: "52",
+  Colombia: "57",
+  Indonesia: "62",
+  Philippines: "63",
+  "United Kingdom": "44",
+  China: "86",
+  "South Korea": "82",
+} as const satisfies Record<string, string>;
+
+export const AFRICAN_PHONE_CODES = Object.keys(AFRICAN_PHONE_CODE_MAP);
+export const GLOBAL_PHONE_CODES = Object.keys(GLOBAL_PHONE_CODE_MAP);
+
+// Combined map of all supported phone calling codes to country names.
+export const ALL_COUNTRY_PHONE_CODES: string[] = [
+  ...AFRICAN_PHONE_CODES,
+  ...GLOBAL_PHONE_CODES,
 ];
 
-export const globalCountryCodes = [
-  "1", // United States / Canada
-  "91", // India
-  "55", // Brazil
-  "52", // Mexico
-  "57", // Colombia
-  "62", // Indonesia
-  "63", // Philippines
-  "44", // United Kingdom
-  "86", // China
-  "82", // South Korea
-];
+export const ALLOWED_SMS_COUNTRIES = [AFRICAN_PHONE_CODE_MAP.Nigeria];

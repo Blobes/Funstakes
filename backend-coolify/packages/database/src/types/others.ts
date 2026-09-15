@@ -1,5 +1,6 @@
 import { Types, Document } from "mongoose";
 import { ModeratorType } from "./moderation";
+import { PostModelType } from "./post";
 
 export type AccountStatus =
   | "ACTIVE"
@@ -10,7 +11,7 @@ export type AccountStatus =
 // | "NOT_ONBOARDED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
-export type UserTopicAddedBy = "USER" | "SYSTEM" | "ADMIN";
+export type TopicSourceType = "USER" | "SYSTEM" | "ADMIN";
 
 export type ChangedByType = ModeratorType | "OWNER";
 
@@ -22,6 +23,8 @@ export type EntityType =
   | "MEDIA"
   | "COMMUNITY"
   | "DEVICE";
+
+export type AiSuggestedTopicStatus = "PENDING" | "ACCEPTED" | "DECLINED";
 
 export interface IAccountStatusHistory extends Document {
   account: Types.ObjectId;
@@ -68,7 +71,7 @@ export interface IBlockedUserDocument extends Document {
 export interface IUserPreferredTopic {
   topicId: Types.ObjectId | string;
   title: string;
-  addedBy?: UserTopicAddedBy;
+  addedBy?: TopicSourceType;
   lastViewed?: Date;
 }
 export interface ITopicDocument extends Document {
@@ -76,6 +79,17 @@ export interface ITopicDocument extends Document {
   oldTitle?: string | null;
   userCount: number;
   postCount: number;
+  createdById?: Types.ObjectId | null;
+  createdByType?: TopicSourceType;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IAiSuggestedTopicDocument extends Document {
+  title: string;
+  relatedPostId?: Types.ObjectId | string;
+  relatedPostType?: PostModelType;
+  status: AiSuggestedTopicStatus;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -92,12 +106,14 @@ export interface ISecurityQuestionDocument extends Document {
 }
 
 export interface ILocation {
-  continent?: string | null;
   name?: string | null;
   city?: string | null;
   state?: string | null;
   country?: string | null;
   region?: string | null;
-  type: "Point";
-  coordinates: [number, number]; // [longitude, latitude]
+  continent?: string | null;
+  continentCode?: string | null;
+  type?: "Point";
+  coordinates?: [number, number]; // [longitude, latitude]
+  isVpnOrProxy?: boolean;
 }

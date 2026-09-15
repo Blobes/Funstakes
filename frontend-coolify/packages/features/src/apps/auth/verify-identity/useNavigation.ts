@@ -215,7 +215,7 @@ export const useVerificationNavigation = () => {
         identifier,
         otpMessageChannel: activeChannel,
         purpose,
-        payload: user,
+        payload: { user },
         reason,
         verificationMethod:
           verificationMethod ?? (hasTotp ? "TOTP" : "MESSAGING"),

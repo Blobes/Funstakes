@@ -25,6 +25,7 @@ export * from "./src/input/usePassword";
 export * from "./src/input/usePhoneField";
 export * from "./src/input/useOtp";
 export * from "./src/input/useEmail";
+export * from "./src/input/useSelect";
 // Carousel
 export * from "./src/carousel/useBGFade";
 export * from "./src/carousel/useLinear";

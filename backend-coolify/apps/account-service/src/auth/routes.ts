@@ -16,7 +16,7 @@ import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
 import { verifyTotpCode } from "./verification/totp/controller/verify";
-import { setupTotp } from "./verification/totp/controller/setup";
+import { fetchTotpSetup } from "./verification/totp/controller/fetch";
 import { autoInvalidateUserCache } from "@repo/shared";
 import { turnstileVerification } from "./turnstile/controller";
 import { commitAccountUpdate } from "./verification/messaging/controllers/commitUpdate";
@@ -82,7 +82,7 @@ router.post("/otp/send", sendMsgCode);
 router.post("/otp/verify", verifyMsgOtp);
 router.post("/otp/reset", resetMessagingOtp);
 router.patch("/otp/update-account", commitAccountUpdate);
-router.post("/totp/setup", optionallyAuthenticate, setupTotp);
+router.get("/totp", authenticate, fetchTotpSetup);
 router.post("/totp/verify", optionallyAuthenticate, verifyTotpCode);
 router.post(
   "/security-questions/setup",

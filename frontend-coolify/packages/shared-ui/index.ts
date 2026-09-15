@@ -51,7 +51,6 @@ export * from "./src/media/view/VideoMedia";
 export * from "./src/media/view/Media";
 export * from "./src/media/view/MediaRenderer";
 export * from "./src/media/customizer/Customizer";
-
 // Input
 export * from "./src/inputs/Dynamic";
 export * from "./src/inputs/Password";
@@ -62,3 +61,5 @@ export * from "./src/inputs/TextArea";
 export * from "./src/inputs/Search";
 export * from "./src/inputs/Choice";
 export * from "./src/inputs/SingleSelect";
+export * from "./src/inputs/MultipleSelect";
+export * from "./src/inputs/Test";

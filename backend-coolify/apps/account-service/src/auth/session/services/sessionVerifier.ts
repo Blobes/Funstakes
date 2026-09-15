@@ -85,7 +85,7 @@ export const executeSessionVerification = async (
     };
   }
 
-  const device = await upsertDevice(user, deviceToken, userAgent);
+  const device = await upsertDevice({ user, deviceToken, userAgent });
   if (device._id.toString() !== jwtDeviceId) {
     return {
       status: "HARDWARE_MISMATCH",

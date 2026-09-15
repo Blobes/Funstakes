@@ -11,13 +11,12 @@ import {
   TransText,
 } from "@repo/shared-ui";
 import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, TransitPurpose } from "@repo/core";
-import { useTotp } from "./useTotp";
+import { useTotp, UseTotpProps } from "./useTotp";
 import { useMisc } from "@repo/shared-hooks";
-import { BaseVerificationProps } from "../useVerifyIdentity";
 import { ShieldKeyhole } from "lucide-react";
 
 export const VerifyTotpCode = <P extends TransitPurpose>(
-  props: BaseVerificationProps<P>,
+  props: UseTotpProps<P>,
 ) => {
   const { style } = props;
   const theme = useTheme();
@@ -30,9 +29,10 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
     switchToConfiguration,
     handleVerify,
     inlineMsg,
+    isMfaActivationPurpose,
   } = useTotp({
     ...props,
-    viewMode: "VERIFY_TOTP_CODE",
+    // currStep: "VERIFY_TOTP_CODE",
   });
 
   return (
@@ -47,7 +47,10 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
       <Stack
         sx={{ gap: theme.gap(2), textAlign: "center", alignItems: "center" }}
       >
-        <ShieldKeyhole size={isMobile ? 50 : 60} />
+        <ShieldKeyhole
+          size={isMobile ? 50 : 60}
+          style={{ marginBottom: theme.boxSpacing(12) }}
+        />
         <TransText
           component="h3"
           {...AUTH_FEEDBACK.verify_without_msg_channel("TOTP")}
@@ -66,7 +69,7 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
       <Stack
         component="form"
         sx={{
-          width: "80%",
+          width: "100%",
           [theme.breakpoints.down("lg")]: { width: "100%" },
           gap: theme.gap(16),
           alignItems: "center",
@@ -93,32 +96,39 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
           {isVerifying ? (
             <ProgressIcon options={{ size: 24 }} />
           ) : (
-            <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
+            <TransText
+              {...(isMfaActivationPurpose
+                ? AUTH_BUTTON_LABELS.verify_and_activate_mfa
+                : AUTH_BUTTON_LABELS.otp_verify_code)}
+              noComponent
+            />
           )}
         </AppButton>
       </Stack>
-
-      <Stack
-        sx={{
-          width: "100%",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 0,
-        }}
-      >
-        <TransText
-          {...AUTH_FEEDBACK.need_to_scan_qr_code_again}
-          sx={{ ...theme.typography.text3, width: "fit-content" }}
-        />
-        <AppButton
-          variant="text"
-          onClick={switchToConfiguration}
-          style={{ width: "100%", color: theme.palette.primary.main }}
+      {isMfaActivationPurpose && (
+        <Stack
+          sx={{
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 0,
+          }}
         >
-          <TransText {...AUTH_BUTTON_LABELS.reconfigure} noComponent />
-        </AppButton>
-      </Stack>
+          <TransText
+            {...AUTH_FEEDBACK.need_to_scan_qr_code_again}
+            sx={{ ...theme.typography.text3, width: "fit-content" }}
+          />
+          <AppButton
+            variant="text"
+            size="small"
+            onClick={switchToConfiguration}
+            style={{ color: theme.palette.primary.main }}
+          >
+            <TransText {...AUTH_BUTTON_LABELS.reconfigure} noComponent />
+          </AppButton>
+        </Stack>
+      )}
     </Stack>
   );
 };

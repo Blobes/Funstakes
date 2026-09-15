@@ -36,12 +36,17 @@ export const executeWhatsappCheck = async (
   }
 
   try {
-    const response = await fetch(url, {
-      method: "GET",
+    const response = await fetch(`${url}/contacts`, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        blocking: "wait",
+        contacts: [`+${sanitizedNumber}`],
+        force_check: true,
+      }),
     });
 
     const data: any = await response.json();
@@ -57,11 +62,15 @@ export const executeWhatsappCheck = async (
           : MESSAGES_REGISTRY.AUTH.WHATSAPP_CHECK_FAILED,
       };
     }
+
+    const contactResult = data?.contacts?.[0];
+    const isValid = contactResult?.status === "valid";
+
     return {
       status: "SUCCESS",
-      exists: true,
+      exists: isValid,
       phoneNumber: sanitizedNumber,
-      waId: data?.id,
+      waId: isValid ? contactResult?.wa_id : undefined,
     };
   } catch (error: any) {
     const errorMsg = error.message;

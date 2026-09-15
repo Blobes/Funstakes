@@ -68,6 +68,14 @@ export const CACHE_KEYS = {
   ) =>
     `topics:lookup:k:${keyword || "none"}:ex:${excludedHash || "none"}:p${page}:l${limit}`,
 
+  AI_SUGGESTED_TOPICS_LOOKUP: (
+    status: string,
+    postType: string,
+    query: string,
+    page: number,
+    limit: number,
+  ) => `ai_topics:lookup:${status}:${postType}:${query}:${page}:${limit}`,
+
   // --- Social & Identity (O(1) lookups) ---
   USER_BASE: (userId: string) => `user:${userId}`,
   USER_PROFILE: (userId: string) => `user:${userId}:profile`,

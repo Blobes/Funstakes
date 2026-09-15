@@ -3,7 +3,7 @@ import {
   ITopicDocument,
   TopicModel,
   UserSettingsModel,
-  UserTopicAddedBy,
+  TopicSourceType,
 } from "@repo/database";
 import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
@@ -17,7 +17,7 @@ export interface ManageTopicsParams {
   targetId?: string;
   targetModel?: "Gist" | "Stake";
   eventType: TopicUpdateEvent;
-  addedBy?: UserTopicAddedBy;
+  // addedBy?: TopicAddedBy;
 }
 
 export interface ManageTopicsResult {
@@ -27,14 +27,9 @@ export interface ManageTopicsResult {
 }
 
 /**
- * Attaches new topic IDs to a post and increments global postCount.
- *
- * @param targetId Target entity ID.
- * @param targetModel Dynamic model name.
- * @param topicDocs Processed topic documents.
- * @param session Optional Mongoose client session.
+ * Attaches topic IDs to a post target and increments post usage counters.
  */
-export const createOnPostCreation = async (
+export const syncOnPostCreationOrUpdate = async (
   targetId: string,
   targetModel: string,
   topicDocs: ITopicDocument[],
@@ -77,11 +72,7 @@ export const createOnPostCreation = async (
 };
 
 /**
- * Syncs engaged topic preferences into user settings content preferences.
- *
- * @param userId Target user identifier.
- * @param topicDocs Processed topic documents.
- * @param session Optional Mongoose client session.
+ * Appends interacted topics to user settings display content preferences.
  */
 export const syncWithUserViaPostEngagement = async (
   userId: string,
@@ -109,10 +100,7 @@ export const syncWithUserViaPostEngagement = async (
 };
 
 /**
- * Synchronizes topic entities and processes post-related actions with role-based topic creation controls.
- *
- * @param params Operational configuration parameters.
- * @param session Optional Mongoose client session.
+ * Validates existing topics against the database and dispatches sync events.
  */
 export const executePostTopicsSync = async (
   params: ManageTopicsParams,
@@ -124,7 +112,6 @@ export const executePostTopicsSync = async (
     targetId,
     targetModel,
     eventType: actionType,
-    addedBy = "USER",
   } = params;
 
   if (!topics || !Array.isArray(topics) || topics.length === 0) {
@@ -137,48 +124,35 @@ export const executePostTopicsSync = async (
 
   const uniqueTitles = [...new Set(topics.map((t) => t.trim().toLowerCase()))];
 
-  let topicDocs: ITopicDocument[] = [];
+  const topicDocs: ITopicDocument[] = await TopicModel.find({
+    title: { $in: uniqueTitles },
+  })
+    .session(session || null)
+    .lean();
 
-  if (addedBy === "USER") {
-    topicDocs = await TopicModel.find({
-      title: { $in: uniqueTitles },
-    })
-      .session(session || null)
-      .lean();
-
-    if (topicDocs.length === 0) {
-      return {
-        status: "INVALID_INPUT",
-        transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_LIST_REQUIRED,
-        payload: [],
-      };
-    }
-  } else {
-    const topicOps = uniqueTitles.map((title) => ({
-      updateOne: {
-        filter: { title },
-        update: { $setOnInsert: { title, userCount: 0, postCount: 0 } },
-        upsert: true,
-      },
-    }));
-
-    await TopicModel.bulkWrite(topicOps, { session });
-
-    topicDocs = await TopicModel.find({
-      title: { $in: uniqueTitles },
-    })
-      .session(session || null)
-      .lean();
+  if (topicDocs.length === 0) {
+    return {
+      status: "INVALID_INPUT",
+      transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_LIST_REQUIRED,
+      payload: [],
+    };
   }
 
   switch (actionType) {
     case "POST_CREATION_OR_UPDATE":
       if (!targetId || !targetModel) {
-        throw new Error(
-          MESSAGES_REGISTRY.POST.MISSING_POST_PROCESSING_PARAMS.message,
-        );
+        return {
+          status: "INVALID_INPUT",
+          transInfo: MESSAGES_REGISTRY.POST.MISSING_POST_PROCESSING_PARAMS,
+          payload: [],
+        };
       }
-      await createOnPostCreation(targetId, targetModel, topicDocs, session);
+      await syncOnPostCreationOrUpdate(
+        targetId,
+        targetModel,
+        topicDocs,
+        session,
+      );
       break;
 
     case "POST_ENGAGEMENT":
@@ -188,9 +162,11 @@ export const executePostTopicsSync = async (
       break;
 
     default:
-      throw new Error(
-        MESSAGES_REGISTRY.SYSTEM.INVALID_OPERATIONAL_ROUTING.message,
-      );
+      return {
+        status: "INVALID_INPUT",
+        transInfo: MESSAGES_REGISTRY.SYSTEM.INVALID_OPERATIONAL_ROUTING,
+        payload: [],
+      };
   }
 
   return {

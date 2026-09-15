@@ -5,8 +5,6 @@ import {
   PostContentStatus,
 } from "@repo/database";
 import {
-  generateRandomIp,
-  getLocationFromIp,
   finalizeGistCreation,
   enqueueModerationTask,
   MESSAGES_REGISTRY,
@@ -27,7 +25,7 @@ export interface CreateGistInput {
   hasSensitiveGraphic?: boolean;
   s3Config: any;
   redisUrl: string;
-  userIp?: string;
+  location?: ILocation;
 }
 
 export interface CreateGistResult {
@@ -55,7 +53,7 @@ export const executeCreateGist = async (
     hasSensitiveGraphic = false,
     s3Config,
     redisUrl,
-    userIp,
+    location,
   } = input;
 
   if (!userId) {
@@ -76,18 +74,6 @@ export const executeCreateGist = async (
       payload: null,
     };
   }
-
-  const geoData = await getLocationFromIp(generateRandomIp());
-  const location = geoData
-    ? ({
-        name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
-        city: geoData.city,
-        state: geoData.state,
-        country: geoData.country,
-        type: "Point" as const,
-        coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-      } as ILocation)
-    : undefined;
 
   // Auto-extract topics from caption if user provided no topics
   const userTopics = topics && topics.length > 0 ? topics : [];
@@ -146,12 +132,12 @@ export const executeCreateGist = async (
 
   let modTaskMode: ModerationTaskMode;
   if (skipModeration) {
-    modTaskMode = "EXTRACT_KEYWORDS_ONLY";
+    modTaskMode = "EXTRACT_TOPICS_ONLY";
   } else {
     modTaskMode =
       hasUserTopics || hasSytemTopics
         ? "MODERATE_ONLY"
-        : "MODERATE_AND_EXTRACT_KEYWORDS";
+        : "MODERATE_AND_EXTRACT_TOPICS";
   }
 
   // Enqueue media processing task

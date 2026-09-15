@@ -57,16 +57,16 @@ export type CheckPurpose =
   | "ACCOUNT_UPDATE";
 
 export interface TransitPayloadMap {
-  LOGIN_VERIFICATION: IUser;
-  SIGNUP_VERIFICATION: IUser;
-  ACCOUNT_UPDATE: { field: string; oldValue: string };
-  IDENTIFIER_UPDATE: { field: string; oldValue: string };
+  LOGIN_VERIFICATION: { user?: IUser };
+  SIGNUP_VERIFICATION: { user?: IUser };
   PASSWORD_RESET: {
+    identifier?: string;
     currentStep?: PasswordResetStepName;
     nextStep?: PasswordResetStepName;
-    identifier?: string;
   };
-  MFA_ACTIVATION: IUser;
+  MFA_ACTIVATION: { user?: IUser };
+  ACCOUNT_UPDATE: { field: string; oldValue: string };
+  IDENTIFIER_UPDATE: { field: string; oldValue: string };
 }
 
 export type TransitPurpose = keyof TransitPayloadMap;

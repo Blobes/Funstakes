@@ -6,9 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
   DisplayFeedbackUI,
-  InlineMsgUI,
   ProgressIcon,
-  SVGWrapper,
   TransText,
 } from "@repo/shared-ui";
 import {
@@ -17,8 +15,7 @@ import {
   COMMON_BUTTON_LABELS,
   TransitPurpose,
 } from "@repo/core";
-import { useTotp } from "./useTotp";
-import { BaseVerificationProps } from "../useVerifyIdentity";
+import { useTotp, UseTotpProps } from "./useTotp";
 import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
 import { QrCode, SquaresExclude } from "lucide-react";
 
@@ -27,7 +24,7 @@ import { QrCode, SquaresExclude } from "lucide-react";
  * Generates a QR code or manual key, takes verification input, and handles fallback navigation modes.
  */
 export const ConfigureTotp = <P extends TransitPurpose>(
-  props: BaseVerificationProps<P>,
+  props: UseTotpProps<P>,
 ) => {
   const { style } = props;
   const { isMobile } = useMisc();
@@ -42,7 +39,9 @@ export const ConfigureTotp = <P extends TransitPurpose>(
     copied,
     proceedToVerification,
     isSetupError,
-  } = useTotp({ ...props, viewMode: "CONFIGURE_TOTP" });
+  } = useTotp({
+    ...props, // currStep: "CONFIGURE_TOTP"
+  });
 
   const { translateTxtString } = useStaticTranslation();
 
@@ -59,7 +58,10 @@ export const ConfigureTotp = <P extends TransitPurpose>(
       <Stack
         sx={{ gap: theme.gap(8), textAlign: "center", alignItems: "center" }}
       >
-        <QrCode size={isMobile ? 50 : 60} />
+        <QrCode
+          size={isMobile ? 50 : 60}
+          style={{ marginBottom: theme.boxSpacing(12) }}
+        />
         <TransText
           component="h3"
           {...AUTH_FEEDBACK.mfa_setup_without_msg_channel("TOTP")}
@@ -80,7 +82,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
         sx={{
           gap: theme.gap(12),
           alignItems: "center",
-          width: "80%",
+          width: "100%",
           [theme.breakpoints.down("lg")]: { width: "100%" },
           background: theme.palette.gray.trans[1],
           borderRadius: theme.radius[3],
@@ -148,7 +150,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
                   options={{ disabled: isLoadingSetup }}
                 >
                   <TransText
-                    {...AUTH_BUTTON_LABELS.create_account}
+                    {...AUTH_BUTTON_LABELS.proceed_to_verification}
                     noComponent
                   />
                 </AppButton>

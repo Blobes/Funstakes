@@ -17,6 +17,7 @@ import {
   extractCountryCode,
   extractPayloadKeys,
   getFromLocalStorage,
+  getOtpIdentifierType,
   saveToLocalStorage,
 } from "@repo/helpers";
 import { VerifyIdentityService, OtpRequest } from "../services";
@@ -33,7 +34,7 @@ const HOUR_IN_MS = 12 * 60 * 60 * 1000; // 12 Hours
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
 
 /**
- * Checks whether the required duration has elapsed since the last dispatch.
+ * Checks whether required duration elapsed since last dispatch.
  */
 const canAutoDispatchOtp = (): boolean => {
   const lastDispatchTime = getFromLocalStorage<number>({
@@ -81,30 +82,48 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
 
-  const purpose = activeTransit?.purpose;
+  const transitIdentifier = activeTransit?.identifier;
+  const transitPurpose = activeTransit?.purpose;
   const dispatchOnload = activeTransit?.dispatchOnload ?? true;
 
   const hasDispatchedOnLoad = useRef(false);
-  const initialIdentifierRef = useRef(activeTransit?.identifier);
+  const initialIdentifierRef = useRef(transitIdentifier);
+
   const hasUserCtx =
     authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
 
   const [recipient, setRecipient] = useState<string | undefined>(
-    activeTransit?.identifier,
+    initialIdentifierRef.current,
   );
 
-  const targetPhone =
-    recipient ||
-    activeTransit?.identifier ||
-    initialIdentifierRef.current ||
-    authUser?.phoneNumber;
-
   const isAuthPurpose =
-    purpose === "LOGIN_VERIFICATION" ||
-    purpose === "SIGNUP_VERIFICATION" ||
-    purpose === "PASSWORD_RESET";
-  const isMfaActivationPurpose = purpose === "MFA_ACTIVATION";
-  const isUpdatePurpose = purpose === "IDENTIFIER_UPDATE";
+    transitPurpose === "LOGIN_VERIFICATION" ||
+    transitPurpose === "SIGNUP_VERIFICATION" ||
+    transitPurpose === "PASSWORD_RESET";
+  const isMfaActivationPurpose = transitPurpose === "MFA_ACTIVATION";
+  const isUpdatePurpose = transitPurpose === "IDENTIFIER_UPDATE";
+
+  /**
+   * Resolves target email by evaluating active transit session or auth user payload.
+   */
+  const targetEmail = useMemo(() => {
+    return resolveChannelRecipient(
+      activeTransit,
+      "EMAIL",
+      recipient || initialIdentifierRef.current,
+    );
+  }, [activeTransit, recipient]);
+
+  /**
+   * Resolves target phone by evaluating active transit session or auth user payload.
+   */
+  const targetPhone = useMemo(() => {
+    return resolveChannelRecipient(
+      activeTransit,
+      "PHONE_NUMBER",
+      recipient || initialIdentifierRef.current,
+    );
+  }, [activeTransit, recipient]);
 
   const {
     isWhatsappActive,
@@ -114,14 +133,14 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   } = useWhatsAppStatus({ phoneNumber: targetPhone });
 
   const allowedChannels = useMemo<OtpMessageChannel[]>(() => {
-    if (purpose === "SIGNUP_VERIFICATION") {
+    if (transitPurpose === "SIGNUP_VERIFICATION") {
       return ["EMAIL"];
     }
-    if (purpose === "MFA_ACTIVATION") {
+    if (transitPurpose === "MFA_ACTIVATION") {
       return ["WHATSAPP", "SMS"];
     }
     return ALL_CHANNELS;
-  }, [purpose]);
+  }, [transitPurpose]);
 
   const isSmsAllowed = useMemo(() => {
     if (!targetPhone) return false;
@@ -136,26 +155,39 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   }, [targetPhone]);
 
   /**
-   * Resolves default channel based on availability and transit context.
+   * Resolves default channel strictly based on supported and available parameters.
    */
-  const defaultChannel: OtpMessageChannel = useMemo(() => {
+  const defaultChannel: OtpMessageChannel | undefined = useMemo(() => {
     const preferredChannel = activeTransit?.otpMessageChannel;
-    if (purpose === "MFA_ACTIVATION") {
-      if (isWhatsappActive) return "WHATSAPP";
-      if (targetPhone && isSmsAllowed) return "SMS";
-      return preferredChannel || "EMAIL";
+    const hasWhatsapp = Boolean(targetPhone && isWhatsappActive);
+    const hasSms = Boolean(targetPhone && isSmsAllowed);
+    const hasEmail = Boolean(targetEmail);
+
+    if (preferredChannel && allowedChannels.includes(preferredChannel)) {
+      if (preferredChannel === "EMAIL" && hasEmail) return "EMAIL";
+      if (preferredChannel === "WHATSAPP" && hasWhatsapp) return "WHATSAPP";
+      if (preferredChannel === "SMS" && hasSms) return "SMS";
     }
-    return preferredChannel || "EMAIL";
+
+    if (allowedChannels.includes("EMAIL") && hasEmail) return "EMAIL";
+    if (allowedChannels.includes("WHATSAPP") && hasWhatsapp) return "WHATSAPP";
+    if (allowedChannels.includes("SMS") && hasSms) return "SMS";
+
+    return undefined;
   }, [
-    purpose,
+    allowedChannels,
     isWhatsappActive,
     targetPhone,
+    targetEmail,
     isSmsAllowed,
     activeTransit?.otpMessageChannel,
   ]);
 
-  const [msgChannel, setMsgChannel] =
-    useState<OtpMessageChannel>(defaultChannel);
+  const [msgChannel, setMsgChannel] = useState<OtpMessageChannel | undefined>(
+    defaultChannel,
+  );
+
+  const activeChannel = msgChannel ?? defaultChannel;
 
   const verificationStrategies = useMemo(
     () =>
@@ -164,7 +196,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
         handleAccountUpdateSuccess,
         handlePassResetSuccess,
         handleMfaActivationSuccess,
-        recipient: recipient || initialIdentifierRef.current,
+        recipient,
       }),
     [
       handleAuthSuccess,
@@ -176,17 +208,33 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   );
 
   useEffect(() => {
-    if (activeTransit?.identifier) {
-      initialIdentifierRef.current = activeTransit.identifier;
+    if (transitIdentifier) {
+      initialIdentifierRef.current = transitIdentifier;
     }
-  }, [activeTransit?.identifier]);
+  }, [transitIdentifier]);
 
+  // Ensure active channel syncs recipient correctly when channel or default channel changes
   useEffect(() => {
-    if (activeTransit?.identifier && !recipient) {
-      setRecipient(activeTransit.identifier);
+    if (activeChannel) {
+      const targetType: IdentifierType =
+        activeChannel === "EMAIL" ? "EMAIL" : "PHONE_NUMBER";
+      const resolvedRecipient = resolveChannelRecipient(
+        activeTransit,
+        targetType,
+        recipient || initialIdentifierRef.current,
+      );
+      if (resolvedRecipient && resolvedRecipient !== recipient) {
+        setRecipient(resolvedRecipient);
+      }
     }
-    setMsgChannel(defaultChannel);
-  }, [activeTransit?.identifier, defaultChannel, recipient]);
+  }, [activeChannel, activeTransit, recipient]);
+
+  // Sync state if defaultChannel shifts
+  useEffect(() => {
+    if (defaultChannel && !msgChannel) {
+      setMsgChannel(defaultChannel);
+    }
+  }, [defaultChannel, msgChannel]);
 
   // Cooldown Timer for otp resend
   useEffect(() => {
@@ -257,15 +305,24 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     async (customRequest?: OtpRequest) => {
       setInlineMsg(null);
 
-      const targetChannel = customRequest?.messageChannel || msgChannel;
+      const targetChannel = customRequest?.messageChannel || activeChannel;
+      const resolvedChannelType: IdentifierType =
+        targetChannel === "EMAIL" ? "EMAIL" : "PHONE_NUMBER";
+
       const targetRecipient =
         customRequest?.recipient ||
-        recipient ||
-        activeTransit?.identifier ||
-        initialIdentifierRef.current ||
-        (targetChannel === "EMAIL" ? authUser?.email : authUser?.phoneNumber);
+        resolveChannelRecipient(
+          activeTransit,
+          resolvedChannelType,
+          recipient || initialIdentifierRef.current,
+        );
 
-      if (!targetRecipient || !targetChannel) return;
+      if (!targetRecipient || !targetChannel) {
+        setInlineMsg(
+          translateTxtString(AUTH_FEEDBACK.otp_identifier_and_channel_required),
+        );
+        return;
+      }
 
       if (targetChannel === "WHATSAPP") {
         const isValid = await validateStatus(targetRecipient);
@@ -287,22 +344,21 @@ export const useMessagingOtp = <P extends TransitPurpose>(
       });
     },
     [
-      msgChannel,
+      activeChannel,
       recipient,
-      activeTransit,
-      authUser?.email,
-      authUser?.phoneNumber,
+      transitIdentifier,
       validateStatus,
       executeDispatch,
       setInlineMsg,
       whatsappStatusMsg,
+      translateTxtString,
     ],
   );
 
   useEffect(() => {
     if (hasDispatchedOnLoad.current) return;
     const canDispatch = dispatchOnload && (activeTransit || hasUserCtx);
-    if (canDispatch) {
+    if (canDispatch && activeChannel) {
       hasDispatchedOnLoad.current = true;
       if (canAutoDispatchOtp()) {
         queueMicrotask(() => {
@@ -310,11 +366,11 @@ export const useMessagingOtp = <P extends TransitPurpose>(
         });
       }
     }
-  }, [activeTransit, hasUserCtx, dispatchOnload, handleSendOtp]);
+  }, [activeTransit, hasUserCtx, dispatchOnload, handleSendOtp, activeChannel]);
 
   const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
     mutationFn: async (params: {
-      purpose: TransitPurpose;
+      purpose?: TransitPurpose;
       method: () => Promise<unknown>;
     }) => {
       const response = await params.method();
@@ -329,15 +385,14 @@ export const useMessagingOtp = <P extends TransitPurpose>(
             "verificationToken",
             "otpIdentifierType",
           ]);
-
         await commitAccountUpdate({
           identifier: identifier as string | undefined,
           purpose: params.purpose,
           otpIdentifierType: otpIdentifierType as IdentifierType | undefined,
           verificationToken: verificationToken as string | undefined,
+          verificationMethod: "MESSAGING",
         });
       }
-
       return response;
     },
     onSuccess: () => {
@@ -379,14 +434,9 @@ export const useMessagingOtp = <P extends TransitPurpose>(
       }
       if (finalCode.length < 6) return;
 
-      const activePurpose = activeTransit.purpose;
-      const targetIdentifier =
-        activeTransit.identifier ||
-        recipient ||
-        initialIdentifierRef.current ||
-        "";
+      const targetIdentifier = transitIdentifier || recipient;
 
-      if (msgChannel === "WHATSAPP") {
+      if (activeChannel === "WHATSAPP") {
         const isValid = await validateStatus(targetIdentifier);
         if (!isValid) {
           setInlineMsg(whatsappStatusMsg);
@@ -400,11 +450,11 @@ export const useMessagingOtp = <P extends TransitPurpose>(
             verifyMsgCode({
               recipient: targetIdentifier,
               code: finalCode,
-              purpose: activePurpose,
+              purpose: transitPurpose,
             });
         }
         if (isUpdatePurpose) {
-          return msgChannel === "EMAIL"
+          return activeChannel === "EMAIL"
             ? () => finalizeEmailUpdateOtp(finalCode)
             : () => finalizePhoneUpdateOtp(finalCode);
         }
@@ -417,12 +467,13 @@ export const useMessagingOtp = <P extends TransitPurpose>(
         );
         return;
       }
-      await executeVerify({ purpose: activePurpose, method });
+      await executeVerify({ purpose: transitPurpose, method });
     },
     [
       activeTransit,
+      transitIdentifier,
       code,
-      msgChannel,
+      activeChannel,
       recipient,
       validateStatus,
       whatsappStatusMsg,
@@ -435,6 +486,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
       executeVerify,
       setInlineMsg,
       translateTxtString,
+      transitPurpose,
     ],
   );
 
@@ -518,12 +570,35 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     ],
   );
 
-  const alternativeChannels = allowedChannels.filter((ch) => {
-    if (ch === msgChannel) return false;
-    if (ch === "SMS") return isSmsAllowed;
-    if (ch === "WHATSAPP") return isWhatsappActive;
-    return true;
-  });
+  /**
+   * Filters alternative channels to strictly display supported and available channels only.
+   */
+  const alternativeChannels = useMemo(() => {
+    return allowedChannels.filter((ch) => {
+      if (ch === activeChannel) return false;
+
+      const targetType: IdentifierType =
+        ch === "EMAIL" ? "EMAIL" : "PHONE_NUMBER";
+      const dest = resolveChannelRecipient(
+        activeTransit,
+        targetType,
+        recipient || initialIdentifierRef.current,
+      );
+      if (!dest) return false;
+
+      if (ch === "EMAIL") return Boolean(dest);
+      if (ch === "SMS") return isSmsAllowed;
+      if (ch === "WHATSAPP") return isWhatsappActive;
+      return false;
+    });
+  }, [
+    allowedChannels,
+    activeChannel,
+    activeTransit,
+    recipient,
+    isSmsAllowed,
+    isWhatsappActive,
+  ]);
 
   return {
     code,
@@ -534,7 +609,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     isCheckingWhatsapp,
     handleVerify,
     handleSendOtp,
-    msgChannel,
+    msgChannel: activeChannel,
     switchChannel,
     recipient,
     inlineMsg,

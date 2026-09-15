@@ -22,14 +22,17 @@ const handlePrefetch = (
   else prefetchPage(href, isCrossZone);
 };
 
-type ButtonSize = "x-small" | "small" | "medium" | "large";
+export type ButtonSize = "x-small" | "small" | "medium" | "large";
+export type ButtonColor = "success" | "error" | "primary";
+type ButtonVariant = "text" | "contained" | "outlined";
 
 interface ButtonProps {
-  variant?: "text" | "contained" | "outlined";
+  variant?: ButtonVariant;
   children?: React.ReactNode;
   size?: ButtonSize;
   style?: GenericStyle;
   overrideStyle?: "full" | "partial";
+  colorType?: ButtonColor;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   href?: string;
   options?: any;
@@ -70,6 +73,7 @@ export const AppButton = ({
   variant = "contained",
   size = "medium",
   children,
+  colorType = "primary",
   style = {},
   overrideStyle = "partial",
   onClick,
@@ -98,12 +102,8 @@ export const AppButton = ({
     height: "unset",
     textAlign: "center",
     textTransform: "unset",
-    color: theme.palette.primary.light,
     minWidth: "unset",
     alignSelf: "unset",
-    "&:hover": {
-      backgroundColor: theme.fixedColors.pTrans,
-    },
   };
   const mergedStyle =
     overrideStyle === "full"
@@ -115,6 +115,7 @@ export const AppButton = ({
 
   const buttonProps = {
     variant,
+    color: colorType,
     sx: mergedStyle,
     ...(onClick && {
       onClick: (e: React.MouseEvent<HTMLElement>) => onClick(e),

@@ -8,7 +8,7 @@ import {
   PermissionName,
   SubscriptionTier,
   SubscriptionStatus,
-  UserTopicAddedBy,
+  TopicSourceType,
 } from "@repo/database";
 import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
@@ -27,8 +27,8 @@ export type PostType = "GIST" | "STAKE";
 
 export type ModerationTaskMode =
   | "MODERATE_ONLY"
-  | "MODERATE_AND_EXTRACT_KEYWORDS"
-  | "EXTRACT_KEYWORDS_ONLY";
+  | "MODERATE_AND_EXTRACT_TOPICS"
+  | "EXTRACT_TOPICS_ONLY";
 
 export type OtpIdentifierType = "EMAIL" | "PHONE_NUMBER";
 
@@ -157,7 +157,7 @@ export interface IModResult {
   status: PostContentStatus;
   newTopicsFromAi?: string[];
   hasSensitiveGraphic?: boolean;
-  topicsSource?: UserTopicAddedBy;
+  topicsSource?: TopicSourceType;
 }
 
 type ModEventType = "POST_CREATION" | "POST_UPDATE";
@@ -169,7 +169,7 @@ export interface FinalizePostReq {
   caption?: string;
   media: IMedia[];
   event: ModEventType;
-  topicsSource?: UserTopicAddedBy;
+  topicsSource?: TopicSourceType;
   modResult: IModResult;
   session: mongoose.ClientSession;
 }
@@ -181,7 +181,7 @@ export interface IPostModData {
   caption?: string;
   media?: IMedia[];
   topics?: string[];
-  topicsSource?: UserTopicAddedBy;
+  topicsSource?: TopicSourceType;
   event: ModEventType;
   moderationTaskMode: ModerationTaskMode;
 }

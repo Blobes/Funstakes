@@ -1,8 +1,8 @@
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import {
-  africanCountryCodes,
-  globalCountryCodes,
-  smsDispatchCountries,
+  AFRICAN_PHONE_CODES,
+  GLOBAL_PHONE_CODES,
+  ALLOWED_SMS_COUNTRIES,
 } from "../../../constants/others";
 import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
@@ -126,7 +126,7 @@ export async function dispatchSmsOtp(
   const formattedRecipient = { ...recipient, phoneNumber: recipientPhone };
 
   // Strictly check if dispatching is permitted for this country code
-  const isDispatchPermitted = smsDispatchCountries.some((prefix) =>
+  const isDispatchPermitted = ALLOWED_SMS_COUNTRIES.some((prefix) =>
     recipientPhone.startsWith(prefix.replace(/^\+/, "")),
   );
 
@@ -135,7 +135,7 @@ export async function dispatchSmsOtp(
     throw createDomainError(errInfo.message, errInfo.i18nKey, 400);
   }
 
-  const isAfricanPhone = africanCountryCodes.some((prefix) =>
+  const isAfricanPhone = AFRICAN_PHONE_CODES.some((prefix) =>
     recipientPhone.startsWith(prefix.replace(/^\+/, "")),
   );
 
@@ -151,7 +151,7 @@ export async function dispatchSmsOtp(
     }
   }
 
-  const isAllowedGlobalPhone = globalCountryCodes.some((prefix) =>
+  const isAllowedGlobalPhone = GLOBAL_PHONE_CODES.some((prefix) =>
     recipientPhone.startsWith(prefix.replace(/^\+/, "")),
   );
 

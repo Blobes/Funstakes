@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   checkSlidingWindow,
   getClientIp,
+  HTTP_REQ_HEADERS,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
 
@@ -30,8 +31,8 @@ export const rateLimiter = (limit: number, windowSeconds: number) => {
       const remaining = Math.max(0, limit - currentUsage);
 
       // Standard RateLimit response headers
-      res.setHeader("X-RateLimit-Limit", limit);
-      res.setHeader("X-RateLimit-Remaining", remaining);
+      res.setHeader(HTTP_REQ_HEADERS.X_RATE_LIMIT, limit);
+      res.setHeader(HTTP_REQ_HEADERS.X_RATE_LIMIT_REMAINING, remaining);
 
       if (!isAllowed) {
         res.setHeader("Retry-After", windowSeconds);

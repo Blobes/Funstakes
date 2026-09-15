@@ -16,6 +16,7 @@ export interface ActionConfirmationProps {
   confirmLabel: ReactNode;
   onConfirm: () => void | Promise<void>;
   onCancel?: () => void;
+  confirmBtnColorType?: "primary" | "success" | "error";
   isLoading?: boolean;
   style?: {
     icon?: GenericStyle;
@@ -36,6 +37,7 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
   confirmLabel,
   onConfirm,
   onCancel,
+  confirmBtnColorType = "primary",
   isLoading = false,
   style,
 }) => {
@@ -98,7 +100,11 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
           {cancelLabel}
         </AppButton>
 
-        <AppButton variant="contained" onClick={handleConfirmClick}>
+        <AppButton
+          variant="contained"
+          colorType={confirmBtnColorType}
+          onClick={handleConfirmClick}
+        >
           {isLoading ? <ProgressIcon options={{ size: 25 }} /> : confirmLabel}
         </AppButton>
       </Stack>

@@ -16,7 +16,7 @@ export const syncPostTopics = async (
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { topics, targetId, targetModel, eventType, addedBy } =
+  const { topics, targetId, targetModel, eventType } =
     req.body as ManageTopicsParams;
 
   if (!userId) {
@@ -34,7 +34,6 @@ export const syncPostTopics = async (
       targetId,
       targetModel,
       eventType,
-      addedBy,
     });
 
     if (serviceResult.status === "INVALID_INPUT") {

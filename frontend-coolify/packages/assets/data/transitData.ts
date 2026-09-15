@@ -32,19 +32,19 @@ export const mockTransitData = (
         verificationMethod: "MESSAGING",
         reason: "NEW_DEVICE",
         dispatchOnload: false,
-        payload: mockUserPayload,
+        payload: { user: mockUserPayload },
       },
     ],
     SIGNUP_VERIFICATION: [
       {
         transitId: "signup_verification_preview_session",
         purpose: "SIGNUP_VERIFICATION",
-        identifier: "+1234567890",
+        identifier: "+2347040468449",
         otpMessageChannel: "WHATSAPP",
         verificationMethod: "MESSAGING",
         reason: "NEW_ACCOUNT",
         dispatchOnload: true,
-        payload: mockUserPayload,
+        payload: { user: mockUserPayload },
       },
     ],
     MFA_ACTIVATION: [
@@ -56,7 +56,7 @@ export const mockTransitData = (
         verificationMethod: "TOTP",
         reason: "UNTRUSTED_DEVICE",
         dispatchOnload: false,
-        payload: mockUserPayload,
+        payload: { user: mockUserPayload },
       },
     ],
     PASSWORD_RESET: [
@@ -71,7 +71,6 @@ export const mockTransitData = (
         payload: {
           currentStep: "CREDENTIAL",
           nextStep: "NEW_PASSWORD",
-          identifier: "developer@example.com",
         },
       },
     ],

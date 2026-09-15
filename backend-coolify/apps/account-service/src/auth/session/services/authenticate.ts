@@ -45,6 +45,8 @@ interface ILoginResult {
   otpReason?: "UNVERIFIED_ACCOUNT" | "UNTRUSTED_DEVICE";
 }
 
+const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 /**
  * Executes the login business logic including credential comparison, device registry, and session generation.
  */
@@ -122,11 +124,11 @@ export const authenticateUser = async (
   // Ensure default role and subscription are present before issuing session state
   await syncDefaultRole(user._id);
 
-  const device = await upsertDevice(
-    user as IUserDocument,
+  const device = await upsertDevice({
+    user: user as IUserDocument,
     deviceToken,
     userAgent,
-  );
+  });
 
   const deviceIdString = device._id.toString();
 
@@ -139,35 +141,39 @@ export const authenticateUser = async (
     primaryDeviceId?.toString(),
   );
 
-  const { accessToken, refreshToken } = await issueAuthTokens({
-    user,
-    deviceId: deviceIdString,
-    sessionId: uuidv4(),
-    userAgent,
-    ipAddress,
-    authTokens,
-  });
+  const deviceTrust = await evaluateDeviceTrust(device);
+  const isVerified =
+    Boolean(user.isEmailVerified) || Boolean(user.isPhoneVerified);
 
-  // Perform atomic update for active status timestamps without triggering a redundant full read
-  // await user.updateOne(
-  //   { _id: user._id },
-  //   {
-  //     $set: {
-  //       lastPasswordVerifiedAt: new Date(),
-  //       lastActiveAt: new Date(),
-  //     },
-  //   },
-  // );
+  const lastActive = user.lastActiveAt || user.createdAt;
+
+  let isInactive;
+  if (lastActive)
+    isInactive = Date.now() - new Date(lastActive).getTime() > TRUST_WINDOW;
+
+  const requireOtp = !isVerified || !deviceTrust.trusted || isInactive;
 
   const now = new Date();
   user.lastPasswordVerifiedAt = now;
-  user.lastActiveAt = now;
+
+  let accessToken, refreshToken;
+  if (!requireOtp) {
+    const tokens = await issueAuthTokens({
+      user,
+      deviceId: deviceIdString,
+      sessionId: uuidv4(),
+      userAgent,
+      ipAddress,
+      authTokens,
+    });
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
+    user.lastActiveAt = now;
+  }
+
+  user.save();
 
   const safeData = sanitizeUserResult(user, userSensitiveFields());
-  const trust = await evaluateDeviceTrust(device);
-  const isVerified =
-    Boolean(user.isEmailVerified) || Boolean(user.isPhoneVerified);
-  const requireOtp = !isVerified || !trust.trusted;
 
   return {
     status: "SUCCESS",

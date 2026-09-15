@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleFetchTopics, handlePostFinalizer } from "./handlers";
+import { handleFetchTopics, handlePostFinalizer } from "./controllers";
 
 const router: Router = Router();
 

@@ -13,7 +13,7 @@ export async function BaseLayout({ children }: { children: React.ReactNode }) {
                 (function() {
                   try {
                     const mode = localStorage.getItem('mui-mode') || 'dark';
-                    const bg = mode === 'dark' ? '#121421' : '#ffffff'; 
+                    const bg = mode === 'dark' ? '#11131B' : '#ffffff'; 
                     document.documentElement.style.setProperty('--app-bg', bg);
                   } catch (e) {}
                 })();

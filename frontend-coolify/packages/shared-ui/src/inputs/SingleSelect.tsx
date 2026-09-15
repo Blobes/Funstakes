@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
-import { useTheme } from "@mui/material/styles";
+import React from "react";
 import {
   Box,
   IconButton,
@@ -13,11 +12,12 @@ import {
   Stack,
 } from "@mui/material";
 import { ChevronDown, CircleQuestionMark, X } from "lucide-react";
-import { ListType, MenuRef, useGlobalStore, IMenuItem } from "@repo/core";
+import { ListType, IMenuItem } from "@repo/core";
 import { DisplayList } from "../Menu";
 import { BasicTooltip } from "../Tooltips";
 import { InputEventHandlers, InputProps, styleConfig } from "./Dynamic";
 import { DisabledClickWrapper } from "../ElementTap";
+import { useSelectInput } from "@repo/shared-hooks";
 
 export interface SelectOption extends IMenuItem {
   value: string | number;
@@ -62,44 +62,25 @@ export const SingleSelectInput = ({
   onDisabledClick,
   style,
 }: SingleSelectInputProps) => {
-  const theme = useTheme();
-  const inputRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<MenuRef>(null);
-  const currLang = useGlobalStore((state) => state.currentLanguage);
-
-  const activeValue = selectedValue ?? value;
-
-  const selectedOption = options.find(
-    (opt) => opt.value === activeValue || opt.id === activeValue,
-  );
-
-  const displayValue =
-    selectedOption?.title || (typeof value === "string" ? value : "");
-
-  /**
-   * Triggers the DisplayList menu overlay anchored to the select element.
-   */
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    if (disabled) return;
-    if (inputRef.current) {
-      menuRef.current?.openMenu(inputRef.current);
-    } else {
-      menuRef.current?.openMenu(event.currentTarget);
-    }
-  };
-
-  /**
-   * Resets selected state and triggers clear handler.
-   */
-  const handleClearSelection = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onClear) {
-      onClear();
-    }
-  };
-
-  const showResetIcon = allowReset && Boolean(displayValue);
-  const showTooltip = tooltipGuide && !displayValue;
+  const {
+    theme,
+    inputRef,
+    menuRef,
+    currLang,
+    activeSingleValue,
+    singleDisplayValue,
+    showSingleResetIcon,
+    showSingleTooltip,
+    handleOpenMenu,
+    handleClearSingle,
+  } = useSelectInput<SelectOption>({
+    options,
+    value,
+    selectedValue,
+    allowReset,
+    tooltipGuide,
+    onClear,
+  });
 
   const renderInputField = () => (
     <Box sx={{ position: "relative", width: "100%" }}>
@@ -111,20 +92,21 @@ export const SingleSelectInput = ({
         disabled={disabled}
         required={required}
         className="custom-select-form-style"
-        sx={{}}
       >
         {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
         <Select
           ref={inputRef}
           id={id}
           label={label}
-          value={displayValue ? activeValue : ""}
+          value={singleDisplayValue ? activeSingleValue : ""}
           displayEmpty
           open={false}
-          onClick={handleOpenMenu}
+          onClick={(e) => handleOpenMenu(e, disabled)}
           onFocus={(e) => onFocus?.(e)}
           onBlur={(e) => onBlur?.(e)}
-          renderValue={(selected) => (selected ? displayValue : placeholder)}
+          renderValue={(selected) =>
+            selected ? singleDisplayValue : placeholder
+          }
           IconComponent={() => null}
           endAdornment={
             <InputAdornment position="end">
@@ -135,7 +117,7 @@ export const SingleSelectInput = ({
                   gap: theme.gap(1),
                 }}
               >
-                {showTooltip && (
+                {showSingleTooltip && (
                   <BasicTooltip title={tooltipGuide}>
                     <Box
                       sx={{
@@ -155,8 +137,8 @@ export const SingleSelectInput = ({
                   </BasicTooltip>
                 )}
 
-                {showResetIcon ? (
-                  <IconButton size="small" onClick={handleClearSelection}>
+                {showSingleResetIcon ? (
+                  <IconButton size="small" onClick={handleClearSingle}>
                     <X size={18} />
                   </IconButton>
                 ) : (
@@ -175,8 +157,14 @@ export const SingleSelectInput = ({
             </InputAdornment>
           }
           sx={{
+            width: "100%",
             fontWeight: 500,
-            ...styleConfig({ theme, style, value: displayValue, currLang }),
+            ...styleConfig({
+              theme,
+              style,
+              value: singleDisplayValue,
+              currLang,
+            }),
             ...(multiline && {
               height: "auto",
               "& .MuiSelect-select": {
@@ -198,9 +186,8 @@ export const SingleSelectInput = ({
         listName={listName}
         showSearchBar={showSearchBar}
         isLoading={isLoading}
-        activeItem={displayValue}
-        showActiveItem
-        stickToScreen={false}
+        activeItems={[singleDisplayValue]}
+        displayActiveState
         heightThreshold={65}
         onItemClick={(item) => {
           if (onSelectChange && item) onSelectChange(item);
@@ -209,10 +196,6 @@ export const SingleSelectInput = ({
           item: {
             padding: theme.boxSpacing(4, 6),
             borderRadius: theme.radius[2],
-          },
-          container: {
-            width: inputRef.current ? inputRef.current.clientWidth : "100%",
-            maxWidth: "unset",
           },
         }}
       />

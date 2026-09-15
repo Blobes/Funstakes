@@ -31,10 +31,12 @@ const SYSTEM_ACTIONS = {
   SETTINGS_MANAGE: "settings.manage",
   CHANGE_STATUS: "change_status",
 
-  // Post
-  SYNC_TOPICS: "sync_topics",
-  VIEW_TOPICS: "view_topics",
+  // Post & Topics
   TRANSLATE_CAPTION: "translate_caption",
+  SYNC_USER_TOPICS: "sync_user_topics",
+  SYNC_POST_TOPICS: "sync_post_topics",
+  VIEW_USER_TOPICS: "view_user_topics",
+  VIEW_POST_TOPICS: "view_post_topics",
 
   // Infrastructure & Ops
   SET_PRIMARY: "primary",
@@ -89,8 +91,18 @@ export const POST_PERMISSIONS = {
   HIDE: `post.${SYSTEM_ACTIONS.HIDE}`,
   APPROVE: `post.${SYSTEM_ACTIONS.APPROVE}`,
   REJECT: `post.${SYSTEM_ACTIONS.REJECT}`,
-  SYNC_TOPICS: `post.${SYSTEM_ACTIONS.SYNC_TOPICS}`,
-  VIEW_TOPICS: `post.${SYSTEM_ACTIONS.VIEW_TOPICS}`,
+} as const;
+
+export const TOPIC_PERMISSIONS = {
+  CREATE: `topic.${SYSTEM_ACTIONS.CREATE}`,
+  READ: `topic.${SYSTEM_ACTIONS.READ}`,
+  VIEW_ALL: `topic.${SYSTEM_ACTIONS.VIEW_ALL}`,
+  REMOVE: `topic.${SYSTEM_ACTIONS.DELETE}`,
+  VIEW_USER_TOPICS: `topic.${SYSTEM_ACTIONS.VIEW_USER_TOPICS}`,
+  SYNC_USER_TOPICS: `topic.${SYSTEM_ACTIONS.SYNC_USER_TOPICS}`,
+  VIEW_POST_TOPICS: `topic.${SYSTEM_ACTIONS.VIEW_POST_TOPICS}`,
+  SYNC_POST_TOPICS: `topic.${SYSTEM_ACTIONS.SYNC_POST_TOPICS}`,
+  RESOLVE: `topic.${SYSTEM_ACTIONS.RESOLVE}`,
 } as const;
 
 export const COMMENT_PERMISSIONS = {
@@ -177,6 +189,7 @@ export const PREMIUM_PERMISSIONS = {
 // --- 3. UNIFIED REGISTRY & TYPES ---
 export const PERMISSIONS = {
   POST: POST_PERMISSIONS,
+  TOPIC: TOPIC_PERMISSIONS,
   COMMENT: COMMENT_PERMISSIONS,
   USER: USER_PERMISSIONS,
   ADMIN: ADMIN_PERMISSIONS,

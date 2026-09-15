@@ -104,14 +104,20 @@ func getModerationResponseSchema() *ResponseFormatSchemaWrapper {
 				"confidence": SchemaProperty{
 					Type: "number",
 				},
-				"extractedKeywords": SchemaArrayProperty{
+				"extractedTopics": SchemaArrayProperty{
+					Type: "array",
+					Items: SchemaArrayItems{
+						Type: "string",
+					},
+				},
+				"perceivedTopics": SchemaArrayProperty{
 					Type: "array",
 					Items: SchemaArrayItems{
 						Type: "string",
 					},
 				},
 			},
-			Required: []string{"isFlagged", "reason", "ruleViolated", "severity", "violationSource", "confidence", "extractedKeywords"},
+			Required: []string{"isFlagged", "reason", "ruleViolated", "severity", "violationSource", "confidence", "extractedTopics", "perceivedTopics"},
 		},
 	}
 }
@@ -128,7 +134,7 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 	mediaModerateJSON, _ := json.Marshal(GlobalContentPolicy.Media.Rules[SeverityModerate])
 	mediaLowJSON, _ := json.Marshal(GlobalContentPolicy.Media.Rules[SeverityLow])
 
-	existingTopicsFormatted := "NONE (Database has no active topics yet)"
+	existingTopicsFormatted := "General & Off-Topic"
 	if len(existingDBTopics) > 0 {
 		existingTopicsFormatted = strings.Join(existingDBTopics, ", ")
 	}
@@ -144,9 +150,9 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 		[%s]
 
 		CORE OPERATION MODES (Look at the "Mode:" variable passed in the prompt):
-		1. EXTRACT_KEYWORDS_ONLY: You must completely bypass safety policy evaluation. Do NOT look for rules violations. Set isFlagged to false, severity to "NONE", ruleViolated to "", and violationSource to "NONE". Your sole job is to process the fields to populate extractedKeywords.
+		1. EXTRACT_TOPICS_ONLY: You must completely bypass safety policy evaluation. Do NOT look for rules violations. Set isFlagged to false, severity to "NONE", ruleViolated to "", and violationSource to "NONE". Your sole job is to process the fields to populate extractedTopics and perceivedTopics.
 		2. THUMBNAIL_PRE_SCREEN: Evaluate incoming media assets strictly against CRITICAL MEDIA RULES. Bypass MODERATE and LOW rules entirely for this mode.
-		3. FULL_ASSESSMENT / MODERATE_ONLY / MODERATE_AND_EXTRACT_KEYWORDS: Perform full double-track enforcement evaluations.
+		3. FULL_ASSESSMENT / MODERATE_ONLY / MODERATE_AND_EXTRACT_TOPICS: Perform full double-track enforcement evaluations.
 
 		CORE EVALUATION PRINCIPLES:
 		- TEXT EVALUATION (INTENT & CONTEXT-FOCUSED): Evaluate the holistic meaning, tone, and contextual intent of text strings. Do NOT perform simple keyword matching. Benign discussion or meta-commentary about safety systems must NOT be flagged.
@@ -162,13 +168,14 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 		- MODERATE MEDIA RULES: %s
 		- LOW MEDIA RULES: %s
 
-		TAXONOMY EXTRACTION RULES (extractedKeywords):
-		- If the operational mode requests keyword extraction (EXTRACT_KEYWORDS_ONLY or MODERATE_AND_EXTRACT_KEYWORDS), analyze the post payload caption and media assets to extract up to 3 relevant thematic topics.
-		- STRICT TOPIC SELECTION HIERARCHY:
-		  1. FIRST, check the "EXISTING SYSTEM TOPICS IN DATABASE" list provided above. If the post content matches or closely relates to any of those existing topics, YOU MUST PICK AND USE THOSE EXACT TOPIC NAMES IN THE DB.
-		  2. ONLY if the topics perceived in the post are SIGNIFICANTLY DIFFERENT from every topic listed in the database are you permitted to generate entirely new topic names.
-		- Ensure all extracted topics are distinct, descriptive and not more than two (2) words.
-		- If the mode is MODERATE_ONLY, do NOT extract new topics; leave the extractedKeywords array completely empty.
+		TAXONOMY EXTRACTION RULES:
+		- If operational mode includes topic extraction (EXTRACT_TOPICS_ONLY or MODERATE_AND_EXTRACT_TOPICS):
+		  1. Evaluate post content and choose between 1 to 3 matching topics strictly from the "EXISTING SYSTEM TOPICS IN DATABASE" list. Populate these inside "extractedTopics".
+		  2. If the perceived topics in the post are SIGNIFICANTLY DIFFERENT from every topic listed in the database, set "extractedTopics" to ["General & Off-Topic"].
+		  3. NEVER add unlisted or newly generated topics to "extractedTopics".
+		  4. If you perceive new or refined topic ideas that are not in the database list, place them inside "perceivedTopics" as suggestions (1 to 3 items, max 2 words each).
+		  5. If no new topics are suggested, leave "perceivedTopics" as an empty array [].
+		- If mode is MODERATE_ONLY, leave both "extractedTopics" and "perceivedTopics" empty arrays.
 		`,
 		existingTopicsFormatted,
 		textCriticalJSON, textModerateJSON, textLowJSON,
@@ -239,7 +246,7 @@ func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModDat
 		if len(payload.Topics) > 0 {
 			contents = append(contents, OpenRouterMessageContent{
 				Type: "text",
-				Text: fmt.Sprintf("UserKeywords: %s", strings.Join(payload.Topics, ", ")),
+				Text: fmt.Sprintf("UserTopics: %s", strings.Join(payload.Topics, ", ")),
 			})
 		}
 
@@ -374,6 +381,7 @@ func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModDat
 		Severity:            Severity(finalSeverity),
 		ViolationSource:     finalSource,
 		Reason:              parsed.Reason,
-		ExtractedTopics:     parsed.ExtractedKeywords,
+		ExtractedTopics:     parsed.ExtractedTopics,
+		PerceivedTopics:     parsed.PerceivedTopics,
 	}, nil
 }

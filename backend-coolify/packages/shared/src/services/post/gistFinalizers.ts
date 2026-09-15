@@ -8,6 +8,7 @@ import { franc } from "franc-min";
 import { to2ISOCode } from "../../constants/others";
 import { executeCaseReport, IEvidenceSnapshot } from "../moderation/reportCase";
 import { notifyUser } from "../redis/socket";
+import { executeAiTopicsSubmission } from "../topic/ai";
 
 interface Config {
   redisKey?: string;
@@ -21,8 +22,7 @@ export const finalizeGistCreation = async (
   params: FinalizePostReq,
   config: Config,
 ) => {
-  const { postId, userId, caption, media, modResult, topicsSource, session } =
-    params;
+  const { postId, userId, caption, media, modResult, session } = params;
 
   if (modResult.status === "BANNED") {
     await UserModel.findByIdAndUpdate(
@@ -112,8 +112,7 @@ export const finalizeGistCreation = async (
   const determinedSensitiveGraphic =
     !existingGistShell?.hasSensitiveGraphic || !modResult.hasSensitiveGraphic;
 
-  const targetTopics =
-    modResult.extractedTopics || modResult.newTopicsFromAi || [];
+  const targetTopics = modResult.extractedTopics || [];
 
   if (targetTopics.length > 0) {
     await executePostTopicsSync(
@@ -122,7 +121,18 @@ export const finalizeGistCreation = async (
         targetId: postId,
         targetModel: "Gist",
         eventType: "POST_CREATION_OR_UPDATE",
-        addedBy: topicsSource,
+      },
+      session,
+    );
+  }
+
+  const newTopicsFromAi = modResult.newTopicsFromAi || [];
+  if (newTopicsFromAi.length > 0) {
+    await executeAiTopicsSubmission(
+      {
+        topics: newTopicsFromAi,
+        relatedPostId: postId,
+        relatedPostType: "Gist",
       },
       session,
     );
@@ -221,7 +231,7 @@ export const finalizeGistUpdate = async (
   params: FinalizePostReq,
   config: Config,
 ) => {
-  const { postId, userId, caption, modResult, session, topicsSource } = params;
+  const { postId, userId, caption, modResult, session } = params;
 
   if (modResult.status === "BANNED") {
     await UserModel.findByIdAndUpdate(
@@ -277,7 +287,18 @@ export const finalizeGistUpdate = async (
         targetId: postId,
         targetModel: "Gist",
         eventType: "POST_CREATION_OR_UPDATE",
-        addedBy: topicsSource,
+      },
+      session,
+    );
+  }
+
+  const newTopicsFromAi = modResult.newTopicsFromAi || [];
+  if (newTopicsFromAi.length > 0) {
+    await executeAiTopicsSubmission(
+      {
+        topics: newTopicsFromAi,
+        relatedPostId: postId,
+        relatedPostType: "Gist",
       },
       session,
     );

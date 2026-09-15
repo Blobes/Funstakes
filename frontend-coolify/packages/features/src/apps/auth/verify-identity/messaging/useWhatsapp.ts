@@ -62,7 +62,7 @@ export const useWhatsAppStatus = ({ phoneNumber }: CheckStatusInput) => {
     async (overridePhone?: string): Promise<boolean> => {
       const activePhone = overridePhone || phoneNumber;
       if (!activePhone) {
-        setStatusMsg(translateTxtString(AUTH_FEEDBACK.whatsapp_not_registered));
+        setStatusMsg(translateTxtString(AUTH_FEEDBACK.otp_phone_required));
         return false;
       }
 

@@ -76,7 +76,7 @@ export const usePage = () => {
     ({ title, path }: IPage) => {
       const page = { title, path };
       setPage(page);
-      saveToLocalStorage("saved_page", page);
+      saveToLocalStorage(STORAGE_KEYS.SAVED_PAGE, page);
     },
     [setPage],
   );
@@ -143,7 +143,7 @@ export const usePage = () => {
     setGlobalLoading(false);
 
     if (routeGuards.isRedirecting) {
-      if (!temporarySession) return; // Temporarily disabled check for testing purposes
+      if (temporarySession) return; // Temporarily disabled check for testing purposes
 
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)

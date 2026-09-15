@@ -19,9 +19,9 @@ const (
 )
 
 const (
-	ModerateOnly               ModerationTaskMode = "MODERATE_ONLY"
-	ModerateAndExtractKeywords ModerationTaskMode = "MODERATE_AND_EXTRACT_KEYWORDS"
-	ExtractedKeywordsOnly      ModerationTaskMode = "EXTRACT_KEYWORDS_ONLY"
+	ModerateOnly             ModerationTaskMode = "MODERATE_ONLY"
+	ModerateAndExtractTopics ModerationTaskMode = "MODERATE_AND_EXTRACT_TOPICS"
+	ExtractTopicsOnly        ModerationTaskMode = "EXTRACT_TOPICS_ONLY"
 )
 
 type TextPolicy struct {
@@ -60,6 +60,28 @@ type ModerationReport struct {
 	HasSensitiveGraphic bool             `json:"hasSensitiveGraphic"`
 }
 
+// type ValidationResult struct {
+// 	IsFlagged           bool
+// 	IsUnsure            bool
+// 	RuleViolated        string
+// 	Severity            Severity
+// 	ViolationSource     string
+// 	HasSensitiveGraphic bool
+// 	Reason              string
+// 	ExtractedTopics     []string
+// 	WasSampled          bool
+// }
+
+// type AIResponseFormat struct {
+// 	IsFlagged         bool     `json:"isFlagged"`
+// 	RuleViolated      string   `json:"ruleViolated"`
+// 	Severity          string   `json:"severity"`
+// 	ViolationSource   string   `json:"violationSource"`
+// 	Reason            string   `json:"reason"`
+// 	Confidence        float64  `json:"confidence"`
+// 	ExtractedKeywords []string `json:"extractedKeywords"`
+// }
+
 type ValidationResult struct {
 	IsFlagged           bool
 	IsUnsure            bool
@@ -69,17 +91,19 @@ type ValidationResult struct {
 	HasSensitiveGraphic bool
 	Reason              string
 	ExtractedTopics     []string
+	PerceivedTopics     []string
 	WasSampled          bool
 }
 
 type AIResponseFormat struct {
-	IsFlagged         bool     `json:"isFlagged"`
-	RuleViolated      string   `json:"ruleViolated"`
-	Severity          string   `json:"severity"`
-	ViolationSource   string   `json:"violationSource"`
-	Reason            string   `json:"reason"`
-	Confidence        float64  `json:"confidence"`
-	ExtractedKeywords []string `json:"extractedKeywords"`
+	IsFlagged       bool     `json:"isFlagged"`
+	RuleViolated    string   `json:"ruleViolated"`
+	Severity        string   `json:"severity"`
+	ViolationSource string   `json:"violationSource"`
+	Reason          string   `json:"reason"`
+	Confidence      float64  `json:"confidence"`
+	ExtractedTopics []string `json:"extractedTopics"`
+	PerceivedTopics []string `json:"perceivedTopics"`
 }
 
 const (

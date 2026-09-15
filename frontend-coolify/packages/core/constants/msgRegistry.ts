@@ -26,6 +26,10 @@ export type TranslationRegistry = {
  */
 export const auth = {
   button: {
+    activate_mfa: {
+      tKey: "auth:button.activate_mfa",
+      tValue: "Activate MFA",
+    },
     back_to_login: {
       tKey: "auth:button.back_to_login",
       tValue: "Back to Login",
@@ -114,7 +118,7 @@ export const auth = {
     },
     verify_with_authenticator: {
       tKey: "auth:button.use_authenticator",
-      tValue: "Authenticator Code",
+      tValue: "Authenticator code",
     },
     verify_with_security_questions: {
       tKey: "auth:button.use_security_questions",
@@ -123,6 +127,10 @@ export const auth = {
     try_other_methods: {
       tKey: "auth:button.try_other_methods",
       tValue: "Try other methods",
+    },
+    verify_and_activate_mfa: {
+      tKey: "auth:button.verify_and_activate_mfa",
+      tValue: "Verify & activate MFA",
     },
     verify_and_proceed: {
       tKey: "auth:button.verify_and_proceed",
@@ -280,6 +288,14 @@ export const auth = {
       tKey: "auth:feedback.no_verification_sesion_found",
       tValue: "No OTP verification session found",
     },
+    otp_identifier_and_channel_required: {
+      tKey: "auth:feedback.otp_identifier_and_channel_required",
+      tValue: "OTP identifier and channel is required",
+    },
+    otp_phone_required: {
+      tKey: "auth:feedback.otp_phone_required",
+      tValue: "Phone number is required but not provided",
+    },
     or_sign_in_with: {
       tKey: "auth:feedback.or_sign_in_with",
       tValue: "Or sign in with",
@@ -301,11 +317,18 @@ export const auth = {
       tKey: "auth:feedback.otp_invalid_code",
       tValue: "Invalid code.",
     },
+    mfa_setup_with_one_time_code: {
+      tKey: "auth:feedback.omfa_setup_with_one_time_code",
+      tValue: "Set up MFA with One-time Code",
+    },
     mfa_setup_with_msg_channel: (channel: OtpMessageChannel) => ({
       tKey: "auth:feedback.mfa_setup_with_msg_channel",
       tValue: "Set up MFA with {{channel}} Code",
-      interpolations: { channel: MESSAGING_CHANNELS[channel] },
+      interpolations: {
+        channel: MESSAGING_CHANNELS[channel],
+      },
     }),
+
     mfa_setup_without_msg_channel: (method: VerifyIdentityMethod) => ({
       tKey: "auth:feedback.mfa_setup_without_msg_channel",
       tValue: "Set up MFA with {{method}}",
@@ -471,13 +494,19 @@ export const auth = {
     verify_with_msg_channel: (channel: OtpMessageChannel) => ({
       tKey: "auth:feedback.verify_with_msg_channel",
       tValue: "Verify {{channel}} Code",
-      interpolations: { channel: MESSAGING_CHANNELS[channel] },
+      interpolations: {
+        channel: MESSAGING_CHANNELS[channel],
+      },
     }),
     verify_without_msg_channel: (method: VerifyIdentityMethod) => ({
       tKey: "auth:feedback.verify_without_msg_channel",
       tValue: "Verify with {{method}}",
       interpolations: { method: VERIFY_IDENTITY_METHODS[method] },
     }),
+    verify_one_time_code: {
+      tKey: "auth:feedback.verify_one_time_code",
+      tValue: "Verify One-time Code",
+    },
     verify_your_account_headline: {
       tKey: "auth:feedback.verify_your_account_headline",
       tValue: "Verify your account",
@@ -1007,7 +1036,7 @@ export const common = {
     },
     unknown_error: {
       tKey: "common:feedback.unknown_error",
-      tValue: "Unknown server error",
+      tValue: "Unknown server error. Please try again or refresh the page.",
     },
     user_no_follower_tagline: {
       tKey: "common:feedback.user_no_follower_tagline",

@@ -1,6 +1,11 @@
-import mongoose, { ClientSession, Types } from "mongoose";
+import mongoose, {
+  AnyBulkWriteOperation,
+  ClientSession,
+  Types,
+} from "mongoose";
 import { SEED_TOPICS } from "../constants/topics";
 import { TopicModel } from "../models/non-entities/topic";
+import { ITopicDocument } from "../types/others";
 
 export interface IRemoveTopicOptions {
   currentTitle?: string;
@@ -14,19 +19,22 @@ export interface IRemoveTopicOptions {
  */
 export const syncTopics = async (): Promise<void> => {
   try {
-    const operations = SEED_TOPICS.map((title) => ({
-      updateOne: {
-        filter: { title },
-        update: {
-          $setOnInsert: {
-            title,
-            userCount: 0,
-            postCount: 0,
+    const operations: AnyBulkWriteOperation<ITopicDocument>[] = SEED_TOPICS.map(
+      (title) => ({
+        updateOne: {
+          filter: { title },
+          update: {
+            $setOnInsert: {
+              title,
+              userCount: 0,
+              postCount: 0,
+              createdByType: "SYSTEM",
+            },
           },
+          upsert: true,
         },
-        upsert: true,
-      },
-    }));
+      }),
+    );
 
     const result = await TopicModel.bulkWrite(operations);
     console.log(

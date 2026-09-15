@@ -17,14 +17,16 @@ import { AnchorLink } from "./Buttons";
 import { TransText } from "./Text";
 import { usePage } from "@repo/shared-hooks";
 
-// Props for the reusable nav renderer
+/**
+ * Props for the reusable nav renderer
+ */
 export interface RenderListProps<T extends IMenuItem> {
   list: T[];
   listType?: ListType;
   onItemClick?: (item?: IMenuItem & T) => void;
   style?: GenericStyle;
-  showActiveItem?: boolean;
-  activeItem?: string;
+  activeItems?: (string | number)[];
+  displayActiveState?: boolean;
 }
 
 export const RenderItemList = <T extends IMenuItem>({
@@ -32,8 +34,8 @@ export const RenderItemList = <T extends IMenuItem>({
   listType = ListType.DEFAULT,
   onItemClick,
   style = {},
-  showActiveItem = true,
-  activeItem,
+  activeItems = [],
+  displayActiveState = true,
 }: RenderListProps<T>) => {
   const theme = useTheme();
   const pathname = usePathname();
@@ -65,6 +67,18 @@ export const RenderItemList = <T extends IMenuItem>({
     ...restStyle,
   };
 
+  const checkIsActive = (item: T): boolean => {
+    if (!activeItems || activeItems.length === 0) return false;
+    const lowercasedActiveItems = activeItems.map((val) =>
+      val.toString().toLowerCase(),
+    );
+    return Object.values(item).some(
+      (val) =>
+        typeof val === "string" &&
+        lowercasedActiveItems.includes(val.toLowerCase()),
+    );
+  };
+
   const renderItem = (item: T) => {
     switch (listType) {
       case "TOPICS":
@@ -81,6 +95,7 @@ export const RenderItemList = <T extends IMenuItem>({
           <DefaultItem
             title={item.title}
             element={item.element}
+            endElement={(item as any).endElement}
             style={itemStyle.title}
           />
         );
@@ -93,15 +108,8 @@ export const RenderItemList = <T extends IMenuItem>({
         const isLink = item.type === "LINK" || (!item.type && item.url);
         const isActive = isLink
           ? matchPaths(pathname, item.url ?? "")
-          : activeItem
-            ? Object.values(item).some(
-                (val) =>
-                  typeof val === "string" &&
-                  val.toLowerCase() === activeItem.toLowerCase(),
-              )
-            : false;
+          : checkIsActive(item);
 
-        // Shared Click Handler
         const handleClick = () => {
           if (isLink) {
             navigateTo({
@@ -113,11 +121,9 @@ export const RenderItemList = <T extends IMenuItem>({
           if (onItemClick) (onItemClick as (item: IMenuItem) => void)(item);
         };
 
-        // If it's just a raw element with no wrapper logic needed
         if (item.type === "COMPONENT")
           return <Fragment key={index}>{item.element}</Fragment>;
 
-        // Wrapper Component: Use AnchorLink for links, div/button for actions
         const Wrapper = (isLink ? AnchorLink : Stack) as React.ElementType;
 
         return (
@@ -127,11 +133,12 @@ export const RenderItemList = <T extends IMenuItem>({
             onClick={handleClick}
             sx={{
               backgroundColor:
-                showActiveItem && isActive
+                displayActiveState && isActive
                   ? theme.palette.gray.trans[1]
                   : "transparent",
               ...itemStyle,
-            }}>
+            }}
+          >
             {renderItem(item)}
           </Wrapper>
         );
@@ -142,13 +149,28 @@ export const RenderItemList = <T extends IMenuItem>({
 
 interface Default extends IMenuItem {
   style?: GenericStyle;
+  endElement?: React.ReactNode;
 }
-const DefaultItem = ({ title, element, style }: Default) => {
+
+const DefaultItem = ({ title, element, endElement, style }: Default) => {
   return (
-    <>
-      {element && element}
-      {title && <TransText sx={{ ...style }}>{title}</TransText>}
-    </>
+    <Stack
+      sx={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        gap: 1.5,
+      }}
+    >
+      <Stack
+        sx={{ flexDirection: "row", alignItems: "center", gap: 1.5, flex: 1 }}
+      >
+        {element && element}
+        {title && <TransText sx={{ ...style }}>{title}</TransText>}
+      </Stack>
+      {endElement && endElement}
+    </Stack>
   );
 };
 

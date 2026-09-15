@@ -2,6 +2,7 @@
 
 import { green, grey, red } from "@mui/material/colors";
 import { createTheme, PaletteColor } from "@mui/material/styles";
+import { CSS_VARS } from "../constants/cssVars";
 import defaultUIStyles from "./defaultUIStyles";
 
 const baseTheme = createTheme({
@@ -21,7 +22,7 @@ const baseTheme = createTheme({
           50: "#E8ECF5",
           100: "#BCC8DA",
           200: "#6F7E99",
-          300: "#101926",
+          300: "#13171D",
           trans: {
             1: "rgba(1, 7, 30, 0.06)",
             2: "rgba(1, 14, 24, 0.12)",
@@ -35,6 +36,10 @@ const baseTheme = createTheme({
           light: green[300],
           main: green[500],
           dark: green[700],
+          trans: {
+            1: "rgba(14, 183, 14, 0.06)",
+            2: "rgba(59, 208, 56, 0.16)",
+          },
         },
         info: {
           light: "#E8EDFF",
@@ -62,7 +67,7 @@ const baseTheme = createTheme({
           dark: "#8396FF",
         },
         gray: {
-          0: "#121421",
+          0: "#11131B",
           50: "#272D4F",
           100: "#476183",
           200: "#8399B4",
@@ -80,6 +85,10 @@ const baseTheme = createTheme({
           light: green[700],
           main: green[500],
           dark: green[300],
+          trans: {
+            1: "rgba(173, 255, 177, 0.08)",
+            2: "rgba(153, 255, 180, 0.4)",
+          },
         },
         info: {
           light: "#0A0D1C",
@@ -88,8 +97,8 @@ const baseTheme = createTheme({
         },
         error: {
           light: "#170808",
-          main: red[300],
-          dark: "#FFA0A9",
+          main: red[400],
+          dark: "#F56876",
           trans: {
             1: "rgba(255, 173, 173, 0.08)",
             2: "rgba(255, 153, 153, 0.4)",
@@ -197,48 +206,52 @@ const baseTheme = createTheme({
 });
 
 baseTheme.palette.primary = {
-  light: "var(--mui-palette-primary-light)",
-  main: "var(--mui-palette-primary-main)",
-  dark: "var(--mui-palette-primary-dark)",
+  light: CSS_VARS.color_primary_light,
+  main: CSS_VARS.color_primary_main,
+  dark: CSS_VARS.color_primary_dark,
 } as PaletteColor;
 
 baseTheme.palette.gray = {
-  0: "var(--mui-palette-gray-0)",
-  50: "var(--mui-palette-gray-50)",
-  100: "var(--mui-palette-gray-100)",
-  200: "var(--mui-palette-gray-200)",
-  300: "var(--mui-palette-gray-300)",
+  0: CSS_VARS.color_gray0,
+  50: CSS_VARS.color_gray50,
+  100: CSS_VARS.color_gray100,
+  200: CSS_VARS.color_gray200,
+  300: CSS_VARS.color_gray300,
   trans: {
-    1: "var(--mui-palette-gray-trans-1)",
-    2: "var(--mui-palette-gray-trans-2)",
+    1: CSS_VARS.color_gray_trans_1,
+    2: CSS_VARS.color_gray_trans_2,
     overlay: (opacity?: number, adaptive: boolean = false) => {
       const activeVariable = adaptive
-        ? "var(--mui-palette-gray-trans-overlay-adaptive)"
-        : "var(--mui-palette-gray-trans-overlay-default)";
+        ? CSS_VARS.color_gray_trans_overlay_adaptive
+        : CSS_VARS.color_gray_trans_overlay_default;
       return `rgba(${activeVariable}, ${opacity ?? 0.5})`;
     },
   },
 };
 
 baseTheme.palette.success = {
-  light: "var(--mui-palette-success-light)",
-  main: "var(--mui-palette-success-main)",
-  dark: "var(--mui-palette-success-dark)",
+  light: CSS_VARS.color_success_light,
+  main: CSS_VARS.color_success_main,
+  dark: CSS_VARS.color_success_dark,
+  trans: {
+    1: CSS_VARS.color_success_trans_1,
+    2: CSS_VARS.color_success_trans_2,
+  },
 } as PaletteColor;
 
 baseTheme.palette.info = {
-  light: "var(--mui-palette-info-light)",
-  main: "var(--mui-palette-info-main)",
-  dark: "var(--mui-palette-info-dark)",
+  light: CSS_VARS.color_info_light,
+  main: CSS_VARS.color_info_main,
+  dark: CSS_VARS.color_info_dark,
 } as PaletteColor;
 
 baseTheme.palette.error = {
-  light: "var(--mui-palette-error-light)",
-  main: "var(--mui-palette-error-main)",
-  dark: "var(--mui-palette-error-dark)",
+  light: CSS_VARS.color_error_light,
+  main: CSS_VARS.color_error_main,
+  dark: CSS_VARS.color_error_dark,
   trans: {
-    1: "var(--mui-palette-error-trans-1)",
-    2: "var(--mui-palette-error-trans-2)",
+    1: CSS_VARS.color_error_trans_1,
+    2: CSS_VARS.color_error_trans_2,
   },
 } as PaletteColor;
 

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
-import { useTheme } from "@mui/material/styles";
+import React, { useMemo } from "react";
 import {
   Box,
   IconButton,
@@ -11,21 +10,20 @@ import {
   InputLabel,
   FormHelperText,
   Stack,
-  Chip,
-  Checkbox,
-  Typography,
 } from "@mui/material";
-import { ChevronDown, CircleQuestionMark, X, Check } from "lucide-react";
-import { ListType, MenuRef, useGlobalStore, IMenuItem } from "@repo/core";
+import { ChevronDown, CircleQuestionMark, Check, X } from "lucide-react";
+import { ListType, IMenuItem } from "@repo/core";
 import { DisplayList } from "../Menu";
 import { BasicTooltip } from "../Tooltips";
 import { InputEventHandlers, InputProps, styleConfig } from "./Dynamic";
 import { DisabledClickWrapper } from "../ElementTap";
+import { SelectOption } from "./SingleSelect";
+import { ChoiceInput } from "./Choice";
+import { AppChip } from "../Chip";
+import { useSelectInput } from "@repo/shared-hooks";
 
-export interface SelectOption extends IMenuItem {
-  value: string | number;
+export interface MultipleSelectOption extends IMenuItem, SelectOption {
   icon?: React.ReactNode;
-  [key: string]: unknown;
 }
 
 export type SelectedDisplayMode = "chips" | "text";
@@ -33,15 +31,17 @@ export type IndicatorType = "checkbox" | "check" | "none";
 
 export interface MultipleSelectInputProps
   extends Omit<InputProps, "value">, InputEventHandlers {
-  options: SelectOption[];
+  options: MultipleSelectOption[];
   selectedValues?: (string | number)[];
-  onSelectChange?: (selectedOptions: SelectOption[]) => void;
+  onSelectChange?: (selectedOptions: MultipleSelectOption[]) => void;
   listName?: ListType;
   showSearchBar?: boolean;
   isLoading?: boolean;
   displayMode?: SelectedDisplayMode;
   indicatorType?: IndicatorType;
   showOptionIcons?: boolean;
+  multiline?: boolean;
+  iconColor?: string;
 }
 
 /**
@@ -66,6 +66,8 @@ export const MultipleSelectInput = ({
   displayMode = "chips",
   indicatorType = "checkbox",
   showOptionIcons = true,
+  multiline = false,
+  iconColor,
   onSelectChange,
   onClear,
   onFocus,
@@ -73,115 +75,76 @@ export const MultipleSelectInput = ({
   onDisabledClick,
   style,
 }: MultipleSelectInputProps) => {
-  const theme = useTheme();
-  const inputRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<MenuRef>(null);
-  const currLang = useGlobalStore((state) => state.currentLanguage);
-
-  const selectedOptions = useMemo(() => {
-    return options.filter(
-      (opt) =>
-        selectedValues.includes(opt.value) || selectedValues.includes(opt.id),
-    );
-  }, [options, selectedValues]);
-
-  /**
-   * Triggers the DisplayList menu overlay anchored to the component.
-   */
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    if (disabled) return;
-    if (inputRef.current) {
-      menuRef.current?.openMenu(inputRef.current);
-    } else {
-      menuRef.current?.openMenu(event.currentTarget);
-    }
-  };
+  const {
+    theme,
+    inputRef,
+    menuRef,
+    currLang,
+    selectedMultipleOptions,
+    showMultipleResetIcon,
+    showMultipleTooltip,
+    handleOpenMenu,
+    handleClearMultiple,
+    handleToggleMultipleItem,
+    handleRemoveChip,
+  } = useSelectInput<MultipleSelectOption>({
+    options,
+    selectedValues,
+    allowReset,
+    tooltipGuide,
+    onSelectChangeMultiple: onSelectChange,
+    onClear,
+  });
 
   /**
-   * Toggles item selection state.
+   * Formats options using standard IMenuItem list structures.
    */
-  const handleToggleItem = (item: SelectOption) => {
-    const isSelected = selectedOptions.some(
-      (opt) => opt.value === item.value || opt.id === item.id,
-    );
-
-    let updated: SelectOption[];
-    if (isSelected) {
-      updated = selectedOptions.filter(
-        (opt) => opt.value !== item.value && opt.id !== item.id,
-      );
-    } else {
-      updated = [...selectedOptions, item];
-    }
-    onSelectChange?.(updated);
-  };
-
-  /**
-   * Removes a single option chip.
-   */
-  const handleRemoveChip = (e: React.MouseEvent, item: SelectOption) => {
-    e.stopPropagation();
-    const updated = selectedOptions.filter(
-      (opt) => opt.value !== item.value && opt.id !== item.id,
-    );
-    onSelectChange?.(updated);
-  };
-
-  /**
-   * Resets selected state and triggers clear handler.
-   */
-  const handleClearAll = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelectChange?.([]);
-    onClear?.();
-  };
-
-  const formattedOptions = useMemo(() => {
+  const formattedMultipleOptions = useMemo(() => {
     return options.map((opt) => {
-      const isSelected = selectedOptions.some(
-        (selected) => selected.value === opt.value || selected.id === opt.id,
+      const isSelected = selectedMultipleOptions.some(
+        (selected) =>
+          (selected.value !== undefined && selected.value === opt.value) ||
+          (selected.id !== undefined && selected.id === opt.id),
       );
+
+      const displayTitle = (opt.title || opt.label || "") as string;
+      const renderIcon = showOptionIcons && opt.icon;
+
+      const isCheckbox = indicatorType === "checkbox";
+      const isCheck = indicatorType === "check";
+
+      const leadingElement = isCheckbox ? (
+        <ChoiceInput choiceType="checkbox" checked={isSelected} />
+      ) : renderIcon ? (
+        opt.icon
+      ) : null;
+
+      const trailingElement = (
+        <Stack
+          sx={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1,
+            "& svg": {
+              stroke: iconColor ?? theme.palette.gray[200],
+            },
+          }}
+        >
+          {isCheckbox && renderIcon && opt.icon}
+          {isCheck && isSelected && (
+            <Check size={16} style={{ stroke: theme.palette.gray[300] }} />
+          )}
+        </Stack>
+      );
+
       return {
         ...opt,
-        element: (
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            width="100%"
-            gap={theme.gap?.(2) || 1}
-          >
-            <Stack
-              direction="row"
-              alignItems="center"
-              gap={theme.gap?.(2) || 1}
-            >
-              {indicatorType === "checkbox" && (
-                <Checkbox
-                  size="small"
-                  checked={isSelected}
-                  sx={{ padding: 0 }}
-                />
-              )}
-              {showOptionIcons && opt.icon && (
-                <Box display="flex" alignItems="center">
-                  {opt.icon}
-                </Box>
-              )}
-              <Typography variant="body2">{opt.title}</Typography>
-            </Stack>
-
-            {indicatorType === "check" && isSelected && (
-              <Check size={16} color={theme.palette.primary.main} />
-            )}
-          </Stack>
-        ),
+        title: displayTitle,
+        element: leadingElement,
+        endElement: trailingElement,
       };
     });
-  }, [options, selectedOptions, indicatorType, showOptionIcons, theme]);
-
-  const showResetIcon = allowReset && selectedOptions.length > 0;
-  const showTooltip = tooltipGuide && selectedOptions.length === 0;
+  }, [options, selectedMultipleOptions, indicatorType, showOptionIcons, theme]);
 
   const renderInputField = () => (
     <Box sx={{ position: "relative", width: "100%" }}>
@@ -200,93 +163,104 @@ export const MultipleSelectInput = ({
           id={id}
           multiple
           label={label}
-          value={selectedOptions.map((opt) => opt.value)}
+          value={selectedMultipleOptions.map((opt) => opt.value)}
           displayEmpty
           open={false}
-          onClick={handleOpenMenu}
+          onClick={(e) => handleOpenMenu(e, disabled)}
           onFocus={(e) => onFocus?.(e)}
           onBlur={(e) => onBlur?.(e)}
           renderValue={() => {
-            if (selectedOptions.length === 0) {
-              return (
-                <Typography variant="body2" color="text.secondary">
-                  {placeholder}
-                </Typography>
-              );
-            }
+            if (selectedMultipleOptions.length === 0) return placeholder;
 
             if (displayMode === "chips") {
               return (
-                <Stack direction="row" flexWrap="wrap" gap={0.5}>
-                  {selectedOptions.map((opt) => (
-                    <Chip
+                <Stack
+                  sx={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    gap: theme.gap(1),
+                  }}
+                >
+                  {selectedMultipleOptions.map((opt) => (
+                    <AppChip
                       key={opt.id || opt.value}
-                      label={opt.title}
-                      size="small"
-                      onDelete={(e) => handleRemoveChip(e, opt)}
-                      deleteIcon={<X size={14} />}
-                      sx={{ borderRadius: theme.radius?.[1] || 1 }}
+                      label={(opt.title || opt.label || "") as React.ReactNode}
+                      onRemove={() => handleRemoveChip(opt)}
                     />
                   ))}
                 </Stack>
               );
             }
 
-            return selectedOptions.map((opt) => opt.title).join(", ");
+            return selectedMultipleOptions
+              .map((opt) => String(opt.title || opt.label || ""))
+              .join(", ");
           }}
           IconComponent={() => null}
           endAdornment={
-            <InputAdornment position="end">
-              <Stack
-                flexDirection="row"
-                alignItems="center"
-                gap={theme.gap?.(1) || 0.5}
-              >
-                {showTooltip && (
-                  <BasicTooltip title={tooltipGuide}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        cursor: "pointer",
-                        borderRadius: theme.radius.full,
-                        alignSelf: "center",
-                        flex: "none",
-                        padding: theme.boxSpacing(1),
-                        "&:hover": {
-                          backgroundColor: theme.palette.gray.trans[1],
-                        },
-                      }}
-                    >
-                      <CircleQuestionMark size={18} />
-                    </Box>
-                  </BasicTooltip>
-                )}
+            <InputAdornment
+              position="end"
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: theme.gap(2),
+                "& svg": {
+                  stroke: theme.palette.gray[300],
+                },
+              }}
+            >
+              {showMultipleTooltip && (
+                <BasicTooltip title={tooltipGuide}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      cursor: "pointer",
+                      borderRadius: theme.radius.full,
+                      alignSelf: "center",
+                      flex: "none",
+                      padding: theme.boxSpacing(1),
+                      "&:hover": {
+                        backgroundColor: theme.palette.gray.trans[1],
+                      },
+                    }}
+                  >
+                    <CircleQuestionMark size={18} />
+                  </Box>
+                </BasicTooltip>
+              )}
 
-                {showResetIcon && (
-                  <IconButton size="small" onClick={handleClearAll}>
-                    <X size={18} />
-                  </IconButton>
-                )}
-
+              {showMultipleResetIcon ? (
+                <IconButton size="small" onClick={handleClearMultiple}>
+                  <X size={18} />
+                </IconButton>
+              ) : (
                 <IconButton
                   size="small"
                   aria-label="open options list"
                   sx={{
                     pointerEvents: "none",
-                    color: theme.palette.gray[300],
                   }}
                 >
                   <ChevronDown size={18} />
                 </IconButton>
-              </Stack>
+              )}
             </InputAdornment>
           }
           sx={{
-            cursor: disabled ? "not-allowed" : "pointer",
+            ...(multiline && {
+              height: "auto",
+              "& .MuiSelect-select": {
+                whiteSpace: "normal !important",
+                wordBreak: "break-word",
+                lineHeight: 1.4,
+                padding: theme.boxSpacing(2.5, 0),
+              },
+            }),
             ...styleConfig({
               theme,
               style,
-              value: selectedOptions.length ? "active" : "",
+              value: selectedMultipleOptions.length ? "active" : "",
               currLang,
             }),
             ...style,
@@ -295,26 +269,31 @@ export const MultipleSelectInput = ({
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
       </FormControl>
 
-      <DisplayList<SelectOption>
+      <DisplayList<MultipleSelectOption>
         menuRef={menuRef}
-        list={formattedOptions}
+        list={formattedMultipleOptions}
         listName={listName}
         showSearchBar={showSearchBar}
         isLoading={isLoading}
-        stickToScreen={false}
+        closeOnSelect={false}
         heightThreshold={65}
+        activeItems={selectedValues}
         style={{
           item: {
-            padding: theme.boxSpacing(4, 6),
-            borderRadius: theme.radius[1] || 0,
+            padding: theme.boxSpacing(5, 7),
+            borderRadius: 0,
           },
           container: {
-            width: inputRef.current ? inputRef.current.clientWidth : "100%",
+            gap: theme.gap(1),
+            padding: theme.boxSpacing(0, 0, 8, 0),
           },
         }}
         onItemClick={(item) => {
           if (item) {
-            handleToggleItem(item);
+            const originalOption = options.find(
+              (opt) => opt.id === item.id || opt.value === item.value,
+            );
+            handleToggleMultipleItem(originalOption || item);
           }
         }}
       />

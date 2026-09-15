@@ -5,6 +5,7 @@ import {
   OAuthProvider,
 } from "./executeOAuth";
 import {
+  buildLocationFromRequest,
   forwardError,
   getClientIp,
   getOrSetDeviceToken,
@@ -33,7 +34,9 @@ export const oauthExchange = async (
   };
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "";
-  const ipAddress = getClientIp(req) || "unknown_client";
+
+  const userIp = getClientIp(req);
+  const location = await buildLocationFromRequest(req, userIp);
 
   if (!provider || !idToken || !deviceToken) {
     return res.status(400).json({
@@ -49,7 +52,8 @@ export const oauthExchange = async (
       idToken,
       deviceToken,
       userAgent,
-      ipAddress,
+      ipAddress: userIp,
+      location,
       purpose,
       identityPayload,
     });

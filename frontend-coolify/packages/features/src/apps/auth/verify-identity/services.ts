@@ -7,6 +7,7 @@ import {
   TransitPurpose,
   SERVER_API,
   IdentifierType,
+  VerifyIdentityMethod,
 } from "@repo/core";
 
 export interface OtpRequest {
@@ -21,14 +22,10 @@ export interface OtpResponse {
   verificationToken?: string;
   purpose?: TransitPurpose;
   otpIdentifierType?: IdentifierType;
+  verificationMethod?: VerifyIdentityMethod;
 }
 
 export type TotpActionType = "AUTHENTICATE" | "CONFIGURE";
-
-export interface TotpSetupRequest {
-  actionType: TotpActionType;
-  identifier?: string;
-}
 
 export interface TotpSetupResponse {
   qrCodeDataUrl: string | null;
@@ -134,6 +131,7 @@ export const VerifyIdentityService = () => {
       verificationToken,
       purpose = "LOGIN_VERIFICATION",
       otpIdentifierType,
+      verificationMethod,
     } = request;
     return await apiClient(SERVER_API.otpAccountUpdate, {
       method: "PATCH",
@@ -142,6 +140,7 @@ export const VerifyIdentityService = () => {
         verificationToken,
         purpose,
         otpIdentifierType,
+        verificationMethod,
       }),
     });
   };
@@ -171,18 +170,14 @@ export const VerifyIdentityService = () => {
   };
 
   /**
-   * Initializes multi-factor authentication TOTP configuration.
+   * Fetches TOTP configuration.
    */
-  const setupTotp = async (
-    request: TotpSetupRequest,
-  ): Promise<ISinglePayload<TotpSetupResponse>> => {
-    const { actionType: purpose, identifier } = request;
+  const fetchTotpSetup = async (): Promise<
+    ISinglePayload<TotpSetupResponse>
+  > => {
     return await apiClient<ISinglePayload<TotpSetupResponse>>(
-      SERVER_API.setupTotp,
-      {
-        method: "POST",
-        body: JSON.stringify({ purpose, identifier }),
-      },
+      SERVER_API.fetchTotpSetup,
+      { method: "GET" },
     );
   };
 
@@ -192,12 +187,12 @@ export const VerifyIdentityService = () => {
   const verifyTotpCode = async (
     request: TotpVerificationRequest,
   ): Promise<ISinglePayload<TotpVerificationResponse>> => {
-    const { actionType: purpose, token, identifier } = request;
+    const { actionType, token, identifier } = request;
     return await apiClient<ISinglePayload<TotpVerificationResponse>>(
       SERVER_API.verifyTotp,
       {
         method: "POST",
-        body: JSON.stringify({ purpose, token, identifier }),
+        body: JSON.stringify({ actionType, token, identifier }),
       },
     );
   };
@@ -226,9 +221,7 @@ export const VerifyIdentityService = () => {
   ): Promise<ISinglePayload<FetchSecurityQuestionsResponse>> => {
     return await apiClient(
       `${SERVER_API.fetchSecurityQuestions}/identifier=${identifier}`,
-      {
-        method: "GET",
-      },
+      { method: "GET" },
     );
   };
 
@@ -267,7 +260,7 @@ export const VerifyIdentityService = () => {
     commitAccountUpdate,
     finalizeEmailUpdateOtp,
     finalizePhoneUpdateOtp,
-    setupTotp,
+    fetchTotpSetup,
     verifyTotpCode,
     resetMsgCode,
     setupSecurityQuestions,

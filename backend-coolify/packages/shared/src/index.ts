@@ -40,10 +40,12 @@ export * from "./services/media/hardDelete";
 export * from "./services/media/softDelete";
 export * from "./services/analytics";
 // Topic
-export * from "./services/topic/prune";
+export * from "./services/topic/remove";
 export * from "./services/topic/fetch";
 export * from "./services/topic/postSync";
 export * from "./services/topic/userSync";
+export * from "./services/topic/create";
+export * from "./services/topic/ai";
 // Moderation
 export * from "./services/moderation/resolveCase";
 export * from "./services/moderation/reportCase";
@@ -63,7 +65,7 @@ export * from "./services/redis/cache/service";
 export * from "./utils/device";
 export * from "./utils/topic";
 export * from "./utils/error";
-export * from "./utils/ip";
+export * from "./utils/location";
 
 // Costants
 export * from "./constants/msgRegistry";

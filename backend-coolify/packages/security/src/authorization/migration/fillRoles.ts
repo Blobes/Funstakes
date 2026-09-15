@@ -122,6 +122,10 @@ export const seedRolesAndPermissions = async (): Promise<void> => {
       PERMISSIONS.USER.VIEW_PROFILE,
       PERMISSIONS.USER.EDIT_PROFILE,
       PERMISSIONS.DEVICE.READ,
+      PERMISSIONS.TOPIC.SYNC_POST_TOPICS,
+      PERMISSIONS.TOPIC.SYNC_USER_TOPICS,
+      PERMISSIONS.TOPIC.VIEW_POST_TOPICS,
+      PERMISSIONS.TOPIC.VIEW_USER_TOPICS,
     ];
 
     baseUserPermissions.forEach((permName) => {

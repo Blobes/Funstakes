@@ -74,7 +74,7 @@ export const executeUserTopicsSync = async (
                 topicId: t.topicId,
                 title: t.title,
                 lastViewed: new Date(),
-                addedBy: t.addedBy,
+                addedBy: "USER",
               })),
             },
           },

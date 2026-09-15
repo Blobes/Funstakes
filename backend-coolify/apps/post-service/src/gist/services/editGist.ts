@@ -93,7 +93,7 @@ export const executeEditGist = async (
       caption: caption.trim(),
       media: [],
       topics: gist.topics || [],
-      moderationTaskMode: "MODERATE_AND_EXTRACT_KEYWORDS",
+      moderationTaskMode: "MODERATE_AND_EXTRACT_TOPICS",
       event: "POST_UPDATE",
     };
 

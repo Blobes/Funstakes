@@ -67,7 +67,7 @@ export const executeSessionRefresh = async (
       };
     }
 
-    const device = await upsertDevice(user, deviceToken, userAgent);
+    const device = await upsertDevice({ user, deviceToken, userAgent });
     const deviceIdString = device._id.toString();
 
     if (deviceIdString !== payload.deviceId) {

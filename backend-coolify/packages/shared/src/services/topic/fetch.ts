@@ -102,3 +102,18 @@ export const executeTopicsFetch = async (
     },
   };
 };
+
+// /**
+//  * Retrieves all registered topic titles from the database sorted by usage count.
+//  */
+// export const getActiveDBTopics = async (
+//   session?: ClientSession,
+// ): Promise<string[]> => {
+//   const topics = await TopicModel.find({})
+//     .session(session || null)
+//     .select("title")
+//     .sort({ postCount: -1 })
+//     .lean();
+
+//   return topics.map((t) => t.title);
+// };

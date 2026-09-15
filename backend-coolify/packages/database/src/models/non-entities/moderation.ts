@@ -71,7 +71,7 @@ export const ModerationCaseSchema = new Schema<IModerationCase>(
     },
     resolvedBy: {
       type: Schema.Types.ObjectId,
-      ref: "UserRoleSchema",
+      ref: "UserRole",
       default: null,
     },
     resolvedAt: {

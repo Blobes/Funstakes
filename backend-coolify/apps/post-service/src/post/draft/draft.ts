@@ -2,17 +2,10 @@ import { Model } from "mongoose";
 import {
   GistModel,
   PostModelType,
-  PostContentStatus,
   PostVisibility,
   StakeModel,
 } from "@repo/database";
-import {
-  generateRandomIp,
-  getLocationFromIp,
-  MESSAGES_REGISTRY,
-  PostType,
-  TransInfo,
-} from "@repo/shared";
+import { MESSAGES_REGISTRY, PostType, TransInfo } from "@repo/shared";
 
 export interface DraftPostInput {
   userId?: string;
@@ -56,20 +49,9 @@ export const executeDraftPost = async (
 
   // Resolve the target domain model from the registry mapping structure
   const model = MODEL_REGISTRY[postType];
-
-  const geoData = await getLocationFromIp(generateRandomIp());
-  const location = geoData
-    ? {
-        name: `${geoData.city}, ${geoData.state}`,
-        type: "Point" as const,
-        coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-      }
-    : undefined;
-
   const updateFields = {
     authorId: userId,
     visibility: "DRAFT" as PostVisibility,
-    location,
     latestCaption: caption ? { caption: caption.trim() } : undefined,
     mediaIds: [],
     topics: topics || [],

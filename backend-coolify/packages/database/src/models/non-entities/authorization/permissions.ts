@@ -6,6 +6,7 @@ import {
   DEVICE_PERMISSIONS,
   POST_PERMISSIONS,
   REPORT_PERMISSIONS,
+  TOPIC_PERMISSIONS,
   USER_PERMISSIONS,
   WALLET_PERMISSIONS,
 } from "../../../constants/permissions";
@@ -16,6 +17,7 @@ import {
 
 const allPermissionNames = [
   ...Object.values(POST_PERMISSIONS),
+  ...Object.values(TOPIC_PERMISSIONS),
   ...Object.values(DEVICE_PERMISSIONS),
   ...Object.values(COMMENT_PERMISSIONS),
   ...Object.values(USER_PERMISSIONS),

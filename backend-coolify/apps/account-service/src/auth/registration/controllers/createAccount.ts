@@ -1,6 +1,7 @@
 import { registerUserAccount } from "@/auth/registration/services/registerAccount";
 import { setAuthCookies } from "@repo/security";
 import {
+  buildLocationFromRequest,
   forwardError,
   generateRandomIp,
   getClientIp,
@@ -28,7 +29,8 @@ export const createAccount = async (
   const { email, password, phone } = req.body;
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "unknown";
-  const clientIp = getClientIp(req) || generateRandomIp();
+  const userIp = getClientIp(req) || generateRandomIp();
+  const location = await buildLocationFromRequest(req, userIp);
 
   if (!email || !password) {
     return res.status(400).json({
@@ -44,7 +46,8 @@ export const createAccount = async (
       password,
       phone,
       deviceToken,
-      ipAddress: clientIp,
+      ipAddress: userIp,
+      location,
       userAgent,
     });
 

@@ -796,6 +796,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.verification_code_sent_to_email",
       message: "A verification code has been sent to your email address.",
     },
+    ID_VERIFICATION_COMPLETED: {
+      i18nKey: "auth.id_verification_completed",
+      message: "Identity verification completed successfully.",
+    },
     VERIFICATION_CODE_SENT_TO_PHONE: {
       i18nKey: "auth.verification_code_sent_to_phone",
       message: "A verification code has been sent to your phone number.",
@@ -1203,6 +1207,12 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.post_topic_lookup_failed",
       message: "Error processing post topic lookup directory.",
     },
+    POST_TOPICS_CREATION_FAILED: {
+      i18nKey: "post.post_topic_lookup_failed",
+      message:
+        "Failed to create new post topics due to an unknown server error.",
+    },
+
     POST_TOPIC_IDS_REQUIRED: {
       i18nKey: "post.post_topic_ids_required",
       message: "A list of post topic IDs is required.",
@@ -1218,7 +1228,7 @@ export const MESSAGES_REGISTRY = {
     },
     POST_TOPICS_LIST_REQUIRED: {
       i18nKey: "post.post_topics_list_required",
-      message: "A list of topics is required.",
+      message: "A unique list of topics is required.",
     },
     POST_TOPICS_PROCESSED_SUCCESSFULLY: {
       i18nKey: "post.topics_processed_successfully",
@@ -1257,6 +1267,60 @@ export const MESSAGES_REGISTRY = {
       message: "Timestamp updated",
     },
 
+    AI_TOPICS_SUBMITTED_SUCCESS: {
+      i18nKey: "post.ai_topics_submitted_success",
+      message: "New topic suggestions have been sent for review.",
+    },
+    AI_TOPICS_REMOVED: {
+      i18nKey: "post.ai_topics_removed",
+      message: "Suggested topic(s) have been permanently removed.",
+    },
+    AI_TOPICS_ACCEPTED: {
+      i18nKey: "post.ai_topics_accepted",
+      message: "Suggested topic(s) approved and added to active topics.",
+    },
+    AI_TOPICS_DECLINED: {
+      i18nKey: "post.ai_topics_declined",
+      message: "Suggested topic(s) has been declined.",
+    },
+    AI_TOPICS_NOT_FOUND: {
+      i18nKey: "post.ai_topic_not_found",
+      message: "The requested topic suggestion could not be found.",
+    },
+
+    AI_TOPICS_LIST_REQUIRED: {
+      i18nKey: "post.ai_topics_list_required",
+      message: "Please select at least one AI suggested topic to review.",
+    },
+    AI_TOPICS_FETCHED: {
+      i18nKey: "post.ai_topics_fetched",
+      message: "AI topics fetched successfully.",
+    },
+    AI_TOPICS_RESOLVED: {
+      i18nKey: "post.ai_topics.resolved",
+      message: "AI topics resolved successfully.",
+    },
+
+    AI_TOPICS_FETCH_FAILED: {
+      i18nKey: "post.ai_topics_fetch_failed",
+      message:
+        "Failed to fetch AI suggested topics due to an unknown server error.",
+    },
+    AI_TOPICS_SUBMISSION_FAILED: {
+      i18nKey: "post.ai_topics_submission_failed",
+      message:
+        "Failed to submit AI suggested topics due to an unknown server error.",
+    },
+    AI_TOPICS_REMOVAL_FAILED: {
+      i18nKey: "post.ai_topics_removal_failed",
+      message:
+        "Failed to remove AI suggested topics due to an unknown server error.",
+    },
+    AI_TOPICS_RESOLUTION_FAILED: {
+      i18nKey: "poat.ai_topics_resolution_failed",
+      message:
+        "Failed to resolve AI suggested topics due to an unknown server error.",
+    },
     MISSING_TOPIC_IDENTIFIER: {
       i18nKey: "post.missing_identifier",
       message: "Please provide a valid topic ID or title to proceed.",

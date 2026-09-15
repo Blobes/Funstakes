@@ -1,5 +1,5 @@
 import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
-import { IUserDocument, UserModel } from "@repo/database";
+import { ILocation, IUserDocument, UserModel } from "@repo/database";
 import {
   genVerificationCode,
   hashCode,
@@ -9,7 +9,6 @@ import {
   MESSAGES_REGISTRY,
   TransInfo,
   sanitizeUserResult,
-  buildLocationFromIp,
   normalizeValue,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
@@ -25,6 +24,7 @@ interface IRegistrationInput {
   phone?: string;
   deviceToken: string;
   ipAddress: string;
+  location?: ILocation;
   userAgent: string;
 }
 
@@ -47,7 +47,15 @@ interface IRegistrationResult {
 export const registerUserAccount = async (
   input: IRegistrationInput,
 ): Promise<IRegistrationResult> => {
-  const { email, password, phone, deviceToken, ipAddress, userAgent } = input;
+  const {
+    email,
+    password,
+    phone,
+    deviceToken,
+    ipAddress,
+    location,
+    userAgent,
+  } = input;
   const normalizedEmail = normalizeValue(email.toLowerCase());
   const normalizedPhone = normalizeValue(phone?.toString());
 
@@ -91,8 +99,6 @@ export const registerUserAccount = async (
   const code = genVerificationCode();
   const sessionId = uuidv4();
 
-  const location = await buildLocationFromIp(ipAddress);
-
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -105,6 +111,7 @@ export const registerUserAccount = async (
       otpCode: hashCode(code),
       otpCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
       lastEmailOtpSentAt: new Date(),
+      lastActiveAt: new Date(),
       signedUpWith: "EMAIL",
     });
 
@@ -113,7 +120,12 @@ export const registerUserAccount = async (
     // Provision default role and baseline subscription tier directly
     await syncDefaultRole(newUser._id, { session, skipCheck: true });
 
-    const device = await upsertDevice(newUser, deviceToken, userAgent, session);
+    const device = await upsertDevice({
+      user: newUser,
+      deviceToken,
+      userAgent,
+      session,
+    });
 
     await session.commitTransaction();
 

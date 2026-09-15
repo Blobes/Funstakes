@@ -36,7 +36,8 @@ export const Stepper = <T,>({
         width: "100%",
         alignItems: "center",
         ...style,
-      }}>
+      }}
+    >
       <AnimatePresence mode="wait">
         <motion.div
           key={currStep}
@@ -45,14 +46,16 @@ export const Stepper = <T,>({
             ease: "easeInOut",
             xOffset: 10,
           })}
-          style={{ display: "flex", width: "100%", justifyContent: "center" }}>
+          style={{ display: "flex", width: "100%", justifyContent: "center" }}
+        >
           {activeStep.element}
         </motion.div>
       </AnimatePresence>
 
       {activeStep.allowPrevious && activeIndex > 0 && (
         <BasicTooltip
-          title={`Back to ${prevStep.label || String(prevStep.name).toLowerCase()}`}>
+          title={`Back to ${prevStep.label || String(prevStep.name).toLowerCase()}`}
+        >
           <IconButton
             sx={{
               width: "48px",
@@ -68,7 +71,8 @@ export const Stepper = <T,>({
             onClick={() => {
               setCurrStep(prevStep.name);
               activeStep.action && activeStep.action();
-            }}>
+            }}
+          >
             <ArrowLeft size={28} />
           </IconButton>
         </BasicTooltip>

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction } from "express";
-import { IAuthRequest, IJwtUser } from "@repo/shared";
+import { HTTP_REQ_HEADERS, IAuthRequest, IJwtUser } from "@repo/shared";
 
 /**
  * Gateway-level identity forwarding middleware.
@@ -20,17 +20,25 @@ export const forwardIdHeaders = (jwtSecret: string) => {
       req.user = decoded;
 
       // Attach stateless identity claims for downstream microservices
-      req.headers["x-user-id"] = String(decoded.id);
-      req.headers["x-user-email"] = decoded.email || "";
-      req.headers["x-user-roles"] = JSON.stringify(decoded.roles || []);
+      req.headers[HTTP_REQ_HEADERS.USER_ID] = String(decoded.id);
+      req.headers[HTTP_REQ_HEADERS.USER_EMAIL] = decoded.email || "";
+      req.headers[HTTP_REQ_HEADERS.USER_ROLES] = JSON.stringify(
+        decoded.roles || [],
+      );
 
       // Forward subscription claims to downstream services
-      req.headers["x-subscription-tier"] = decoded.subscriptionTier || "FREE";
-      req.headers["x-subscription-status"] =
+      // Forward subscription claims to downstream services
+      req.headers[HTTP_REQ_HEADERS.SUBSCRIPTION_TIER] =
+        decoded.subscriptionTier || "FREE";
+      req.headers[HTTP_REQ_HEADERS.SUBSCRIPTION_STATUS] =
         decoded.subscriptionStatus || "ACTIVE";
 
-      if (decoded.deviceId) req.headers["x-device-id"] = decoded.deviceId;
-      if (decoded.sessionId) req.headers["x-session-id"] = decoded.sessionId;
+      if (decoded.deviceId) {
+        req.headers[HTTP_REQ_HEADERS.DEVICE_ID] = decoded.deviceId;
+      }
+      if (decoded.sessionId) {
+        req.headers[HTTP_REQ_HEADERS.SESSION_ID] = decoded.sessionId;
+      }
     } catch {
       // Allow request to proceed unauthenticated if token verification fails; downstream services will handle strict enforcement
     }

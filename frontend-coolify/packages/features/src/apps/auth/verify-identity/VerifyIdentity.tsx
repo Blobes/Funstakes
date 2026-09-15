@@ -27,7 +27,6 @@ export const VerifyIdentity = <P extends TransitPurpose>(
   const {
     transitData,
     initialMethod,
-    customMethods,
     onSuccess,
     onRateLimitExceeded,
     isBotChallengeAllowed,
@@ -48,7 +47,6 @@ export const VerifyIdentity = <P extends TransitPurpose>(
   } = useVerifyIdentity({
     transitData,
     initialMethod,
-    customMethods,
     setShouldRestrict,
   });
   const authStatus = useGlobalStore((state) => state.authStatus);
@@ -67,6 +65,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
             availableMethods={availableMethods}
             onRateLimitExceeded={onRateLimitExceeded}
             isBotChallengeAllowed={isBotChallengeAllowed}
+            totpAction="AUTHENTICATE"
           />
         ),
       });
@@ -162,7 +161,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
   return (
     <Stack
       sx={{
-        width: "38%",
+        width: "34%",
         minWidth: 300,
         maxWidth: 600,
         [theme.breakpoints.down("lg")]: { width: "50%" },
@@ -213,7 +212,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
           items={alternativeMethodItems}
           style={{
             container: {
-              width: "80%",
+              width: "100%",
               [theme.breakpoints.down("lg")]: { width: "100%" },
             },
           }}

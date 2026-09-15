@@ -13,7 +13,7 @@ import {
   SNACKBAR_DURATION,
 } from "@repo/core";
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
-import { SelectOption } from "@repo/shared-ui";
+import { MultipleSelectOption } from "@repo/shared-ui";
 import { VerifyIdentityService } from "../services";
 import { useFeedback } from "../useFeedback";
 import {
@@ -126,6 +126,10 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
       return res.payload?.questions || [];
     },
     enabled: Boolean(targetIdentifier) && !isMfaActivationPurpose,
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   useEffect(() => {
@@ -155,7 +159,7 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
    * Computes available select options for setup fields by excluding questions selected in other fields.
    */
   const getOptionsForIndex = useCallback(
-    (index: number): SelectOption[] => {
+    (index: number): MultipleSelectOption[] => {
       const selectedElsewhere = setupStates
         .filter((_, i) => i !== index)
         .map((qs) => qs.question)
@@ -176,7 +180,7 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
    * Updates question selection at a specific setup index.
    */
   const handleSetupQuestionChange = useCallback(
-    (index: number, option: SelectOption) => {
+    (index: number, option: MultipleSelectOption) => {
       setSetupStates((prev) => {
         const updated = [...prev];
         updated[index] = {
@@ -281,6 +285,7 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
         await commitAccountUpdate({
           identifier: targetIdentifier,
           purpose: activeTransit.purpose,
+          verificationMethod: "SECURITY_QUESTIONS",
         });
       }
 

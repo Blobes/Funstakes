@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { IUserDocument } from "@repo/database";
 import {
   cleanDeviceSessions,
@@ -7,8 +8,11 @@ import {
   OtpIdentifierType,
   TransInfo,
   upsertDevice,
+  VerificationMethod,
 } from "@repo/shared";
 import { verifyOtpActionToken } from "./verificationToken";
+import { issueAuthTokens } from "@repo/security";
+import { authTokens } from "@/envVars";
 
 export interface ICommitAccountUpdateInput {
   identifier?: string;
@@ -16,7 +20,9 @@ export interface ICommitAccountUpdateInput {
   verificationToken?: string;
   otpIdentifierType?: OtpIdentifierType;
   deviceToken?: string;
-  userAgent?: string;
+  userAgent: string;
+  ipAddress?: string;
+  verificationMethod?: VerificationMethod;
 }
 
 export interface ICommitAccountUpdateResult {
@@ -34,6 +40,8 @@ export interface ICommitAccountUpdateResult {
     clearLocalCookies?: boolean;
     credentialUpdated?: string;
     channelVerified?: OtpIdentifierType;
+    accessToken?: string;
+    refreshToken?: string;
   };
 }
 
@@ -65,7 +73,7 @@ export const authorizeDeviceTrust = async (
   deviceToken: string,
   userAgent: string,
 ): Promise<void> => {
-  await upsertDevice(user, deviceToken, userAgent);
+  await upsertDevice({ user, deviceToken, userAgent });
 };
 
 /**
@@ -78,9 +86,11 @@ export const executeAccountUpdate = async (
     identifier,
     purpose,
     verificationToken,
+    verificationMethod,
     otpIdentifierType,
     deviceToken,
     userAgent,
+    ipAddress,
   } = input;
 
   if (!identifier) {
@@ -100,7 +110,6 @@ export const executeAccountUpdate = async (
   if (verificationToken) {
     try {
       const tokenPayload = verifyOtpActionToken(verificationToken, purpose);
-
       if (tokenPayload.userId !== String(user?._id)) {
         return {
           status: "UNAUTHORIZED",
@@ -152,7 +161,10 @@ export const executeAccountUpdate = async (
       await user.save();
       return {
         status: "SUCCESS",
-        payload: { identityUpdated: updatedField },
+        transInfo: MESSAGES_REGISTRY.AUTH.ACCOUNT_RECORDS_UPDATED,
+        payload: {
+          identityUpdated: updatedField,
+        },
       };
     }
 
@@ -188,18 +200,38 @@ export const executeAccountUpdate = async (
         await authorizeDeviceTrust(user, deviceToken, userAgent);
       }
 
-      if (activeIdType === "EMAIL") {
-        user.isEmailVerified = true;
-        user.lastEmailOtpSentAt = null;
-      } else {
-        user.isPhoneVerified = true;
-        user.lastPhoneOtpSentAt = null;
-      }
+      const device = await upsertDevice({
+        user,
+        deviceToken,
+        userAgent,
+      });
+      const deviceIdString = device._id.toString();
 
+      if (verificationMethod === "MESSAGING") {
+        if (activeIdType === "EMAIL") {
+          user.isEmailVerified = true;
+          user.lastEmailOtpSentAt = null;
+        } else {
+          user.isPhoneVerified = true;
+          user.lastPhoneOtpSentAt = null;
+        }
+      }
+      user.lastActiveAt = new Date();
+
+      const { accessToken, refreshToken } = await issueAuthTokens({
+        user,
+        deviceId: deviceIdString,
+        sessionId: uuidv4(),
+        userAgent,
+        ipAddress,
+        authTokens,
+      });
       await user.save();
+
       return {
         status: "SUCCESS",
-        payload: { channelVerified: activeIdType },
+        transInfo: MESSAGES_REGISTRY.AUTH.ID_VERIFICATION_COMPLETED,
+        payload: { channelVerified: activeIdType, accessToken, refreshToken },
       };
     }
 

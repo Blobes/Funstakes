@@ -42,6 +42,7 @@ export const STORAGE_KEYS = {
 
   TEMPORARY_SESSION_KEY: "temp_session_expiry",
   SESSION_TRANSIT_KEY: "session_transit_key",
+  SAVED_PAGE: "saved_page",
 } as const;
 
 export const CACHE_KEYS = {

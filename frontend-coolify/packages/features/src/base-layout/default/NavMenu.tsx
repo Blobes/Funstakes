@@ -38,7 +38,8 @@ export const HeaderDesktopNav = ({
         },
         position: "absolute",
         gap: theme.gap(4),
-      }}>
+      }}
+    >
       <DisplayList
         menuRef={menuRef}
         list={USER_NAV_LIST}
@@ -65,13 +66,15 @@ const UserInfo = () => {
           gap: theme.gap(4),
           flexDirection: "row",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Stack sx={{ gap: theme.gap(0), width: "100%" }}>
           <TransText sx={{ ...theme.typography.text2, fontWeight: "600" }}>
             {firstName} {lastName}
           </TransText>
           <TransText
-            sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}>
+            sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}
+          >
             {username}
           </TransText>
         </Stack>
@@ -134,7 +137,7 @@ export const HeaderMobileNav = ({}) => {
             menuRef.current?.closeMenu();
             closeDrawer();
           }}
-          showActiveItem={false}
+          displayActiveState={false}
           style={{
             ...theme.typography.text2,
             gap: theme.gap(10),
@@ -185,7 +188,8 @@ export const CreatePostMenuDesktop = ({
         },
         position: "absolute",
         gap: theme.gap(4),
-      }}>
+      }}
+    >
       <DisplayList
         menuRef={postRef}
         list={CREATE_POST_LIST}

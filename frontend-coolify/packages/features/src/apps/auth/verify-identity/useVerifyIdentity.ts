@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useVerificationNavigation } from "@repo/features";
-import { getCookie } from "@repo/helpers";
+import { extractPayloadKeys, getCookie } from "@repo/helpers";
 import {
   VerifyIdentityMethod,
   OtpTransitData,
@@ -22,7 +22,6 @@ export interface BaseVerificationProps<
   availableMethods?: VerifyIdentityMethod[];
   onRateLimitExceeded?: () => void;
   isBotChallengeAllowed?: () => boolean;
-
   setShouldRestrict?: (value: boolean) => void;
   style?: React.CSSProperties;
 }
@@ -36,14 +35,14 @@ export interface VerifyIdentityProps<
   onRateLimitExceeded?: () => void;
   isBotChallengeAllowed?: () => boolean;
   setShouldRestrict?: (value: boolean) => void;
-  customMethods?: VerifyIdentityMethod[];
+  // customMethods?: VerifyIdentityMethod[];
   containerStyle?: React.CSSProperties;
 }
 
 export interface UseVerifyIdentityProps<P extends TransitPurpose> {
   transitData?: OtpTransitData<P>[];
   initialMethod?: VerifyIdentityMethod;
-  customMethods?: VerifyIdentityMethod[];
+  //  customMethods?: VerifyIdentityMethod[];
   setShouldRestrict?: (value: boolean) => void;
 }
 
@@ -53,8 +52,7 @@ export interface UseVerifyIdentityProps<P extends TransitPurpose> {
 export const useVerifyIdentity = <P extends TransitPurpose>(
   props: UseVerifyIdentityProps<P> = {},
 ) => {
-  const { transitData, initialMethod, customMethods, setShouldRestrict } =
-    props;
+  const { transitData, initialMethod, setShouldRestrict } = props;
   const activeTransit = transitData?.[0];
   const authUser = useGlobalStore((state) => state.authUser);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
@@ -65,7 +63,14 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     storedTransitKey,
   } = useVerificationNavigation();
 
-  const userHasTotp = checkTotpConfiguration(authUser);
+  const payloadUser = extractPayloadKeys(activeTransit?.payload, ["user"])
+    .user as IUser | null;
+
+  const targetUser = authUser || payloadUser;
+  const userHasTotp = checkTotpConfiguration(targetUser);
+
+  const targetIdentifier =
+    activeTransit?.identifier || targetUser?.email || targetUser?.phoneNumber;
 
   const hasUserCtx =
     authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
@@ -85,28 +90,23 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
    */
   useEffect(() => {
     const hasValidSession = Boolean(activeTransit || hasUserCtx);
-    setShouldRestrict?.(!hasValidSession);
+    if (hasValidSession) setShouldRestrict?.(!Boolean(targetIdentifier));
   }, [activeTransit, hasUserCtx, setShouldRestrict]);
 
   const purpose = activeTransit?.purpose;
 
   const availableMethods = useMemo<VerifyIdentityMethod[]>(() => {
-    if (customMethods && customMethods.length > 0) return customMethods;
+    //  if (customMethods && customMethods.length > 0) return customMethods;
 
-    if (purpose === "SIGNUP_VERIFICATION") {
-      return ["MESSAGING"];
-    }
+    if (purpose === "SIGNUP_VERIFICATION") return ["MESSAGING"];
 
-    const hasSecurityQuestions = Boolean(
-      authUser?.securityQuestionsId, // ||
-      //  (activeTransit?.payload as IUser)?.securityQuestionsId,
-    );
+    const hasSecurityQuestions = Boolean(targetUser?.securityQuestionsId);
 
     if (purpose === "MFA_ACTIVATION") {
       const methods: VerifyIdentityMethod[] = ["MESSAGING"];
-      if (!userHasTotp) {
+      if (!userHasTotp || (userHasTotp && targetUser?.hasEnabledMFA))
         methods.unshift("TOTP");
-      }
+
       // Allow SECURITY_QUESTIONS if not configured yet (for setup)
       if (!hasSecurityQuestions) methods.push("SECURITY_QUESTIONS");
       return methods;
@@ -121,11 +121,10 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     }
     return methods;
   }, [
-    customMethods,
     purpose,
     userHasTotp,
-    authUser?.securityQuestionsId,
-    activeTransit?.payload,
+    targetUser?.securityQuestionsId,
+    targetUser?.hasEnabledMFA,
   ]);
 
   const defaultMethod = useMemo<VerifyIdentityMethod>(() => {
@@ -151,7 +150,6 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
    */
   const switchMethod = useCallback(
     (method: VerifyIdentityMethod) => {
-      setInlineMsg(null);
       if (availableMethods.includes(method)) {
         setActiveMethod(method);
       }

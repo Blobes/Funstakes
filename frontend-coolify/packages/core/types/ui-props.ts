@@ -47,8 +47,12 @@ export interface ILocation {
   city?: string | null;
   state?: string | null;
   country?: string | null;
+  region?: string | null;
+  continent?: string | null;
+  continentCode?: string | null;
+  isVpnOrProxy?: boolean;
   type: "Point";
-  coordinates: [number, number];
+  coordinates: [number, number]; // [longitude, latitude]
 }
 
 export interface TrackedFile extends File {

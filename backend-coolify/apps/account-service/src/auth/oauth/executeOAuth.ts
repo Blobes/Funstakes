@@ -1,7 +1,11 @@
 import { authTokens } from "@/envVars";
-import { IUserDocument, ModerationDecision, UserModel } from "@repo/database";
 import {
-  buildLocationFromIp,
+  ILocation,
+  IUserDocument,
+  ModerationDecision,
+  UserModel,
+} from "@repo/database";
+import {
   fetchSingleUser,
   getAccountStatusMsg,
   MESSAGES_REGISTRY,
@@ -30,6 +34,7 @@ interface IOAuthAuthInput {
   deviceToken: string;
   userAgent: string;
   ipAddress: string;
+  location?: ILocation;
   purpose: OAuthPurpose;
   identityPayload?: {
     firstName?: string;
@@ -67,6 +72,7 @@ export const authenticateWithOAuth = async (
     deviceToken,
     userAgent,
     ipAddress,
+    location,
     purpose,
     identityPayload,
   } = input;
@@ -124,8 +130,6 @@ export const authenticateWithOAuth = async (
       };
     }
 
-    const location = await buildLocationFromIp(ipAddress);
-
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -145,12 +149,12 @@ export const authenticateWithOAuth = async (
       // Directly provision baseline entitlements for fresh OAuth account
       await syncDefaultRole(newUser._id, { session, skipCheck: true });
 
-      const device = await upsertDevice(
-        newUser,
+      const device = await upsertDevice({
+        user: newUser,
         deviceToken,
         userAgent,
         session,
-      );
+      });
 
       await session.commitTransaction();
 
@@ -231,7 +235,7 @@ export const authenticateWithOAuth = async (
   // Idempotently guarantee baseline role and subscription for existing account login
   await syncDefaultRole(user._id);
 
-  const device = await upsertDevice(user, deviceToken, userAgent);
+  const device = await upsertDevice({ user, deviceToken, userAgent });
 
   const { accessToken, refreshToken } = await issueAuthTokens({
     user,

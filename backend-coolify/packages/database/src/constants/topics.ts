@@ -1,8 +1,8 @@
 /**
- * List of modern social media topics for initial database seeding.
+ * Categorized social media topics for initial database seeding.
  */
-export const SEED_TOPICS: string[] = [
-  // Tech & AI
+export const SEED_TOPICS = [
+  // Tech, Science & AI
   "Artificial Intelligence",
   "Machine Learning",
   "Software Engineering",
@@ -11,8 +11,16 @@ export const SEED_TOPICS: string[] = [
   "Cloud Computing",
   "Data Science",
   "DevOps",
+  "Science & Space",
+  "UI/UX & Design",
+  "Hardware & Robotics",
 
-  // Business & Web3
+  // Education & Academia
+  "Education & Learning",
+  "Academia & Research",
+  "Career & Professional Growth",
+
+  // Business, Web3 & Finance
   "Startups & Entrepreneurship",
   "Cryptocurrency & Web3",
   "Personal Finance",
@@ -20,20 +28,44 @@ export const SEED_TOPICS: string[] = [
   "Investing & Stocks",
   "Product Management",
 
-  // Media & Entertainment
+  // Media, Entertainment & Culture
   "Gaming & Esports",
   "Movies & Cinema",
   "Anime & Manga",
-  "Pop Culture",
+  "Pop Culture & Memes",
+  "Comedy & Humor",
   "Streaming & Content Creation",
   "Podcasts",
+  "Music & Performing Arts",
+  "Books & Literature",
+  "Visual Arts & Crafts",
 
-  // Lifestyle & Culture
+  // Sports, Gaming & Betting
+  "Sports & Athletics",
+  "Sports Betting & Gambling",
+
+  // Society, News & World
+  "News & Current Events",
+  "Politics & Governance",
+  "Environment & Sustainability",
+  "Law & Justice",
+
+  // Lifestyle, Health & Community
   "Digital Nomad",
-  "Fitness & Bodybuilding",
+  "Fitness & Wellness",
   "Mental Health",
-  "Fashion & Streetwear",
+  "Fashion & Style",
   "Travel & Exploration",
   "Photography",
   "Food & Culinary",
+  "Pets & Animals",
+  "Parenting & Family",
+  "Automotive & Vehicles",
+  "Home & Gardening",
+  "Relationships & Dating",
+
+  // Fallback & Meta
+  "General & Off-Topic",
 ] as const;
+
+export type SeedTopic = (typeof SEED_TOPICS)[number];

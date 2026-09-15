@@ -59,7 +59,8 @@ export const getOrCreateDeviceId = (): string => {
 /**
  * Resolves destination type from the raw identifier string.
  */
-export const getOtpIdentifierType = (value: string): IdentifierType | null => {
+export const getOtpIdentifierType = (value?: string): IdentifierType | null => {
+  if (!value) return null;
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const PHONE_REGEX = /^\+?[\d\s-]{10,}$/;
   if (EMAIL_REGEX.test(value)) return "EMAIL";

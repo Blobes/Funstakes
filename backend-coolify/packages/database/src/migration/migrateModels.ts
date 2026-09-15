@@ -1,5 +1,7 @@
 import { GistModel } from "../models/entities/gist";
 import { UserModel } from "../models/entities/user";
+import { UserSettingsModel } from "../models/non-entities/identity/userSettings";
+import { TopicModel } from "../models/non-entities/topic";
 import {
   MigrationRunner,
   Migration,
@@ -32,6 +34,26 @@ async function executeMigrations(): Promise<void> {
         excludeFieldsFromUnset: [],
       },
       "Sync_GistModel_v1",
+    ),
+
+    // Auto-sync User Settings model fields
+    new AutoSyncSchemaFields(
+      UserSettingsModel,
+      {
+        sampleSize: 1000,
+        excludeFieldsFromUnset: [],
+      },
+      "Sync_UserSettingsModel_v1",
+    ),
+
+    // Auto-sync User Settings model fields
+    new AutoSyncSchemaFields(
+      TopicModel,
+      {
+        sampleSize: 1000,
+        excludeFieldsFromUnset: [],
+      },
+      "Sync_TopicModel_v1",
     ),
   ];
   const runner = new MigrationRunner(MONGODB_URI, migrations);

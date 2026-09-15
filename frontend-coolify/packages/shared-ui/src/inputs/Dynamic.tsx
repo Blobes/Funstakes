@@ -42,7 +42,7 @@ export interface InputProps {
   type?: "text" | "number" | "email" | "search" | "password" | "tel";
   value?: string;
   placeholder?: string;
-  label?: string;
+  label?: React.ReactNode;
   helperText?: string;
   needsValidation?: boolean;
   inputGuideUI?: React.ReactNode;

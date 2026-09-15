@@ -5,7 +5,7 @@ import {
   totpService,
   TransInfo,
 } from "@repo/shared";
-import { TotpActionType } from "./setupTotp";
+import { TotpActionType } from "./fetchTotp";
 
 export interface ITotpVerificationInput {
   actionType: TotpActionType;

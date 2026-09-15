@@ -19,7 +19,7 @@ import { DisabledClickWrapper } from "../ElementTap";
 export interface ChoiceInputProps extends InputProps, InputEventHandlers {
   choiceType?: "checkbox" | "radio" | "switch";
   checked?: boolean;
-  choiceValue?: string | number | boolean;
+  choiceValue?: React.ReactNode;
   checkIconSize?: string | number;
   switchIcon?: React.ReactNode;
   switchCheckedIcon?: React.ReactNode;

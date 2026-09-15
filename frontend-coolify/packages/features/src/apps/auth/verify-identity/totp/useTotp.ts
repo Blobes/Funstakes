@@ -6,6 +6,7 @@ import {
   AUTH_FEEDBACK,
   ApiError,
   COMMON_FEEDBACK,
+  IUser,
   QUERY_KEYS,
   TransitPurpose,
   useGlobalStore,
@@ -19,13 +20,16 @@ import {
 } from "../helpers";
 import { useVerificationNavigation } from "../useNavigation";
 import { BaseVerificationProps } from "../useVerifyIdentity";
+import { extractPayloadKeys } from "@repo/helpers";
 
 export type TotpViewStep = "CONFIGURE_TOTP" | "VERIFY_TOTP_CODE";
 
 export interface UseTotpProps<
   P extends TransitPurpose,
 > extends BaseVerificationProps<P> {
-  viewMode?: TotpViewStep;
+  currStep?: TotpViewStep;
+  setCurrStep?: (step: TotpViewStep) => void;
+  totpAction?: TotpActionType;
 }
 
 /**
@@ -37,7 +41,9 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
     onRateLimitExceeded,
     isBotChallengeAllowed,
     onSuccess,
-    viewMode,
+    currStep,
+    setCurrStep,
+    totpAction,
   } = props;
 
   const authUser = useGlobalStore((state) => state.authUser);
@@ -46,7 +52,8 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
 
   const [code, setCode] = useState("");
   const [copied, setCopied] = useState(false);
-  const { setupTotp, verifyTotpCode } = VerifyIdentityService();
+  const { fetchTotpSetup, verifyTotpCode, commitAccountUpdate } =
+    VerifyIdentityService();
   const { translateTxtString } = useStaticTranslation();
   const {
     handleAuthSuccess,
@@ -58,24 +65,27 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
   const { checkTotpConfiguration } = useVerificationNavigation();
 
   const isMfaActivationPurpose = activeTransit?.purpose === "MFA_ACTIVATION";
-  const actionType: TotpActionType = isMfaActivationPurpose
-    ? "CONFIGURE"
-    : "AUTHENTICATE";
+  const actionType: TotpActionType =
+    totpAction || (isMfaActivationPurpose ? "CONFIGURE" : "AUTHENTICATE");
 
-  const isConfigured = checkTotpConfiguration(authUser);
+  const payloadUser = extractPayloadKeys(activeTransit?.payload, ["user"])
+    .user as IUser | null;
+
+  const targetUser = authUser || payloadUser;
+  const isConfigured = checkTotpConfiguration(targetUser);
+
+  const isConfig = isMfaActivationPurpose || actionType === "CONFIGURE";
 
   // Automatically select CONFIGURE_TOTP step during MFA setup or when unconfigured
   const initialStep: TotpViewStep = useMemo(() => {
-    if (viewMode) return viewMode;
-    if (isMfaActivationPurpose || !isConfigured) return "CONFIGURE_TOTP";
+    if (currStep) return currStep;
+    if (isConfig || !isConfigured) return "CONFIGURE_TOTP";
     return "VERIFY_TOTP_CODE";
-  }, [viewMode, isMfaActivationPurpose, isConfigured]);
-
-  const [currStep, setCurrStep] = useState<TotpViewStep>(initialStep);
+  }, [isMfaActivationPurpose, isConfigured, currStep]);
 
   useEffect(() => {
-    setCurrStep(initialStep);
-  }, [initialStep]);
+    setCurrStep?.(initialStep);
+  }, [initialStep, setCurrStep]);
 
   /**
    * Fetches the TOTP QR code and setup key configuration data.
@@ -89,15 +99,10 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
   } = useQuery({
     queryKey: QUERY_KEYS.TOTP_CONFIG(activeTransit?.identifier, authUser?._id),
     queryFn: async () => {
-      const targetIdentifier =
-        activeTransit?.identifier || authUser?.email || "";
-      const response = await setupTotp({
-        actionType,
-        identifier: targetIdentifier,
-      });
+      const response = await fetchTotpSetup();
       return response.payload;
     },
-    enabled: false, // currStep === "CONFIGURE_TOTP",
+    enabled: isConfig,
     staleTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -162,11 +167,21 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
       const targetIdentifier =
         activeTransit?.identifier || authUser?.email || "";
 
-      return await verifyTotpCode({
+      const response = await verifyTotpCode({
         actionType,
         token,
         identifier: targetIdentifier,
       });
+
+      if (activeTransit?.purpose) {
+        await commitAccountUpdate({
+          identifier: targetIdentifier,
+          purpose: activeTransit.purpose,
+          verificationMethod: "TOTP",
+        });
+      }
+
+      return response;
     },
     onSuccess: () => {
       if (onSuccess) onSuccess();
@@ -226,7 +241,7 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
    */
   const proceedToVerification = useCallback(() => {
     setInlineMsg(null);
-    setCurrStep("VERIFY_TOTP_CODE");
+    setCurrStep?.("VERIFY_TOTP_CODE");
   }, [setInlineMsg]);
 
   /**
@@ -234,7 +249,7 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
    */
   const switchToConfiguration = useCallback(() => {
     setInlineMsg(null);
-    setCurrStep("CONFIGURE_TOTP");
+    setCurrStep?.("CONFIGURE_TOTP");
   }, [setInlineMsg]);
 
   /**
@@ -256,6 +271,7 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
     setupData,
     isLoadingSetup,
     fetchSetup,
+    initialStep,
     currStep,
     setCurrStep,
     isConfigured,
@@ -264,5 +280,6 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
     proceedToVerification,
     switchToConfiguration,
     isSetupError,
+    isMfaActivationPurpose,
   };
 };

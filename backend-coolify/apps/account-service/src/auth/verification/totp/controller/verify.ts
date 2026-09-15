@@ -1,11 +1,7 @@
 import { NextFunction, Response } from "express";
-import {
-  executeTotpVerification,
-  forwardError,
-  IAuthRequest,
-  MESSAGES_REGISTRY,
-  TotpActionType,
-} from "@repo/shared";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { TotpActionType } from "../services/fetchTotp";
+import { executeTotpVerification } from "../services/verifyTotp";
 
 interface VerifyTotpRequest extends IAuthRequest {
   body: {

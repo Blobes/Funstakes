@@ -5,7 +5,7 @@ import {
   IUser,
   IdentifierType,
 } from "@repo/core";
-import { getOtpIdentifierType } from "@repo/helpers";
+import { extractPayloadKeys, getOtpIdentifierType } from "@repo/helpers";
 
 export type StrategyHandler<P extends TransitPurpose> = (
   payload: TransitPayloadMap[P] | undefined,
@@ -70,23 +70,22 @@ export function resolveChannelRecipient<P extends TransitPurpose>(
   if (!activeTransit) return currentRecipient;
 
   const fallbackIdentifier = activeTransit.identifier || currentRecipient;
-  const payload = activeTransit.payload as
-    | (IUser & { identifier?: string; email?: string; phoneNumber?: string })
-    | undefined;
+
+  const payloadUser = extractPayloadKeys(activeTransit.payload, ["user"])
+    .user as IUser | undefined;
 
   const isPhone = identifierType === "PHONE_NUMBER";
   const fallbackType = getOtpIdentifierType(fallbackIdentifier || "");
 
   if (isPhone) {
-    if (payload?.phoneNumber) return payload.phoneNumber;
+    if (payloadUser?.phoneNumber) return payloadUser.phoneNumber;
     if (fallbackIdentifier && fallbackType === "PHONE_NUMBER")
       return fallbackIdentifier;
     return undefined;
   }
 
   return (
-    payload?.email ||
-    payload?.identifier ||
+    payloadUser?.email ||
     (fallbackType !== "PHONE_NUMBER" ? fallbackIdentifier : undefined)
   );
 }

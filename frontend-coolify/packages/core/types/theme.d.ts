@@ -35,6 +35,15 @@ declare module "@mui/material/styles" {
         overlay: OverlayFunc;
       };
     };
+    success: {
+      light: string;
+      main: string;
+      dark: string;
+      trans: {
+        1: string;
+        2: string;
+      };
+    };
     error: {
       light: string;
       main: string;
@@ -58,6 +67,7 @@ declare module "@mui/material/styles" {
         overlay?: OverlayObj | OverlayFunc;
       };
     };
+    success?: Partial<Palette["success"]>;
     error?: Partial<Palette["error"]>;
   }
 

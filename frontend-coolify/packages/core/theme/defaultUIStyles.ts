@@ -1,31 +1,7 @@
 "use client";
 
 import { Components, Theme } from "@mui/material/styles";
-
-/**
- * Central design tokens used across component style overrides.
- */
-const VARS = {
-  color_primary_main: "var(--mui-palette-primary-main)",
-  color_primary_dark: "var(--mui-palette-primary-dark)",
-  color_primary_light: "var(--mui-palette-primary-dark)",
-  color_primary_trans: "var(--mui-fixedColors-pTrans)",
-  color_gray0: "var(--mui-palette-gray-0)",
-  color_gray50: "var(--mui-palette-gray-50)",
-  color_gray100: "var(--mui-palette-gray-100)",
-  color_gray200: "var(--mui-palette-gray-200)",
-  color_gray300: "var(--mui-palette-gray-300)",
-  color_gray_trans_1: "var(--mui-palette-gray-trans-1)",
-  color_gray_trans_2: "var(--mui-palette-gray-trans-2)",
-  color_gray_trans_overlay: "var(--mui-palette-gray-trans-overlay)",
-  color_fixed_gray800: "var(--mui-fixedColors-gray800)",
-  color_success: "var(--mui-palette-info-main)",
-  color_error: "var(--mui-palette-error-main)",
-  color_error_trans: "var(--mui-palette-error-trans)",
-  text_fontsize: "calc(1rem * var(--ui-font-scale, 1))",
-  text_align: "var(--ui-text-align, inherit)" as any,
-  text_helper_fontsize: "calc(0.875rem * var(--ui-font-scale, 1))",
-} as const;
+import { CSS_VARS } from "../constants/cssVars";
 
 interface BaseStylesContainer {
   components: Components<Omit<Theme, "components">>;
@@ -74,7 +50,7 @@ const defaultUIStyles: BaseStylesContainer = {
           transition: "var(--theme-transition)",
         },
         svg: {
-          stroke: VARS.color_gray200,
+          stroke: CSS_VARS.color_gray200,
           flexShrink: "0!important",
         },
         "input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active":
@@ -115,35 +91,239 @@ const defaultUIStyles: BaseStylesContainer = {
             pointerEvents: "auto",
           },
         }),
-        contained: () => ({
-          backgroundColor: VARS.color_primary_main,
-          color: VARS.color_gray300,
-          "&:hover": { backgroundColor: VARS.color_primary_dark },
+
+        contained: ({ ownerState }) => ({
+          backgroundColor: CSS_VARS.color_primary_main,
+          color: CSS_VARS.color_fixed_gray50,
+          "&:hover": { backgroundColor: CSS_VARS.color_primary_dark },
           "&:disabled": {
-            backgroundColor: VARS.color_primary_main,
-            color: VARS.color_gray300,
+            backgroundColor: CSS_VARS.color_primary_main,
+            color: CSS_VARS.color_fixed_gray50,
             opacity: 0.6,
           },
+          ...(ownerState.color === "success" && {
+            backgroundColor: CSS_VARS.color_success_main,
+            color: CSS_VARS.color_fixed_gray50,
+            "&:hover": { backgroundColor: CSS_VARS.color_success_dark },
+            "&:disabled": {
+              backgroundColor: CSS_VARS.color_success_main,
+              color: CSS_VARS.color_fixed_gray50,
+              opacity: 0.6,
+            },
+          }),
+          ...(ownerState.color === "error" && {
+            backgroundColor: CSS_VARS.color_error_main,
+            color: CSS_VARS.color_fixed_gray50,
+            "&:hover": { backgroundColor: CSS_VARS.color_error_dark },
+            "&:disabled": {
+              backgroundColor: CSS_VARS.color_error_main,
+              color: CSS_VARS.color_fixed_gray50,
+              opacity: 0.6,
+            },
+          }),
         }),
-        outlined: () => ({
-          borderColor: VARS.color_gray_trans_2,
-          color: VARS.color_gray300,
+
+        outlined: ({ ownerState }) => ({
+          borderColor: CSS_VARS.color_gray_trans_2,
+          color: CSS_VARS.color_gray300,
           "&:hover": {
-            backgroundColor: VARS.color_primary_trans,
-            borderColor: VARS.color_primary_trans,
+            backgroundColor: CSS_VARS.color_fixed_primary_trans,
+            borderColor: CSS_VARS.color_fixed_primary_trans,
           },
           "&:disabled": {
-            color: VARS.color_gray300,
-            backgroundColor: VARS.color_gray_trans_2,
+            color: CSS_VARS.color_gray300,
+            backgroundColor: CSS_VARS.color_gray_trans_2,
             borderColor: "transparent",
             opacity: 0.6,
           },
+          ...(ownerState.color === "success" && {
+            borderColor: CSS_VARS.color_success_main,
+            color: CSS_VARS.color_success_main,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_success_trans_1,
+              borderColor: CSS_VARS.color_success_main,
+            },
+            "&:disabled": {
+              color: CSS_VARS.color_success_main,
+              backgroundColor: CSS_VARS.color_gray_trans_1,
+              borderColor: "transparent",
+              opacity: 0.6,
+            },
+          }),
+          ...(ownerState.color === "error" && {
+            borderColor: CSS_VARS.color_error_main,
+            color: CSS_VARS.color_error_main,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_error_trans_1,
+              borderColor: CSS_VARS.color_error_main,
+            },
+            "&:disabled": {
+              color: CSS_VARS.color_error_main,
+              backgroundColor: CSS_VARS.color_gray_trans_2,
+              borderColor: "transparent",
+              opacity: 0.6,
+            },
+          }),
         }),
-        text: () => ({
+
+        text: ({ ownerState }) => ({
+          color: CSS_VARS.color_primary_light,
+          "&:hover": {
+            backgroundColor: CSS_VARS.color_fixed_primary_trans,
+          },
           "&:disabled": {
-            color: VARS.color_gray300,
+            color: CSS_VARS.color_gray300,
             opacity: 0.7,
           },
+          ...(ownerState.color === "success" && {
+            color: CSS_VARS.color_success_main,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_success_trans_1,
+            },
+            "&:disabled": {
+              color: CSS_VARS.color_success_main,
+              opacity: 0.7,
+            },
+          }),
+          ...(ownerState.color === "error" && {
+            color: CSS_VARS.color_error_main,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_error_trans_1,
+            },
+            "&:disabled": {
+              color: CSS_VARS.color_error_main,
+              opacity: 0.7,
+            },
+          }),
+        }),
+      },
+    },
+
+    MuiChip: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderRadius: theme.radius.full,
+          fontWeight: 500,
+          "& .MuiChip-deleteIcon": {
+            transition: "all 0.2s ease-in-out",
+          },
+          "&.Mui-disabled": {
+            opacity: 0.6,
+            cursor: "not-allowed",
+            pointerEvents: "auto",
+          },
+        }),
+
+        filled: ({ ownerState }) => ({
+          backgroundColor: CSS_VARS.color_primary_main,
+          color: CSS_VARS.color_fixed_gray50,
+          "&:hover": {
+            backgroundColor: CSS_VARS.color_primary_dark,
+          },
+          "&.Mui-disabled": {
+            backgroundColor: CSS_VARS.color_primary_main,
+            color: CSS_VARS.color_fixed_gray50,
+          },
+          "& .MuiChip-deleteIcon": {
+            color: CSS_VARS.color_fixed_gray50,
+            "&:hover": {
+              color: CSS_VARS.color_gray100,
+            },
+          },
+
+          ...(ownerState.color === "secondary" && {
+            backgroundColor: CSS_VARS.color_gray_trans_1,
+            color: CSS_VARS.color_gray300,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_gray_trans_2,
+            },
+            "&.Mui-disabled": {
+              backgroundColor: CSS_VARS.color_gray_trans_1,
+              color: CSS_VARS.color_gray300,
+            },
+          }),
+
+          ...(ownerState.color === "success" && {
+            backgroundColor: CSS_VARS.color_success_main,
+            color: CSS_VARS.color_fixed_gray50,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_success_dark,
+            },
+            "&.Mui-disabled": {
+              backgroundColor: CSS_VARS.color_success_main,
+              color: CSS_VARS.color_fixed_gray50,
+            },
+          }),
+          ...(ownerState.color === "error" && {
+            backgroundColor: CSS_VARS.color_error_main,
+            color: CSS_VARS.color_fixed_gray50,
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_error_dark,
+            },
+            "&.Mui-disabled": {
+              backgroundColor: CSS_VARS.color_error_main,
+              color: CSS_VARS.color_fixed_gray50,
+            },
+          }),
+        }),
+
+        outlined: ({ ownerState }) => ({
+          borderColor: CSS_VARS.color_gray_trans_2,
+          color: CSS_VARS.color_gray300,
+          backgroundColor: "transparent",
+          "& .MuiChip-deleteIcon": {
+            color: CSS_VARS.color_gray300,
+            "&:hover": {
+              color: CSS_VARS.color_primary_main,
+            },
+          },
+          "&:hover": {
+            backgroundColor: CSS_VARS.color_fixed_primary_trans,
+            borderColor: CSS_VARS.color_fixed_primary_trans,
+          },
+          "&.Mui-disabled": {
+            color: CSS_VARS.color_gray300,
+            backgroundColor: CSS_VARS.color_gray_trans_2,
+            borderColor: "transparent",
+          },
+          ...(ownerState.color === "success" && {
+            borderColor: CSS_VARS.color_success_main,
+            color: CSS_VARS.color_success_main,
+            "& .MuiChip-deleteIcon": {
+              color: CSS_VARS.color_success_main,
+              "&:hover": {
+                color: CSS_VARS.color_success_dark,
+              },
+            },
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_success_trans_1,
+              borderColor: CSS_VARS.color_success_main,
+            },
+            "&.Mui-disabled": {
+              color: CSS_VARS.color_success_main,
+              backgroundColor: CSS_VARS.color_gray_trans_1,
+              borderColor: "transparent",
+            },
+          }),
+          ...(ownerState.color === "error" && {
+            borderColor: CSS_VARS.color_error_main,
+            color: CSS_VARS.color_error_main,
+            "& .MuiChip-deleteIcon": {
+              color: CSS_VARS.color_error_main,
+              "&:hover": {
+                color: CSS_VARS.color_error_dark,
+              },
+            },
+            "&:hover": {
+              backgroundColor: CSS_VARS.color_error_trans_1,
+              borderColor: CSS_VARS.color_error_main,
+            },
+            "&.Mui-disabled": {
+              color: CSS_VARS.color_error_main,
+              backgroundColor: CSS_VARS.color_gray_trans_2,
+              borderColor: "transparent",
+            },
+          }),
         }),
       },
     },
@@ -153,17 +333,17 @@ const defaultUIStyles: BaseStylesContainer = {
         tooltip: ({ theme }) => ({
           ...theme.typography.text6,
           padding: theme.boxSpacing(3, 5),
-          backgroundColor: VARS.color_fixed_gray800,
-          color: VARS.color_gray50,
+          backgroundColor: CSS_VARS.color_fixed_gray800,
+          color: CSS_VARS.color_fixed_gray50,
           borderRadius: theme.radius[3],
           boxShadow: "var(--mui-shadows-1)",
           maxWidth: 420,
           margin: theme.boxSpacing(0, 6),
-          border: `1px solid ${VARS.color_gray_trans_2}`,
+          border: `1px solid ${CSS_VARS.color_gray_trans_2}`,
         }),
         arrow: ({ theme }) => ({
           ...theme.typography.text6,
-          color: VARS.color_fixed_gray800,
+          color: CSS_VARS.color_fixed_gray800,
         }),
       },
     },
@@ -173,9 +353,9 @@ const defaultUIStyles: BaseStylesContainer = {
         root: ({ theme }) => ({
           padding: theme.boxSpacing(3),
           margin: 0,
-          "&:hover": { backgroundColor: VARS.color_primary_trans },
+          "&:hover": { backgroundColor: CSS_VARS.color_fixed_primary_trans },
           "&:disabled": {
-            backgroundColor: VARS.color_gray_trans_overlay,
+            backgroundColor: CSS_VARS.color_gray_trans_overlay,
             opacity: 0.6,
           },
         }),
@@ -209,7 +389,7 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiCard: {
       styleOverrides: {
         root: ({ theme }) => ({
-          backgroundColor: VARS.color_primary_trans,
+          backgroundColor: CSS_VARS.color_fixed_primary_trans,
           borderRadius: theme.radius[4],
           boxShadow: "unset",
         }),
@@ -228,13 +408,13 @@ const defaultUIStyles: BaseStylesContainer = {
       styleOverrides: {
         root: ({ theme }) => ({ borderRadius: theme.radius[4] }),
         elevation: () => ({
-          backgroundColor: VARS.color_gray0,
+          backgroundColor: CSS_VARS.color_gray0,
           backgroundImage:
             "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
         }),
         outlined: () => ({
           backgroundColor: "unset",
-          border: `1px solid ${VARS.color_gray_trans_1}`,
+          border: `1px solid ${CSS_VARS.color_gray_trans_1}`,
         }),
         elevation8: {
           boxShadow: "4px 8px 24px rgba(0, 0, 0, 0.2)",
@@ -245,7 +425,7 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiMenu: {
       styleOverrides: {
         paper: ({ theme }) => ({
-          backgroundColor: VARS.color_gray0,
+          backgroundColor: CSS_VARS.color_gray0,
           borderRadius: theme.radius[4],
         }),
       },
@@ -302,16 +482,16 @@ const defaultUIStyles: BaseStylesContainer = {
               pointerEvents: "none",
               opacity: 0,
               fontWeight: 600,
-              color: VARS.color_gray200,
+              color: CSS_VARS.color_gray200,
               "&.Mui-focused, &.MuiFormLabel-filled": {
                 width: "unset",
                 height: "unset",
                 transform: "translate(12px, -14px) scale(0.8)",
-                backgroundColor: VARS.color_gray0,
+                backgroundColor: CSS_VARS.color_gray0,
                 opacity: 1,
               },
               "&.Mui-focused": {
-                color: VARS.color_primary_main,
+                color: CSS_VARS.color_primary_main,
               },
             },
           },
@@ -322,20 +502,20 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiSelect: {
       styleOverrides: {
         root: ({ theme }) => ({
-          fontSize: VARS.text_fontsize,
+          fontSize: CSS_VARS.text_fontsize,
           fontWeight: 500,
           backgroundColor: "transparent",
-          border: `1px solid ${VARS.color_gray100}`,
+          border: `1px solid ${CSS_VARS.color_gray100}`,
           cursor: "pointer",
           padding: theme.boxSpacing(7, 4, 7, 9),
           borderRadius: theme.radius[4],
           "&:hover": {
-            border: `1px solid ${VARS.color_primary_main}`,
+            border: `1px solid ${CSS_VARS.color_primary_main}`,
             opacity: 1,
-            color: VARS.color_primary_main,
+            color: CSS_VARS.color_primary_main,
           },
           "&.Mui-focused": {
-            border: `1px solid ${VARS.color_primary_main}`,
+            border: `1px solid ${CSS_VARS.color_primary_main}`,
           },
           "&.Mui-disabled": {
             cursor: "not-allowed",
@@ -355,9 +535,9 @@ const defaultUIStyles: BaseStylesContainer = {
       styleOverrides: {
         root: ({ theme }) => ({
           "& .MuiInputBase-input": {
-            fontSize: VARS.text_fontsize,
+            fontSize: CSS_VARS.text_fontsize,
             fontWeight: 500,
-            textAlign: VARS.text_align,
+            textAlign: CSS_VARS.text_align,
             "&.Mui-disabled": { cursor: "not-allowed !important" },
           },
 
@@ -368,10 +548,10 @@ const defaultUIStyles: BaseStylesContainer = {
             overflow: "unset",
             width: "100%",
             maxWidth: "calc(97% - 24px)",
-            fontSize: VARS.text_fontsize,
+            fontSize: CSS_VARS.text_fontsize,
             transform: "translate(16px, 17px)",
             fontWeight: "500",
-            color: VARS.color_gray200,
+            color: CSS_VARS.color_gray200,
             pointerEvents: "none",
           },
 
@@ -382,7 +562,7 @@ const defaultUIStyles: BaseStylesContainer = {
 
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
             position: "absolute",
-            color: VARS.color_gray200,
+            color: CSS_VARS.color_gray200,
             transform: "translate(16px, 7px) scale(0.83)",
             borderRadius: theme.radius[1],
             padding: 0,
@@ -392,23 +572,23 @@ const defaultUIStyles: BaseStylesContainer = {
           },
           "& label.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
             {
-              color: VARS.color_error,
+              color: CSS_VARS.color_error_main,
             },
 
           "& .MuiInputLabel-asterisk": {
             fontSize: 26,
             fontWeight: 600,
-            color: VARS.color_error,
+            color: CSS_VARS.color_error_main,
             transform: "translateY(6px)",
           },
 
           "& .MuiFormHelperText-root": {
-            fontSize: VARS.text_helper_fontsize,
+            fontSize: CSS_VARS.text_helper_fontsize,
             lineHeight: "1.2em",
             fontWeight: "500",
-            color: VARS.color_gray200,
+            color: CSS_VARS.color_gray200,
             margin: theme.boxSpacing(4, 0, 0, 0),
-            textAlign: VARS.text_align,
+            textAlign: CSS_VARS.text_align,
           },
           "& .MuiFormHelperText-root.Mui-focused": {
             padding: 0,
@@ -423,33 +603,33 @@ const defaultUIStyles: BaseStylesContainer = {
           maxWidth: "600px",
           minWidth: "150px",
           borderRadius: theme.radius[4],
-          border: `1px solid ${VARS.color_gray50}`,
-          backgroundColor: VARS.color_gray50,
+          border: `1px solid ${CSS_VARS.color_gray50}`,
+          backgroundColor: CSS_VARS.color_gray50,
           padding: theme.boxSpacing(4.5, 5, 4.5, 0),
           transition: "all 0.2s ease-in-out",
           "&:hover": {
             backgroundColor: "transparent",
-            borderColor: VARS.color_primary_main,
+            borderColor: CSS_VARS.color_primary_main,
           },
           "&.Mui-focused": {
             backgroundColor: "transparent",
-            borderColor: VARS.color_primary_main,
-            outline: `2px solid ${VARS.color_primary_trans}`,
-            boxShadow: `0 0 0 4px ${VARS.color_primary_trans}`,
+            borderColor: CSS_VARS.color_primary_main,
+            outline: `2px solid ${CSS_VARS.color_fixed_primary_trans}`,
+            boxShadow: `0 0 0 4px ${CSS_VARS.color_fixed_primary_trans}`,
             outlineOffset: "1px",
           },
           "&.Mui-disabled": {
             cursor: "not-allowed",
-            backgroundColor: VARS.color_gray50,
+            backgroundColor: CSS_VARS.color_gray50,
             borderColor: "transparent",
             opacity: 0.5,
           },
           "&.Mui-error, &.Mui-error:hover": {
-            borderColor: VARS.color_error,
-            backgroundColor: VARS.color_error_trans,
+            borderColor: CSS_VARS.color_error_main,
+            backgroundColor: CSS_VARS.color_error_trans_1,
           },
           "&.Mui-error.Mui-focused": {
-            boxShadow: `0 0 0 4px ${VARS.color_error_trans}`,
+            boxShadow: `0 0 0 4px ${CSS_VARS.color_error_trans_1}`,
             backgroundColor: "transparent",
           },
           "& .MuiOutlinedInput-notchedOutline": {

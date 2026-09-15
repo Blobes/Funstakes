@@ -1,29 +1,27 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { executeTotpSetup, TotpActionType } from "../services/setupTotp";
-
-interface TotpSetupRequest extends IAuthRequest {
-  body: {
-    actionType: TotpActionType;
-    identifier?: string;
-  };
-}
+import { executeTotpFetch, TotpActionType } from "../services/fetchTotp";
 
 /**
  * Controller endpoint managing MFA workflows across activation and login challenge segments.
  */
-export const setupTotp = async (
-  req: TotpSetupRequest,
+export const fetchTotpSetup = async (
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { actionType, identifier } = req.body;
   const userId = req.user?.id;
 
+  if (!userId) {
+    return res.status(404).json({
+      status: "ERROR",
+      transInfo: MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+      payload: null,
+    });
+  }
+
   try {
-    const serviceResult = await executeTotpSetup({
-      actionType,
-      identifier,
+    const serviceResult = await executeTotpFetch({
       userId,
     });
 

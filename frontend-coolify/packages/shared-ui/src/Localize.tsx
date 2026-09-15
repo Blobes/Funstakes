@@ -88,7 +88,8 @@ export const LanguageSelector: React.FC = () => {
         style={{
           ...theme.typography.text6Caps,
           color: theme.palette.gray[200],
-        }}>
+        }}
+      >
         {selectedLangObj
           ? `${selectedLangObj.flag} ${selectedLangObj.iso}`
           : currentLang}
@@ -98,7 +99,8 @@ export const LanguageSelector: React.FC = () => {
         ref={menuRef}
         heightThreshold={40}
         marginThreshold={54}
-        style={{ borderRadius: theme.radius[2], ul: { gap: theme.gap(4) } }}>
+        style={{ ul: { gap: theme.gap(4) } }}
+      >
         {/* System Default Reset Trigger */}
         <MenuItem onClick={handleResetToDefault} sx={SharedItemStyle}>
           🌐 &nbsp; System
@@ -108,7 +110,8 @@ export const LanguageSelector: React.FC = () => {
             key={lang.iso}
             selected={lang.iso === currentLang}
             onClick={() => handleLangSelect(lang.iso)}
-            sx={SharedItemStyle}>
+            sx={SharedItemStyle}
+          >
             {lang.flag} &nbsp; {lang.title}
           </MenuItem>
         ))}

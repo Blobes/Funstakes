@@ -28,6 +28,7 @@ export const ConfirmSessionTermination = () => {
       onConfirm={confirmTermination}
       onCancel={closeModal}
       isLoading={isTerminatingSession}
+      confirmBtnColorType="error"
     />
   );
 };

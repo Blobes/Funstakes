@@ -1,7 +1,7 @@
 "use client";
 
 import { del, get, set } from "idb-keyval";
-import { IIdbData } from "@repo/core";
+import { IIdbData, STORAGE_KEYS } from "@repo/core";
 
 /**
  * Safe wrapper for indexedDB operations to prevent SSR crashes.
@@ -122,7 +122,7 @@ interface LocalItem {
   fallback?: any;
 }
 export const getFromLocalStorage = <T = unknown | any>({
-  key = "saved_page",
+  key = STORAGE_KEYS.SAVED_PAGE,
   fallback,
 }: LocalItem = {}): T | null => {
   if (typeof window === "undefined") return (fallback as T) ?? null;

@@ -151,7 +151,7 @@ export const SERVER_API = {
   verifyMsgCode: `${API_BASE.auth}/otp/verify`,
   resetMsgCode: `${API_BASE.auth}/otp/reset`,
   otpAccountUpdate: `${API_BASE.auth}/otp/update-account`,
-  setupTotp: `${API_BASE.auth}/totp/setup`,
+  fetchTotpSetup: `${API_BASE.auth}/totp`,
   verifyTotp: `${API_BASE.auth}/totp/verify`,
   setupSecurityQuestions: `${API_BASE.auth}/security-questions/setup`,
   fetchSecurityQuestions: `${API_BASE.auth}/security-questions`,

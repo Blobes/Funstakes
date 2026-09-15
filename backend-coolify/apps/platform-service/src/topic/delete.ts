@@ -11,7 +11,7 @@ import { Response, NextFunction } from "express";
 /**
  * Controller endpoint processing administrative criteria to wipe orphaned or unused taxonomy indices.
  */
-export const deleteUnusedTopics = async (
+export const removeUnusedTopics = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
@@ -45,12 +45,11 @@ export const deleteUnusedTopics = async (
 
 /**
  * Administrative controller endpoint to remove or update a specific topic.
- *
  * @param req Authenticated HTTP request containing topic removal parameters.
  * @param res Express HTTP response object.
  * @param next Express next function.
  */
-export const deleteTopic = async (
+export const removeTopic = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,

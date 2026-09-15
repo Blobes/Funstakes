@@ -1,4 +1,4 @@
-import { Schema, Document, Model, model } from "mongoose";
+import { Schema, Model, model } from "mongoose";
 import { ISecurityQuestionDocument } from "../../types/others";
 
 const SecurityQuestionSchema = new Schema<ISecurityQuestionDocument>(
@@ -7,8 +7,6 @@ const SecurityQuestionSchema = new Schema<ISecurityQuestionDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
-      index: true,
     },
     questions: [
       {

@@ -86,6 +86,7 @@ router.use(
   createStaticProxy(
     [
       "/upload",
+      "/topic",
       "/notification",
       "/search",
       "/audit",
