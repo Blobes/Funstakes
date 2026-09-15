@@ -18,7 +18,7 @@ COPY apps/worker-service/go-worker/go.mod apps/worker-service/go-worker/go.sum .
 RUN go mod download
 COPY apps/worker-service/go-worker/ ./
 
-# Must enable CGO for webp
+# Must enable CGO for webp again
 RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o go-worker-bin ./cmd
 
 # =========================
