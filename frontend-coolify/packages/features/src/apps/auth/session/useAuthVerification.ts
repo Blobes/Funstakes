@@ -95,7 +95,7 @@ export const useAuthVerification = () => {
     enabled: !temporarySession,
     retry: false,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60 * 10, // 10 Mins
+    refetchInterval: 1 * 60 * 60 * 1000, // 1 Hour
     refetchIntervalInBackground: false,
   });
 
