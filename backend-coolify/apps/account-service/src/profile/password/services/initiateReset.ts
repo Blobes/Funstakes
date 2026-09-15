@@ -102,7 +102,7 @@ export const executeResetInitiation = async (
     };
   }
 
-  // Enforce single-minute delay window on messaging gateways
+  // Enforce single-minute delay window on messaging
   if (user.lastEmailOtpSentAt || user.lastPhoneOtpSentAt) {
     const lastSentAt = isEmail
       ? user.lastEmailOtpSentAt
