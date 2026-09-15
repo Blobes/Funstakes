@@ -3,11 +3,23 @@
 # =========================
 FROM golang:1.26-alpine AS go-builder
 WORKDIR /app
-RUN apk add --no-cache git ca-certificates
+
+# CGO + libwebp headers required by github.com/chai2010/webp
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    gcc \
+    g++ \
+    musl-dev \
+    pkgconfig \
+    libwebp-dev
+
 COPY apps/worker-service/go-worker/go.mod apps/worker-service/go-worker/go.sum ./
 RUN go mod download
 COPY apps/worker-service/go-worker/ ./
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o go-worker-bin ./cmd
+
+# Must enable CGO for webp
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o go-worker-bin ./cmd
 
 # =========================
 # 🏗️ STAGE 2: NODE BUILDER
