@@ -3,9 +3,9 @@ import {
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
-  getAccountStatusMsg,
   fetchSingleUser,
   detectIdentifierType,
+  validateAccountStatus,
 } from "@repo/shared";
 
 export type PasswordPurpose =
@@ -33,7 +33,7 @@ interface IUpdatePasswordResult {
     | "MISSING_IDENTIFIER"
     | "RESTRICTION"
     | "INVALID_IDENTIFIER";
-  transInfo: TransInfo;
+  transInfo?: TransInfo;
   payload?: {
     loggedOut: boolean;
   };
@@ -93,15 +93,15 @@ export const executePasswordUpdate = async (
     }
 
     const accountStatus = user.accountStatus;
-    if (
-      accountStatus === "DEACTIVATED" ||
-      accountStatus === "SUSPENDED" ||
-      accountStatus === "BANNED"
-    ) {
-      const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
+
+    const { isRestricted, transInfo } = validateAccountStatus({
+      accountStatus: accountStatus,
+      mode: "RESTRICTED",
+    });
+    if (isRestricted) {
       return {
         status: "RESTRICTION",
-        transInfo: restrictionMsg.transInfo,
+        transInfo,
       };
     }
 

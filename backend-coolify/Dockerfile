@@ -93,8 +93,5 @@ RUN pnpm install --prod --no-frozen-lockfile
 RUN mkdir -p /app/proto
 COPY --from=node-builder /app/asynq.proto /app/proto/asynq.proto
 
-HEALTHCHECK --interval=10s --timeout=3s --start-period=3s --retries=2 \
-  CMD curl -f http://localhost:8000/health || exit 1
-
 EXPOSE 8000
 CMD ["node", "dist/index.js"]

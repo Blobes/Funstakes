@@ -1,18 +1,14 @@
 import { authTokens } from "@/envVars";
+import { ILocation, IUserDocument, UserModel } from "@repo/database";
 import {
-  ILocation,
-  IUserDocument,
-  ModerationDecision,
-  UserModel,
-} from "@repo/database";
-import {
+  RestrictionStatus,
   fetchSingleUser,
-  getAccountStatusMsg,
   MESSAGES_REGISTRY,
   sanitizeUserResult,
   TransInfo,
   upsertDevice,
   userSensitiveFields,
+  validateAccountStatus,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../check/service";
@@ -43,21 +39,19 @@ interface IOAuthAuthInput {
 }
 
 interface IOAuthAuthResult {
-  status:
+  status?:
+    | RestrictionStatus
     | "SUCCESS"
     | "MERGE_RESTRICTION"
     | "EMAIL_NOT_FOUND"
     | "USER_NOT_FOUND"
     | "CONFLICT_EMAIL_IN_USE"
-    | "ACCOUNT_ACTIVE"
-    | "ACCOUNT_INACTIVE"
     | "UNSUPPORTED_OAUTH_PROVIDER"
-    | "INVALID_OAUTH_TOKEN"
-    | ModerationDecision;
+    | "INVALID_OAUTH_TOKEN";
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
-  payload?: unknown;
+  payload?: any;
 }
 
 /**
@@ -116,14 +110,14 @@ export const authenticateWithOAuth = async (
   // --- Registration purpose pipeline ---
   if (purpose === "REGISTRATION") {
     if (checkResult.isExisting) {
-      if (
-        accountStatus === "DEACTIVATED" ||
-        accountStatus === "SUSPENDED" ||
-        accountStatus === "BANNED"
-      ) {
-        const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
-        return restrictionMsg;
+      const { isRestricted, status, transInfo } = validateAccountStatus({
+        accountStatus: accountStatus,
+        mode: "RESTRICTED",
+      });
+      if (isRestricted) {
+        return { status, transInfo };
       }
+
       return {
         status: "CONFLICT_EMAIL_IN_USE",
         transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED,
@@ -192,13 +186,13 @@ export const authenticateWithOAuth = async (
       transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND,
     };
   }
-  if (
-    accountStatus === "DEACTIVATED" ||
-    accountStatus === "SUSPENDED" ||
-    accountStatus === "BANNED"
-  ) {
-    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
-    return restrictionMsg;
+
+  const { isRestricted, status, transInfo } = validateAccountStatus({
+    accountStatus: accountStatus,
+    mode: "RESTRICTED",
+  });
+  if (isRestricted) {
+    return { status, transInfo };
   }
 
   const user = await fetchSingleUser({

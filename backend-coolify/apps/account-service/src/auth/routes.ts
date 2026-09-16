@@ -19,12 +19,13 @@ import { verifyTotpCode } from "./verification/totp/controller/verify";
 import { fetchTotpSetup } from "./verification/totp/controller/fetch";
 import { autoInvalidateUserCache } from "@repo/shared";
 import { turnstileVerification } from "./turnstile/controller";
-import { commitAccountUpdate } from "./verification/messaging/controllers/commitUpdate";
+import { commitAccountUpdate } from "./verification/update/commitUpdate";
 import {
   enforcePolicy,
   requirePermission,
   devicePolicy,
   loadDeviceResource,
+  checkAccountRestriction,
 } from "@repo/security";
 import { PERMISSIONS } from "@repo/database";
 import { checkWhatsAppStatus } from "./verification/whatsapp/checkStatus";
@@ -69,20 +70,25 @@ router.post(
   loginUser,
 );
 router.post("/session/refresh", refreshSession);
+router.get(
+  "/session/verify",
+  authenticate,
+  checkAccountRestriction,
+  verifySession,
+);
 router.post(
   "/session/logout",
   authenticate,
   autoInvalidateUserCache("SESSIONS_REVOKE_ALL"),
   logoutUser,
 );
-router.get("/session/verify", authenticate, verifySession);
 
 // --- VERIFICATION & MFA ---
 router.post("/otp/send", sendMsgCode);
 router.post("/otp/verify", verifyMsgOtp);
 router.post("/otp/reset", resetMessagingOtp);
 router.patch("/otp/update-account", commitAccountUpdate);
-router.get("/totp", authenticate, fetchTotpSetup);
+router.get("/totp", authenticate, checkAccountRestriction, fetchTotpSetup);
 router.post("/totp/verify", optionallyAuthenticate, verifyTotpCode);
 router.post(
   "/security-questions/setup",
@@ -101,6 +107,7 @@ router.get("/whatsapp-status/:phoneNumber", checkWhatsAppStatus);
 router.get(
   "/devices",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.DEVICE.READ),
   getDevices,
 );
@@ -112,6 +119,7 @@ router.get(
 router.delete(
   "/devices/:id",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.DEVICE.DELETE),
   enforcePolicy(devicePolicy, loadDeviceResource("id")),
   autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
@@ -125,6 +133,7 @@ router.delete(
 router.patch(
   "/devices/:id/primary",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.DEVICE.SET_PRIMARY),
   enforcePolicy(devicePolicy, loadDeviceResource("id")),
   autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),

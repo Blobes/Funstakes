@@ -3,6 +3,7 @@ export * from "./authentication/jwt";
 export * from "./authentication/middlewares/userAuth";
 export * from "./authentication/middlewares/internalAuth";
 export * from "./authentication/tokenHelper";
+export * from "./authentication/middlewares/restrictions";
 
 // Audit
 export * from "./audit/events/middleware";

@@ -4,7 +4,6 @@ import {
   TransInfo,
   enqueueOtpTask,
   genVerificationCode,
-  getAccountStatusMsg,
   fetchSingleUser,
   detectIdentifierType,
   OtpMessageChannel,
@@ -12,6 +11,7 @@ import {
   VerificationMethod,
   checkOtpCooldown,
   hashCode,
+  validateAccountStatus,
 } from "@repo/shared";
 
 export interface IResetInitiationInput {
@@ -21,7 +21,7 @@ export interface IResetInitiationInput {
 }
 
 export interface IResetInitiationResult {
-  status:
+  status?:
     | "SUCCESS"
     | "MISSING_IDENTIFIER"
     | "NOT_FOUND"
@@ -88,16 +88,14 @@ export const executeResetInitiation = async (
   }
 
   const accountStatus = user.accountStatus;
-
-  if (
-    accountStatus === "DEACTIVATED" ||
-    accountStatus === "SUSPENDED" ||
-    accountStatus === "BANNED"
-  ) {
-    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
+  const { isRestricted, transInfo } = validateAccountStatus({
+    accountStatus: accountStatus,
+    mode: "RESTRICTED",
+  });
+  if (isRestricted) {
     return {
       status: "RESTRICTION",
-      transInfo: restrictionMsg.transInfo,
+      transInfo,
       payload: null,
     };
   }

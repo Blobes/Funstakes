@@ -5,6 +5,7 @@ import { optionallyAuthenticate, authenticate } from "@/envVars";
 import { getUserDraftPosts } from "./controllers/getDraftPosts";
 import { getFollowersPosts } from "./controllers/followersPosts";
 import {
+  checkAccountRestriction,
   enforcePolicy,
   loadUserResource,
   ownerPolicy,
@@ -25,6 +26,7 @@ router.get("/", optionallyAuthenticate, getAllPost);
 router.get(
   "/followers",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.POST.READ),
   getFollowersPosts,
 );
@@ -32,6 +34,7 @@ router.get(
 router.get(
   ":userId/drafts",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.POST.READ),
   enforcePolicy(ownerPolicy, loadUserResource("userId")),
   getUserDraftPosts,
@@ -40,6 +43,7 @@ router.get(
 router.get(
   "/:userId",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.POST.READ),
   enforcePolicy(userProfilePolicy, loadUserResource("id")),
   getUserPosts,

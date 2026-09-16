@@ -5,9 +5,9 @@ import {
   CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
-  getAccountStatusMsg,
   CACHE_EXPIRY,
   fetchSingleUser,
+  validateAccountStatus,
 } from "@repo/shared";
 
 interface IGetUserProfileInput {
@@ -16,14 +16,14 @@ interface IGetUserProfileInput {
 }
 
 interface IGetUserProfileResult {
-  status:
+  status?:
     | "SUCCESS"
     | "NOT_FOUND"
     | "ACCOUNT_ACTIVE"
     | "ACCOUNT_INACTIVE"
     | ModerationDecision;
-  transInfo: TransInfo;
-  payload: Record<string, unknown> | null;
+  transInfo?: TransInfo;
+  payload?: any;
 }
 
 /**
@@ -61,14 +61,14 @@ export const executeUserProfileFetch = async (
 
   // Intercept data processing paths early if account parameters mark deactivation
   const accountStatus = baseProfile.accountStatus;
-  if (
-    accountStatus === "DEACTIVATED" ||
-    accountStatus === "SUSPENDED" ||
-    accountStatus === "BANNED"
-  ) {
-    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
+  const { isRestricted, status, transInfo } = validateAccountStatus({
+    accountStatus: accountStatus,
+    mode: "RESTRICTED",
+  });
+  if (isRestricted) {
     return {
-      ...restrictionMsg,
+      status,
+      transInfo,
       payload: {
         _id: baseProfile._id,
         username: baseProfile.username,

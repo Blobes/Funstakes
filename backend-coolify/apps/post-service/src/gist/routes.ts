@@ -8,6 +8,7 @@ import { optionallyAuthenticate, authenticate } from "@/envVars";
 import { draftGist } from "./controllers/draftGist";
 import { autoInvalidatePostCache, autoInvalidateUserCache } from "@repo/shared";
 import {
+  checkAccountRestriction,
   enforcePolicy,
   gistPolicy,
   loadGistResource,
@@ -34,6 +35,7 @@ export const gistRouter = () => {
   router.post(
     "/create",
     authenticate,
+    checkAccountRestriction,
     requirePermission(PERMISSIONS.POST.CREATE),
     createGist,
   );
@@ -42,6 +44,7 @@ export const gistRouter = () => {
   router.post(
     "/draft",
     authenticate,
+    checkAccountRestriction,
     requirePermission(PERMISSIONS.POST.CREATE),
     autoInvalidateUserCache("POST_UPDATE"),
     draftGist,
@@ -51,6 +54,7 @@ export const gistRouter = () => {
   router.post(
     "/:postId/like",
     authenticate,
+    checkAccountRestriction,
     requirePermission(PERMISSIONS.POST.READ),
     autoInvalidatePostCache({
       postType: "GIST",
@@ -63,6 +67,7 @@ export const gistRouter = () => {
   router.put(
     "/:postId/edit",
     authenticate,
+    checkAccountRestriction,
     requirePermission(PERMISSIONS.POST.EDIT),
     enforcePolicy(gistPolicy, loadGistResource("postId")),
     autoInvalidatePostCache({

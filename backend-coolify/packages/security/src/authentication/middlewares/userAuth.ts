@@ -38,21 +38,6 @@ export const verifyAuthTokens = (config: IAuthConfig): RequestHandler => {
       // ✅ Use injected secret
       const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET) as IJwtUser;
 
-      // const accountStatus = payload.accountStatus;
-      // if (
-      //   accountStatus === "DEACTIVATED" ||
-      //   accountStatus === "SUSPENDED" ||
-      //   accountStatus === "BANNED"
-      // ) {
-      //   const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
-      //   clearAuthCookies(res);
-      //   return res.status(401).json({
-      //     status: restrictionMsg.status,
-      //     ...restrictionMsg.transInfo,
-      //     payload: null,
-      //   });
-      // }
-
       const needsOtp = await validateHardwareTrust(
         payload.id,
         deviceToken,

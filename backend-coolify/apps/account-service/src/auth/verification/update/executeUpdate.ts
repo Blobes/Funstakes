@@ -10,7 +10,7 @@ import {
   upsertDevice,
   VerificationMethod,
 } from "@repo/shared";
-import { verifyOtpActionToken } from "./verificationToken";
+import { verifyOtpActionToken } from "../messaging/services/verificationToken";
 import { issueAuthTokens } from "@repo/security";
 import { authTokens } from "@/envVars";
 
@@ -157,7 +157,7 @@ export const executeAccountUpdate = async (
         user.isPhoneVerified = true;
         user.lastPhoneOtpSentAt = null;
       }
-
+      user.lastActiveAt = new Date();
       await user.save();
       return {
         status: "SUCCESS",
@@ -177,6 +177,7 @@ export const executeAccountUpdate = async (
         user.lastPhoneOtpSentAt = null;
       }
 
+      user.lastActiveAt = new Date();
       await user.save();
 
       await cleanDeviceSessions(String(user._id), undefined, {
@@ -216,7 +217,6 @@ export const executeAccountUpdate = async (
           user.lastPhoneOtpSentAt = null;
         }
       }
-      user.lastActiveAt = new Date();
 
       const { accessToken, refreshToken } = await issueAuthTokens({
         user,
@@ -226,6 +226,8 @@ export const executeAccountUpdate = async (
         ipAddress,
         authTokens,
       });
+
+      user.lastActiveAt = new Date();
       await user.save();
 
       return {
@@ -241,7 +243,9 @@ export const executeAccountUpdate = async (
           status: "BAD_REQUEST",
           transInfo: MESSAGES_REGISTRY.AUTH.MFA_ALREADY_ENABLED,
         };
+
       user.hasEnabledMFA = true;
+      user.lastActiveAt = new Date();
       await user.save();
       return {
         status: "SUCCESS",
@@ -256,6 +260,7 @@ export const executeAccountUpdate = async (
           transInfo: MESSAGES_REGISTRY.AUTH.MFA_ALREADY_DISABLED,
         };
       user.hasEnabledMFA = false;
+      user.lastActiveAt = new Date();
       await user.save();
       return {
         status: "SUCCESS",

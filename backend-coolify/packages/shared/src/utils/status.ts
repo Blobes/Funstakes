@@ -2,6 +2,36 @@ import { AccountStatus, ModerationDecision } from "@repo/database";
 import { AppName, TransInfo } from "../types/general";
 import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
 
+interface ICheckCooldownParams {
+  lastSentAt?: Date | null;
+  cooldownSeconds?: number;
+}
+interface ICooldownCheckResult {
+  isCooldownActive: boolean;
+  retryAfter?: number;
+  transInfo?: TransInfo;
+}
+
+export type RestrictionStatus =
+  | "ACCOUNT_ACTIVE"
+  | "ACCOUNT_INACTIVE"
+  | ModerationDecision;
+
+export type RestrictionMode = "RESTRICTED" | "NORMAL";
+
+export interface AccountRestriction {
+  accountStatus?: AccountStatus;
+  mode?: RestrictionMode;
+}
+
+export interface IRestrictionResult {
+  isRestricted: boolean;
+  status?: RestrictionStatus;
+  transInfo?: TransInfo;
+}
+
+const DEFAULT_COOLDOWN_SECONDS = 60;
+
 export const healthCheck = (serviceName: AppName) => {
   console.log(`${serviceName} is Live"`);
   return {
@@ -15,7 +45,7 @@ export const getAccountStatusMsg = (
   status: AccountStatus,
   mode: "RESTRICTED" | "NORMAL" = "NORMAL",
 ): {
-  status: "ACCOUNT_ACTIVE" | "ACCOUNT_INACTIVE" | ModerationDecision;
+  status: RestrictionStatus;
   transInfo: TransInfo;
 } => {
   if (mode === "RESTRICTED") {
@@ -50,16 +80,6 @@ export const getAccountStatusMsg = (
   };
 };
 
-interface ICheckCooldownParams {
-  lastSentAt?: Date | null;
-  cooldownSeconds?: number;
-}
-interface ICooldownCheckResult {
-  isCooldownActive: boolean;
-  retryAfter?: number;
-  transInfo?: TransInfo;
-}
-const DEFAULT_COOLDOWN_SECONDS = 60;
 /**
  * Checks if an OTP dispatch rate-limit cooldown period is active.
  */
@@ -83,4 +103,28 @@ export const checkOtpCooldown = ({
   }
 
   return { isCooldownActive: false };
+};
+
+/**
+ * Evaluates account status and returns restriction status with localized messages.
+ */
+export const validateAccountStatus = (
+  options: AccountRestriction,
+): IRestrictionResult => {
+  const { accountStatus, mode = "RESTRICTED" } = options;
+
+  if (
+    accountStatus === "DEACTIVATED" ||
+    accountStatus === "SUSPENDED" ||
+    accountStatus === "BANNED"
+  ) {
+    const restrictionMsg = getAccountStatusMsg(accountStatus, mode);
+    return {
+      isRestricted: true,
+      status: restrictionMsg.status,
+      transInfo: restrictionMsg.transInfo,
+    };
+  }
+
+  return { isRestricted: false };
 };

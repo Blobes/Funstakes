@@ -10,7 +10,7 @@ import { clearAuthCookies } from "@repo/security";
 import {
   executeAccountUpdate,
   ICommitAccountUpdateInput,
-} from "../services/executeUpdate";
+} from "./executeUpdate";
 
 /**
  * Controller endpoint to commit account changes after successful verification.
@@ -35,6 +35,7 @@ export const commitAccountUpdate = async (
       otpIdentifierType,
       deviceToken,
       userAgent,
+      ipAddress: userIp,
     });
 
     if (serviceResult.status !== "SUCCESS") {

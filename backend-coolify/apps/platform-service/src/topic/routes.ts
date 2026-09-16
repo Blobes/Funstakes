@@ -1,7 +1,11 @@
 import express, { Router } from "express";
 import { authenticate } from "../envVars";
-import { requirePermission } from "@repo/security";
-import { PERMISSIONS } from "@repo/database";
+import {
+  checkAccountRestriction,
+  requirePermission,
+  requireRole,
+} from "@repo/security";
+import { PERMISSIONS, PLATFORM_ROLES } from "@repo/database";
 import { getTopics } from "./get";
 import { removeUnusedTopics } from "./delete";
 import { getAiSuggestedTopics } from "./aiSuggestions/getTopics";
@@ -16,6 +20,7 @@ const router: Router = express.Router();
 router.post(
   "/search",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.TOPIC.VIEW_ALL),
   getTopics,
 );
@@ -24,6 +29,7 @@ router.post(
 router.delete(
   "/cleanup",
   authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
   requirePermission(PERMISSIONS.TOPIC.REMOVE),
   removeUnusedTopics,
 );
@@ -32,6 +38,7 @@ router.delete(
 router.post(
   "/create",
   authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
   requirePermission(PERMISSIONS.TOPIC.CREATE),
   createNewTopics,
 );
@@ -48,6 +55,7 @@ router.get(
 router.post(
   "/ai-topics/submit",
   authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
   requirePermission(PERMISSIONS.TOPIC.CREATE),
   submitAiSuggestedTopics,
 );
@@ -56,6 +64,7 @@ router.post(
 router.patch(
   "/ai-topics/resolve",
   authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
   requirePermission(PERMISSIONS.TOPIC.RESOLVE),
   resolveAiSuggestedTopics,
 );
@@ -64,6 +73,7 @@ router.patch(
 router.delete(
   "/ai-topics",
   authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
   requirePermission(PERMISSIONS.TOPIC.REMOVE),
   removeAiSuggestedTopics,
 );

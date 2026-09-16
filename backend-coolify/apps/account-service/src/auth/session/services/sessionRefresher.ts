@@ -11,6 +11,8 @@ import {
   existsInCache,
   getCache,
   fetchSingleUser,
+  validateAccountStatus,
+  RestrictionStatus,
 } from "@repo/shared";
 import jwt from "jsonwebtoken";
 
@@ -21,7 +23,8 @@ interface IRefreshSessionInput {
 }
 
 interface IRefreshSessionResult {
-  status:
+  status?:
+    | RestrictionStatus
     | "SUCCESS"
     | "INVALID_SESSION"
     | "USER_NOT_FOUND"
@@ -65,6 +68,14 @@ export const executeSessionRefresh = async (
         status: "USER_NOT_FOUND",
         transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
       };
+    }
+
+    const { isRestricted, status, transInfo } = validateAccountStatus({
+      accountStatus: user.accountStatus,
+      mode: "RESTRICTED",
+    });
+    if (isRestricted) {
+      return { status, transInfo };
     }
 
     const device = await upsertDevice({ user, deviceToken, userAgent });

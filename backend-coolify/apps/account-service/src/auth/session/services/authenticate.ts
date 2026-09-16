@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { authTokens } from "@/envVars";
-import { IUserDocument, ModerationDecision } from "@repo/database";
+import { IUserDocument } from "@repo/database";
 import {
   userSensitiveFields,
   CACHE_KEYS,
@@ -8,10 +8,11 @@ import {
   evaluateDeviceTrust,
   MESSAGES_REGISTRY,
   TransInfo,
-  getAccountStatusMsg,
   setCache,
   sanitizeUserResult,
   fetchSingleUser,
+  validateAccountStatus,
+  RestrictionStatus,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../../check/service";
@@ -28,15 +29,13 @@ interface ILoginInput {
 }
 
 interface ILoginResult {
-  status:
+  status?:
+    | RestrictionStatus
     | "SUCCESS"
     | "USER_NOT_FOUND"
     | "NO_USER_PASSWORD_SET"
     | "UNAUTHORIZED"
-    | "THIRD_PARTY_RESTRICTION"
-    | "ACCOUNT_ACTIVE"
-    | "ACCOUNT_INACTIVE"
-    | ModerationDecision;
+    | "THIRD_PARTY_RESTRICTION";
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
@@ -76,13 +75,12 @@ export const authenticateUser = async (
   }
 
   const accountStatus = checkResult.payload?.accountStatus;
-  if (
-    accountStatus === "DEACTIVATED" ||
-    accountStatus === "SUSPENDED" ||
-    accountStatus === "BANNED"
-  ) {
-    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
-    return restrictionMsg;
+  const { isRestricted, status, transInfo } = validateAccountStatus({
+    accountStatus: accountStatus,
+    mode: "RESTRICTED",
+  });
+  if (isRestricted) {
+    return { status, transInfo };
   }
 
   // Fetch user payload bypassing filters and retaining sensitive fields for authentication

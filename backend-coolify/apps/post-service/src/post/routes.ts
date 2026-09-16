@@ -21,6 +21,7 @@ router.patch(
 router.post(
   "/translate/caption",
   authenticate,
+
   requirePermission(PERMISSIONS.POST.TRANSLATE_CAPTION),
   translateCaption,
 );

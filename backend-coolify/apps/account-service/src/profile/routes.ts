@@ -34,6 +34,7 @@ import {
   requireRole,
   userProfilePolicy,
   loadUserResource,
+  checkAccountRestriction,
 } from "@repo/security";
 import { COMMUNITY_ROLES, PERMISSIONS, PLATFORM_ROLES } from "@repo/database";
 import { reviewKyc } from "./kyc/controllers/reviewKyc";
@@ -58,6 +59,8 @@ router.get(
 router.patch(
   "/update/basic",
   authenticate,
+  checkAccountRestriction,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   updateBasicInfo,
@@ -66,6 +69,8 @@ router.patch(
 router.patch(
   "/update/demo",
   authenticate,
+  checkAccountRestriction,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   updateDemoInfo,
@@ -73,6 +78,7 @@ router.patch(
 router.patch(
   "/update/profile-image",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   changeUserImage,
@@ -80,6 +86,7 @@ router.patch(
 router.delete(
   "/delete/profile-image",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   removeUserImage,
@@ -89,12 +96,14 @@ router.delete(
 router.post(
   "/change-email/initiate",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   initiateEmailChange,
 );
 router.patch(
   "/change-email/finalize",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   finalizeEmailChange,
@@ -108,6 +117,7 @@ router.post(
 router.post(
   "/change-username",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   changeUsername,
@@ -115,12 +125,14 @@ router.post(
 router.post(
   "/change-phone/initiate",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   initiatePhoneChange,
 );
 router.patch(
   "/change-phone/finalize",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   finalizePhoneChange,
@@ -163,6 +175,7 @@ router.delete(
 router.post(
   "/:id/follow",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.FOLLOW),
   enforcePolicy(userProfilePolicy, loadUserResource("id")),
   autoInvalidateUserCache("SOCIAL_RELATIONSHIP_UPDATE"),
@@ -173,6 +186,7 @@ router.post(
 router.get(
   "/:id/followers",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.VIEW_FOLLOWERS),
   enforcePolicy(userProfilePolicy, loadUserResource("id")),
   getFollowers,
@@ -182,6 +196,7 @@ router.get(
 router.patch(
   "/kyc/submit",
   authenticate,
+  checkAccountRestriction,
   requireRole([PLATFORM_ROLES.OWNER]),
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
@@ -200,6 +215,7 @@ router.patch(
 router.get(
   "/settings",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_VIEW),
   getUserSettings,
 );
@@ -207,6 +223,7 @@ router.get(
 router.patch(
   "/settings/display",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   updateDisplaySettings,
@@ -215,6 +232,7 @@ router.patch(
 router.patch(
   "/settings/notifications",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   updateNotificationSettings,
@@ -223,6 +241,7 @@ router.patch(
 router.patch(
   "/settings/privacy",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   updatePrivacySettings,
@@ -232,6 +251,7 @@ router.patch(
 router.post(
   "/settings/muted-words",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   addMutedWords,
@@ -240,6 +260,7 @@ router.post(
 router.delete(
   "/settings/muted-words",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   removeMutedWordsHandler,
@@ -248,6 +269,7 @@ router.delete(
 router.patch(
   "/settings/topic",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   syncUserTopics,
@@ -256,6 +278,7 @@ router.patch(
 router.delete(
   "/settings/topic",
   authenticate,
+  checkAccountRestriction,
   requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   removeUserTopics,
