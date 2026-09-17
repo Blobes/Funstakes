@@ -36,7 +36,7 @@ interface IVerifySessionResult {
 }
 
 /**
- * Validates active session state, hardware fingerprints, and sliding window policies.
+ * Validates active session state, hardware fingerprints, and sliding window policies again.
  */
 export const executeSessionVerification = async (
   input: IVerifySessionInput,

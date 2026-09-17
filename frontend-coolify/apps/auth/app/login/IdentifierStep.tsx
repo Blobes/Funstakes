@@ -55,7 +55,6 @@ export const IdentifierStep: React.FC<LoginProps> = ({
     [theme],
   );
 
-  // Use the controller
   const {
     input,
     setInput,
