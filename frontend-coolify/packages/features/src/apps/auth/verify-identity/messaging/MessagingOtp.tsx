@@ -43,6 +43,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
     isSending,
     isCheckingWhatsapp,
     isMfaActivationPurpose,
+    transitHeadline,
   } = useMessagingOtp(props);
 
   const channelText =
@@ -58,7 +59,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
       ? AUTH_FEEDBACK.mfa_setup_with_msg_channel(msgChannel)
       : AUTH_FEEDBACK.mfa_setup_with_one_time_code
     : msgChannel
-      ? AUTH_FEEDBACK.verify_with_msg_channel(msgChannel)
+      ? transitHeadline || AUTH_FEEDBACK.verify_with_msg_channel(msgChannel)
       : AUTH_FEEDBACK.verify_one_time_code;
 
   const isBusy = isSending || isCheckingWhatsapp;

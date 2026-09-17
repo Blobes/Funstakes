@@ -1,4 +1,4 @@
-import { OtpTransitData, IUser, TransitPurpose } from "@repo/core";
+import { VerificationTransitData, IUser, TransitPurpose } from "@repo/core";
 
 /**
  * Mock user payload for transit data preview.
@@ -21,8 +21,8 @@ const mockUserPayload: IUser = {
  */
 export const mockTransitData = (
   purpose: TransitPurpose = "LOGIN_VERIFICATION",
-): OtpTransitData[] => {
-  const transitMap: Record<TransitPurpose, OtpTransitData[]> = {
+): VerificationTransitData[] => {
+  const transitMap: Record<TransitPurpose, VerificationTransitData[]> = {
     LOGIN_VERIFICATION: [
       {
         transitId: "login_verification_preview_session",

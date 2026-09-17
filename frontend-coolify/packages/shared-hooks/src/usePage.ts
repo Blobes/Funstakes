@@ -118,7 +118,7 @@ export const usePage = () => {
       // Ensure loading is reset after navigation triggers
       if (loadPage) await delay(400);
       setPendingPath(null);
-      setGlobalLoading(false);
+      // setGlobalLoading(false);
     },
     [
       drawerContent,
@@ -136,14 +136,11 @@ export const usePage = () => {
    * Synchronizes route change and enforces access control.
    */
   const handlePageChange = useCallback(() => {
-    const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
-
+    const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
     setInlineMsg(null);
-    setPendingPath(null);
-    setGlobalLoading(false);
 
     if (routeGuards.isRedirecting) {
-      if (temporarySession) return; // Temporarily disabled check for testing purposes
+      if (temporarySession) return; // Disabled auto redirect if there is an available temporary session
 
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)
@@ -153,6 +150,7 @@ export const usePage = () => {
         });
       return;
     }
+
     if (isDoNotSaveRoute) return;
 
     const savedPage = getFromLocalStorage<IPage>();

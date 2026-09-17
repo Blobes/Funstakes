@@ -32,7 +32,7 @@ import { CheckRequest, LoginService } from "../login/service";
 export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { initiateReset, setPassword } = ResetPasswordService();
   const {
-    handleVerificationNavigation: handleOtpNavigation,
+    handleVerificationNavigation,
     checkTotpConfiguration,
     clearTemporarySession,
     timeLeft,
@@ -76,7 +76,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   }, [step, setStep, clearTemporarySession]);
 
   useEffect(() => {
-    const resetSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+    const resetSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
     if (!resetSession) {
       clearResetSession();
       return;
@@ -207,7 +207,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
           ? "EMAIL"
           : "WHATSAPP";
 
-        handleOtpNavigation({
+        handleVerificationNavigation({
           user,
           identifier,
           identifierType:
@@ -262,7 +262,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
       );
       return;
     }
-    handleOtpNavigation({
+    handleVerificationNavigation({
       user: tempUser,
       identifier: input,
       identifierType: inputType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
@@ -278,7 +278,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     hasTotp,
     tempUser,
     inputType,
-    handleOtpNavigation,
+    handleVerificationNavigation,
     clearInlineMsg,
     translateTxtString,
   ]);

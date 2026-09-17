@@ -80,12 +80,10 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     <Stack
       sx={{
         backgroundColor: theme.palette.gray[0],
-        borderRadius: theme.radius[5],
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
         width: "100%",
-        maxWidth: "480px",
         margin: "0 auto",
         padding: theme.boxSpacing(8),
         ...style.container,

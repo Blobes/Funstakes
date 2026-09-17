@@ -63,7 +63,7 @@ export const GlobalUIManager = ({
   const [isReload, setIsReload] = useState(false);
   //Tracks completion of minimum splash duration.
   const [isSplashTimerDone, setIsSplashTimerDone] = useState(false);
-  const SPLASH_DURATION = 4500;
+  const SPLASH_DURATION = 4000;
 
   // Registering global events on mount
   useEventListener(verifyAuth);
@@ -133,7 +133,12 @@ export const GlobalUIManager = ({
   // Responds to route changes to update internal page tracking and act as route guard.
   useEffect(() => {
     handlePageChange();
-  }, [pathname, authStatus, accountStatus, handlePageChange, isNavigating]);
+  }, [pathname, authStatus, accountStatus]);
+
+  // Clear global loader only after the URL actually changed
+  useEffect(() => {
+    setGlobalLoading(false);
+  }, [pathname, setGlobalLoading]);
 
   // Determines if splash should remain active on reload until auth/boot finishes.
   const isAuthInitializing = authStatus === "LOADING";

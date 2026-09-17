@@ -82,7 +82,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
           }}
         />
         <TransText
-          {...AUTH_FEEDBACK.lets_confirm_its_you}
+          {...AUTH_FEEDBACK.provide_password_credential}
           component="p"
           sx={{
             ...theme.typography.text4,

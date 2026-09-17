@@ -1,3 +1,4 @@
+import { DeviceModel } from "../models/entities/device";
 import { GistModel } from "../models/entities/gist";
 import { UserModel } from "../models/entities/user";
 import { UserSettingsModel } from "../models/non-entities/identity/userSettings";
@@ -54,6 +55,16 @@ async function executeMigrations(): Promise<void> {
         excludeFieldsFromUnset: [],
       },
       "Sync_TopicModel_v1",
+    ),
+
+    // Auto-sync User Settings model fields
+    new AutoSyncSchemaFields(
+      DeviceModel,
+      {
+        sampleSize: 1000,
+        excludeFieldsFromUnset: [],
+      },
+      "Sync_DeviceModel_v1",
     ),
   ];
   const runner = new MigrationRunner(MONGODB_URI, migrations);

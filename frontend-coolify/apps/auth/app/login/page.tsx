@@ -4,7 +4,7 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
-import { applyBGPattern } from "@repo/helpers";
+import { applyBGPattern, autoScroll } from "@repo/helpers";
 import { usePopup } from "@repo/features";
 import { TrendingPosts } from "./TrendingPosts";
 import { AUTH_BUTTON_LABELS, useGlobalStore } from "@repo/core";
@@ -24,7 +24,7 @@ export default function LoginPage() {
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
-        padding: theme.boxSpacing(30),
+        padding: theme.boxSpacing(24),
         minHeight: "fit-content",
         ...applyBGPattern(),
         [theme.breakpoints.down("md")]: {
@@ -37,6 +37,9 @@ export default function LoginPage() {
         <Stack
           sx={{
             width: "75%",
+            height: "85vh",
+            maxHeight: 675,
+            maxWidth: 1100,
             flexDirection: "row",
             gap: theme.gap(0),
             justifyContent: "space-between",
@@ -51,6 +54,8 @@ export default function LoginPage() {
             [theme.breakpoints.down("md")]: {
               width: "100%",
               height: "100%",
+              maxHeight: "unset",
+              maxWidth: "unset",
               alignItems: "center",
               overflow: "auto",
               boxShadow: "none",
@@ -67,14 +72,18 @@ export default function LoginPage() {
             style={{
               container: {
                 width: "50%",
+                justifyContent: "flex-start",
                 borderRadius: 0,
                 padding: theme.boxSpacing(24, 24),
+                ...autoScroll().base,
                 mdScreen: {
                   height: "100svh",
-                  width: "70%",
                   minHeight: "fit-content",
+                  justifyContent: "center",
+                  flex: "none",
                   scrollSnapAlign: "start",
                   padding: theme.boxSpacing(20, 10),
+                  overflow: "unset",
                 },
                 smScreen: {
                   width: "100%",

@@ -24,8 +24,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
-  const { handleVerificationNavigation: handleOtpNavigation } =
-    useVerificationNavigation();
+  const { handleVerificationNavigation } = useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
 
   /**
@@ -42,7 +41,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
         setAuthStatus("AUTHENTICATED");
         setAccountStatus("NOT_VERIFIED");
 
-        handleOtpNavigation({
+        handleVerificationNavigation({
           user,
           identifier: user.email || email,
           identifierType: "EMAIL",
@@ -56,7 +55,12 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
         return;
       }
     },
-    [setAccessToken, setAuthStatus, setAccountStatus, handleOtpNavigation],
+    [
+      setAccessToken,
+      setAuthStatus,
+      setAccountStatus,
+      handleVerificationNavigation,
+    ],
   );
 
   /**

@@ -5,7 +5,7 @@ import {
   IUser,
   ISinglePayload,
   SERVER_API,
-  OtpReason,
+  VerificationReason,
   CheckPurpose,
 } from "@repo/core";
 
@@ -14,8 +14,9 @@ interface LoginRequest {
   password: string;
 }
 export interface LoginResponse extends ISinglePayload<IUser> {
-  requireOtp?: boolean;
-  otpReason: OtpReason;
+  requireVerification?: boolean;
+  verificationReason: VerificationReason;
+  deviceId?: string;
   fixedMsg?: string;
   accessToken: string | null; // Keep short-lived token in volatile memory only
 }

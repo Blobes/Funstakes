@@ -7,14 +7,15 @@ import {
   ApiError,
   CLIENT_ROUTES,
   SERVER_API,
+  STORAGE_KEYS,
   useGlobalStore,
 } from "@repo/core";
-import { apiClient } from "@repo/helpers";
+import { apiClient, purgeCache } from "@repo/helpers";
 import { useMisc, usePage, useSnackbar } from "@repo/shared-hooks";
 
 /** * Handles the user logout flow, clearing state, cache, and redirecting. */
 export const useLogout = () => {
-  const logout = useGlobalStore((state) => state.logout);
+  const clearAuthUser = useGlobalStore((state) => state.clearAuthUser);
 
   const { navigateTo } = usePage();
   const { setSBMessage, removeSBMessages } = useSnackbar();
@@ -29,10 +30,13 @@ export const useLogout = () => {
       return await apiClient(SERVER_API.logout, { method: "POST" });
     },
     onSuccess: () => {
-      // Clear all cached queries to prevent data leaking between sessions
+      purgeCache({
+        queryClient,
+        queryKeys: STORAGE_KEYS.AUTH_TRANSIT,
+      });
       queryClient.clear();
 
-      logout();
+      clearAuthUser();
       closeModal();
 
       // Handle navigation logic

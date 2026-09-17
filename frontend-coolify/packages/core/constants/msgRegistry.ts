@@ -221,10 +221,14 @@ export const auth = {
         "<strong>Incorrect password. </strong>You have <counter>{{count}}</counter> attempt left before your login is temporarily locked.",
       interpolations: { count },
     }),
-    lets_confirm_its_you: {
-      tKey: "auth:feedback.lets_confirm_its_you",
+    provide_password_credential: {
+      tKey: "auth:feedback.provide_password_credential",
       tValue:
-        "Enter your email or phone number below to authorize a password reset.",
+        "Enter your email or phone number below to begin a password reset.",
+    },
+    lets_be_sure_it_is_you: {
+      tKey: "auth:feedback.lets_be_sure_it_is_you",
+      tValue: "Let's be sure it's you",
     },
     loading_auth_data: {
       tKey: "auth:feedback.loading_auth_data",

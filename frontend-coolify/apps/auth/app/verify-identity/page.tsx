@@ -14,7 +14,7 @@ import {
   COMMON_BUTTON_LABELS,
   IStep,
   OtpStepName,
-  OtpTransitData,
+  VerificationTransitData,
   STORAGE_KEYS,
   TransitPurpose,
 } from "@repo/core";
@@ -35,7 +35,7 @@ import { VerifyIdentityPreview } from "./Preview";
  */
 export default function VerificationPage() {
   const theme = useTheme();
-  const transitEntries = useCachedData<OtpTransitData<TransitPurpose>>(
+  const transitEntries = useCachedData<VerificationTransitData<TransitPurpose>>(
     STORAGE_KEYS.TRANSIT_DATA,
   );
   const { translateTxtString } = useStaticTranslation();

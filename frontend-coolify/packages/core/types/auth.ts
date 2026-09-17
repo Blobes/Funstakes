@@ -7,7 +7,7 @@ import {
   VERIFY_IDENTITY_METHODS,
 } from "../constants/others";
 import { IUser } from "./payloads/modified";
-import { StepName } from "./ui-props";
+import { StepName, TransData } from "./ui-props";
 
 export type AuthStatus =
   | "UNKNOWN"
@@ -17,7 +17,7 @@ export type AuthStatus =
   | "LOADING"
   | "ERROR";
 
-export type OtpReason =
+export type VerificationReason =
   | "NEW_DEVICE"
   | "STALE_DEVICE"
   | "UNTRUSTED_DEVICE"
@@ -42,11 +42,8 @@ export type AuthStepName =
 export type OtpStepName = "BOT_CHALLENGE" | "VERIFY_IDENTITY";
 
 export type VerifyIdentityMethod = keyof typeof VERIFY_IDENTITY_METHODS;
-
 export type IdentifierType = keyof typeof IDENTIFIER_TYPES;
-
 export type OtpMessageChannel = keyof typeof MESSAGING_CHANNELS;
-
 export type AllowedVerificationTypes =
   keyof typeof ALLOWED_VERIFICATION_METHODS;
 
@@ -77,16 +74,22 @@ export interface TransitData<P extends TransitPurpose = TransitPurpose> {
   payload?: TransitPayloadMap[P];
 }
 
-export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
-  TransitData<P> & {
-    identifier?: string;
-    otpMessageChannel: OtpMessageChannel;
-    verificationMethod?: VerifyIdentityMethod;
-    reason: OtpReason;
-    dispatchOnload?: boolean;
-    nextStep?: StepName;
-    onVerificationSuccess?: () => void;
-  };
+export interface BaseVerificationPayload {
+  identifier?: string;
+  deviceId?: string;
+  otpMessageChannel?: OtpMessageChannel;
+  verificationMethod?: VerifyIdentityMethod;
+  dispatchOnload?: boolean;
+  reason?: VerificationReason;
+  text?: TransData;
+}
+
+export type VerificationTransitData<P extends TransitPurpose = TransitPurpose> =
+  TransitData<P> &
+    BaseVerificationPayload & {
+      nextStep?: StepName;
+      onVerificationSuccess?: () => void;
+    };
 
 export interface ITotpData {
   secret: string | null;

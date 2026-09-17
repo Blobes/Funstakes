@@ -18,7 +18,7 @@ export default function SignupPage() {
       sx={{
         height: "100%",
         width: "100%",
-        padding: theme.boxSpacing(12),
+        padding: theme.boxSpacing(24),
         alignItems: "center",
         justifyContent: "center",
         minHeight: "fit-content",
@@ -27,12 +27,13 @@ export default function SignupPage() {
           minHeight: "unset",
           padding: theme.boxSpacing(0),
         },
-      }}>
+      }}
+    >
       <Stack
         sx={{
           width: "70%",
           height: "85vh",
-          maxHeight: 600,
+          maxHeight: 675,
           maxWidth: 1100,
           flexDirection: "row",
           gap: theme.gap(0),
@@ -59,7 +60,8 @@ export default function SignupPage() {
             scrollbarWidth: "none",
             "&::-webkit-scrollbar": { display: "none" },
           },
-        }}>
+        }}
+      >
         <Signup
           style={{
             container: {

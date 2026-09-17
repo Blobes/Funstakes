@@ -25,6 +25,10 @@ export interface OtpResponse {
   verificationMethod?: VerifyIdentityMethod;
 }
 
+export interface CommitUpdateRequest extends OtpResponse {
+  targetDeviceId?: string;
+}
+
 export type TotpActionType = "AUTHENTICATE" | "CONFIGURE";
 
 export interface TotpSetupResponse {
@@ -124,7 +128,7 @@ export const VerifyIdentityService = () => {
    * Finalizes account state updates across active security checkpoints.
    */
   const commitAccountUpdate = async (
-    request: OtpResponse,
+    request: CommitUpdateRequest,
   ): Promise<ISinglePayload<any>> => {
     const {
       identifier,
@@ -132,6 +136,7 @@ export const VerifyIdentityService = () => {
       purpose = "LOGIN_VERIFICATION",
       otpIdentifierType,
       verificationMethod,
+      targetDeviceId,
     } = request;
     return await apiClient(SERVER_API.otpAccountUpdate, {
       method: "PATCH",
@@ -141,6 +146,7 @@ export const VerifyIdentityService = () => {
         purpose,
         otpIdentifierType,
         verificationMethod,
+        targetDeviceId,
       }),
     });
   };

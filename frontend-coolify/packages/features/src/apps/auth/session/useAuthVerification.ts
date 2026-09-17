@@ -29,7 +29,7 @@ export const useAuthVerification = () => {
   const { translateTxtString } = useStaticTranslation();
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthSharedService();
-  const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+  const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
 
   const { refetch, isFetching } = useQuery<IUser | null, ApiError>({
     queryKey: [CACHE_KEYS.USER.SESSION],
@@ -95,7 +95,7 @@ export const useAuthVerification = () => {
     enabled: !temporarySession,
     retry: false,
     refetchOnWindowFocus: true,
-    refetchInterval: 1 * 60 * 60 * 1000, // 1 Hour
+    refetchInterval: 30 * 60 * 1000, // 30 mins
     refetchIntervalInBackground: false,
   });
 
@@ -103,7 +103,7 @@ export const useAuthVerification = () => {
    * Triggers manual re-verification of active session state.
    */
   const verifyAuth = useCallback(async () => {
-    const currentResetSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+    const currentResetSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
     if (currentResetSession) {
       setAuthStatus("TEMPORARY");
       return;

@@ -37,7 +37,7 @@ export interface ITrustedDevice {
   isPrimary: boolean;
   isStale: boolean;
   lastSeenAt: Date;
-  lastVerifiedAt: Date;
+  isVerified?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

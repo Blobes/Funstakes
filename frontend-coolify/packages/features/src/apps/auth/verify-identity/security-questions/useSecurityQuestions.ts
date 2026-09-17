@@ -82,7 +82,9 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
   const { translateTxtString } = useStaticTranslation();
 
   const targetIdentifier = activeTransit?.identifier || "";
-  const purpose = activeTransit?.purpose;
+  const transitPurpose = activeTransit?.purpose;
+  const transitDeviceId = activeTransit?.deviceId;
+  const transitHeadline = activeTransit?.text?.headline;
 
   const [setupStates, setSetupStates] = useState<SetupQuestionState[]>([
     { question: "", answer: "" },
@@ -110,7 +112,7 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
     ],
   );
 
-  const isMfaActivationPurpose = purpose === "MFA_ACTIVATION";
+  const isMfaActivationPurpose = transitPurpose === "MFA_ACTIVATION";
 
   /**
    * Queries configured user security questions for verification flow.
@@ -335,6 +337,7 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
       if (activeTransit?.purpose) {
         await commitAccountUpdate({
           identifier: targetIdentifier,
+          targetDeviceId: transitDeviceId,
           purpose: activeTransit.purpose,
         });
       }
@@ -429,5 +432,6 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
     handleVerify,
     inlineMsg,
     isMfaActivationPurpose,
+    transitHeadline,
   };
 };

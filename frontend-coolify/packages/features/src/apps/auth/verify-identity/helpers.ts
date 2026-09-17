@@ -1,7 +1,7 @@
 import {
   TransitPurpose,
   TransitPayloadMap,
-  OtpTransitData,
+  VerificationTransitData,
   IUser,
   IdentifierType,
 } from "@repo/core";
@@ -46,7 +46,7 @@ export function createVerificationStrategies(
  * Executes verification strategy for active transit purpose.
  */
 export function executeVerificationStrategy<P extends TransitPurpose>(
-  activeTransit: OtpTransitData<P>,
+  activeTransit: VerificationTransitData<P>,
   strategies: VerificationStrategyMap,
 ): void {
   const handler = strategies[activeTransit.purpose] as (
@@ -63,7 +63,7 @@ export function executeVerificationStrategy<P extends TransitPurpose>(
  * Resolves appropriate recipient for selected communication channels.
  */
 export function resolveChannelRecipient<P extends TransitPurpose>(
-  activeTransit: OtpTransitData<P> | undefined,
+  activeTransit: VerificationTransitData<P> | undefined,
   identifierType: IdentifierType,
   currentRecipient?: string,
 ): string | undefined {

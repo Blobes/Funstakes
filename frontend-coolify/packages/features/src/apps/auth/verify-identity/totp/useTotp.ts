@@ -65,6 +65,9 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
   const { checkTotpConfiguration } = useVerificationNavigation();
 
   const isMfaActivationPurpose = activeTransit?.purpose === "MFA_ACTIVATION";
+  const transitDeviceId = activeTransit?.deviceId;
+  const transitHeadline = activeTransit?.text?.headline;
+
   const actionType: TotpActionType =
     totpAction || (isMfaActivationPurpose ? "CONFIGURE" : "AUTHENTICATE");
 
@@ -176,6 +179,7 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
       if (activeTransit?.purpose) {
         await commitAccountUpdate({
           identifier: targetIdentifier,
+          targetDeviceId: transitDeviceId,
           purpose: activeTransit.purpose,
           verificationMethod: "TOTP",
         });
@@ -281,5 +285,6 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
     switchToConfiguration,
     isSetupError,
     isMfaActivationPurpose,
+    transitHeadline,
   };
 };

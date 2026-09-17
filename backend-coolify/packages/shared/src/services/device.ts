@@ -1,26 +1,11 @@
 import { DeviceModel, IDeviceDocument, IUserDocument } from "@repo/database";
 import { UAParser } from "ua-parser-js";
-import { Request } from "express";
 import mongoose, { Types } from "mongoose";
 import { cleanDeviceSessions } from "./session";
 import { CACHE_KEYS } from "../constants/cacheKeys";
-import { getOrSetCache } from "./redis/cache/helpers";
+import { deleteCache, getOrSetCache } from "./redis/cache/helpers";
 
 const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
-
-/**
- * Resolves a device record based on the user ID and the unique device token.
- */
-export async function resolveDevice(
-  userId: Types.ObjectId | string,
-  deviceToken: string | undefined,
-  req: Request,
-): Promise<IDeviceDocument | null> {
-  // Return null immediately if no token is provided in the request
-  if (!deviceToken) return null;
-
-  return await DeviceModel.findOne({ userId, deviceToken });
-}
 
 /**
  * Determines if a device is known and within the trust window.
@@ -31,22 +16,24 @@ export async function evaluateDeviceTrust(
   trusted: boolean;
   reason?: "NEW_DEVICE" | "STALE_DEVICE";
 }> {
-  if (!device) {
+  if (!device || !device.isVerified) {
     return { trusted: false, reason: "NEW_DEVICE" };
   }
   const isStale =
-    Date.now() - new Date(device.lastVerifiedAt).getTime() > TRUST_WINDOW;
+    Date.now() - new Date(device.lastSeenAt).getTime() > TRUST_WINDOW;
   if (isStale) {
     return { trusted: false, reason: "STALE_DEVICE" };
   }
   return { trusted: true };
 }
 
-interface DeviceUsertOptions {
+export interface DeviceUsertOptions {
   user: IUserDocument;
+  targetDeviceId?: string;
   deviceToken?: string;
-  userAgent: string;
+  userAgent?: string;
   session?: mongoose.ClientSession;
+  markAsVerified?: boolean;
 }
 /**
  * Registers or updates a device and ensures a primary anchor exists.
@@ -54,12 +41,32 @@ interface DeviceUsertOptions {
 export async function upsertDevice(
   options: DeviceUsertOptions,
 ): Promise<IDeviceDocument> {
-  const { user, deviceToken, userAgent, session } = options;
-
-  let device = await DeviceModel.findOne({
-    userId: user._id,
+  const {
+    user,
+    targetDeviceId,
     deviceToken,
-  }).session(session ?? null);
+    userAgent,
+    session,
+    markAsVerified = false,
+  } = options;
+
+  let device: IDeviceDocument | null = null;
+
+  // 1. Try resolving by explicit targetDeviceId if provided
+  if (targetDeviceId && mongoose.Types.ObjectId.isValid(targetDeviceId)) {
+    device = await DeviceModel.findOne({
+      _id: targetDeviceId,
+      userId: user._id,
+    }).session(session ?? null);
+  }
+
+  // 2. Fall back to resolving by deviceToken if no device was found
+  if (!device && deviceToken) {
+    device = await DeviceModel.findOne({
+      userId: user._id,
+      deviceToken,
+    }).session(session ?? null);
+  }
 
   const parser = new UAParser(userAgent);
   const ua = parser.getResult();
@@ -83,7 +90,11 @@ export async function upsertDevice(
   }
 
   device.lastSeenAt = new Date();
-  device.lastVerifiedAt = new Date();
+
+  if (markAsVerified) {
+    device.isVerified = true;
+  }
+
   await device.save({ session });
 
   await ensurePrimaryDevice(user, device._id, session);
@@ -174,21 +185,28 @@ export const validateHardwareTrust = async (
   userId: string,
   deviceToken: string | undefined,
   jwtDeviceId: string,
-): Promise<boolean> => {
-  // We cache the result to prevent hitting MongoDB on every single request
-  return await getOrSetCache<boolean>(
-    CACHE_KEYS.DEVICE_TRUST_STATUS(userId, deviceToken || "none"),
+): Promise<{ isTrusted: boolean }> => {
+  const cacheKey = CACHE_KEYS.DEVICE_TRUST_STATUS(
+    userId,
+    deviceToken || "none",
+  );
+
+  return await getOrSetCache<{ isTrusted: boolean }>(
+    cacheKey,
     async () => {
-      if (!deviceToken) return true;
+      if (!deviceToken) return { isTrusted: false };
+
       const device = await DeviceModel.findOne({ userId, deviceToken });
-      // If the device doesn't exist, or it's not the one assigned to this JWT session
+
+      // Invalidate cache if device record is missing or mismatched
       if (!device || device._id.toString() !== jwtDeviceId) {
-        return true;
+        await deleteCache(cacheKey);
+        return { isTrusted: false };
       }
+
       const trust = await evaluateDeviceTrust(device);
 
-      // Return true if verification is required (not trusted)
-      return !trust.trusted;
+      return { isTrusted: trust.trusted };
     },
     600, // 10 minutes cache
   );

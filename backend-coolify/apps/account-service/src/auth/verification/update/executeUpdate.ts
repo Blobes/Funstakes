@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { IUserDocument } from "@repo/database";
+import { IDeviceDocument, IUserDocument } from "@repo/database";
 import {
   cleanDeviceSessions,
+  DeviceUsertOptions,
   fetchSingleUser,
   MESSAGES_REGISTRY,
   OtpActionType,
@@ -20,6 +21,7 @@ export interface ICommitAccountUpdateInput {
   verificationToken?: string;
   otpIdentifierType?: OtpIdentifierType;
   deviceToken?: string;
+  targetDeviceId?: string;
   userAgent: string;
   ipAddress?: string;
   verificationMethod?: VerificationMethod;
@@ -64,16 +66,41 @@ export const checkPendingIdentifier = (
   }
   return null;
 };
-
+export interface IDeviceTrustInput extends DeviceUsertOptions {
+  action?: OtpActionType;
+  byPassCheck?: boolean;
+}
 /**
  * Promotes a device record to trusted status by updating tracking markers.
  */
 export const authorizeDeviceTrust = async (
-  user: IUserDocument,
-  deviceToken: string,
-  userAgent: string,
-): Promise<void> => {
-  await upsertDevice({ user, deviceToken, userAgent });
+  input: IDeviceTrustInput,
+): Promise<IDeviceDocument | null> => {
+  const {
+    user,
+    deviceToken,
+    userAgent,
+    targetDeviceId,
+    action,
+    byPassCheck = false,
+  } = input;
+
+  const targetActions: OtpActionType[] = [
+    "LOGIN_VERIFICATION",
+    "SIGNUP_VERIFICATION",
+    "MFA_ACTIVATION",
+  ];
+
+  if ((action && targetActions.includes(action)) || byPassCheck) {
+    return await upsertDevice({
+      user,
+      deviceToken,
+      targetDeviceId,
+      userAgent: userAgent || "",
+      markAsVerified: true,
+    });
+  }
+  return null;
 };
 
 /**
@@ -88,6 +115,7 @@ export const executeAccountUpdate = async (
     verificationToken,
     verificationMethod,
     otpIdentifierType,
+    targetDeviceId,
     deviceToken,
     userAgent,
     ipAddress,
@@ -130,6 +158,17 @@ export const executeAccountUpdate = async (
       status: "USER_NOT_FOUND",
       transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
     };
+  }
+
+  let device: IDeviceDocument | null = null;
+  if (targetDeviceId || deviceToken) {
+    device = await authorizeDeviceTrust({
+      user,
+      deviceToken,
+      userAgent,
+      targetDeviceId,
+      action: purpose,
+    });
   }
 
   switch (purpose) {
@@ -197,16 +236,7 @@ export const executeAccountUpdate = async (
 
     case "LOGIN_VERIFICATION":
     case "SIGNUP_VERIFICATION": {
-      if (deviceToken && userAgent) {
-        await authorizeDeviceTrust(user, deviceToken, userAgent);
-      }
-
-      const device = await upsertDevice({
-        user,
-        deviceToken,
-        userAgent,
-      });
-      const deviceIdString = device._id.toString();
+      const deviceIdString = device?._id.toString() || "";
 
       if (verificationMethod === "MESSAGING") {
         if (activeIdType === "EMAIL") {
@@ -259,6 +289,17 @@ export const executeAccountUpdate = async (
           status: "BAD_REQUEST",
           transInfo: MESSAGES_REGISTRY.AUTH.MFA_ALREADY_DISABLED,
         };
+
+      if (targetDeviceId || deviceToken) {
+        await authorizeDeviceTrust({
+          user,
+          deviceToken,
+          userAgent,
+          targetDeviceId,
+          byPassCheck: true,
+        });
+      }
+
       user.hasEnabledMFA = false;
       user.lastActiveAt = new Date();
       await user.save();

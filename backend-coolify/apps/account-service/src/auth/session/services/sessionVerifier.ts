@@ -50,12 +50,14 @@ export const executeSessionVerification = async (
     };
   }
 
-  const needsOtp = await validateHardwareTrust(
+  const { isTrusted } = await validateHardwareTrust(
     userId,
     deviceToken,
     jwtDeviceId,
   );
-  if (needsOtp) {
+
+  if (!isTrusted) {
+    await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
     return {
       status: "TRUST_EXPIRED",
       transInfo: MESSAGES_REGISTRY.AUTH.DEVICE_TRUST_EXPIRED,

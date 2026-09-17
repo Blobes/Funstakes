@@ -16,7 +16,7 @@ export interface IDeviceDocument extends Document {
   isPrimary: boolean;
   isStale: boolean;
   lastSeenAt: Date;
-  lastVerifiedAt: Date;
+  isVerified?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +26,6 @@ export interface IDeviceDocument extends Document {
  */
 export interface ITrustedDevice {
   deviceId: string;
-  lastVerifiedAt: Date;
+  isVerified: boolean;
   name: string;
 }

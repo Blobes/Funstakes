@@ -28,25 +28,26 @@ export const terminateUserSessions = async (
   const { userId, currentSessionId, jwtDeviceId, targetDeviceId, logoutAll } =
     input;
 
+  // Evaluate if the operation targets the current device session
+  const isCurrentDevice = !targetDeviceId || targetDeviceId === jwtDeviceId;
+
   if (logoutAll) {
     await cleanDeviceSessions(userId, undefined, { clearAll: true });
-  } else if (targetDeviceId) {
+  } else if (targetDeviceId && !isCurrentDevice) {
     await cleanDeviceSessions(userId, targetDeviceId);
   } else if (currentSessionId) {
     await removeSession(userId, currentSessionId);
   }
 
-  const isCurrentDeviceTargeted = targetDeviceId === jwtDeviceId;
-  const shouldClearCookies =
-    logoutAll || isCurrentDeviceTargeted || !targetDeviceId;
+  const shouldClearCookies = logoutAll || isCurrentDevice;
 
-  const targetRegistry = logoutAll
+  const feedbackMsg = logoutAll
     ? MESSAGES_REGISTRY.AUTH.LOGGED_OUT_OF_ALL_DEVICES_SUCCESSFULLY
     : MESSAGES_REGISTRY.AUTH.DEVICE_SESSION_TERMINATED;
 
   return {
     status: "SUCCESS",
-    transInfo: targetRegistry,
+    transInfo: feedbackMsg,
     shouldClearCookies,
   };
 };

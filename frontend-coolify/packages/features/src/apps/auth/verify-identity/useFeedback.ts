@@ -9,7 +9,7 @@ import {
   TransitData,
   useGlobalStore,
 } from "@repo/core";
-import { purgeCacheKeys, queryClient } from "@repo/helpers";
+import { purgeCache, queryClient } from "@repo/helpers";
 
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
@@ -28,7 +28,7 @@ export const useFeedback = () => {
       setAuthUser(userClone);
       setAuthStatus("AUTHENTICATED");
 
-      purgeCacheKeys({
+      purgeCache({
         queryClient,
         queryKeys: STORAGE_KEYS.AUTH_TRANSIT,
       });
@@ -60,7 +60,7 @@ export const useFeedback = () => {
    * Processes settings or profile update verification.
    */
   const handleAccountUpdateSuccess = () => {
-    purgeCacheKeys({
+    purgeCache({
       queryClient,
       queryKeys: STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
     });
@@ -99,7 +99,7 @@ export const useFeedback = () => {
       },
     });
 
-    purgeCacheKeys({
+    purgeCache({
       queryClient,
       queryKeys: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
     });
@@ -114,7 +114,7 @@ export const useFeedback = () => {
    * Processes settings or profile update completion.
    */
   const handleMfaActivationSuccess = () => {
-    purgeCacheKeys({
+    purgeCache({
       queryClient,
       queryKeys: STORAGE_KEYS.MFA_UPDATE_TRANSIT,
     });

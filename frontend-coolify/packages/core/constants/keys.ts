@@ -40,9 +40,10 @@ export const STORAGE_KEYS = {
   ACCOUNT_UPDATE_TRANSIT: ["transit_data", "account_update"],
   MFA_UPDATE_TRANSIT: ["transit_data", "mfa_update"],
 
-  TEMPORARY_SESSION_KEY: "temp_session_expiry",
-  SESSION_TRANSIT_KEY: "session_transit_key",
+  TEMPORARY_SESSION: "temp_session_expiry",
+  TRANSIT_SESSION: "session_transit_key",
   SAVED_PAGE: "saved_page",
+  OTP_LAST_DISPATCH: "otp_last_dispatch_time",
 } as const;
 
 export const CACHE_KEYS = {

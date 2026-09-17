@@ -20,8 +20,13 @@ export const commitAccountUpdate = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const { identifier, purpose, verificationToken, otpIdentifierType } =
-    req.body as ICommitAccountUpdateInput;
+  const {
+    identifier,
+    targetDeviceId,
+    purpose,
+    verificationToken,
+    otpIdentifierType,
+  } = req.body as ICommitAccountUpdateInput;
 
   const userIp = getClientIp(req) || generateRandomIp();
   const deviceToken = getOrSetDeviceToken(req, res);
@@ -33,6 +38,7 @@ export const commitAccountUpdate = async (
       purpose,
       verificationToken,
       otpIdentifierType,
+      targetDeviceId,
       deviceToken,
       userAgent,
       ipAddress: userIp,

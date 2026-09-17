@@ -85,6 +85,8 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   const transitIdentifier = activeTransit?.identifier;
   const transitPurpose = activeTransit?.purpose;
   const dispatchOnload = activeTransit?.dispatchOnload ?? true;
+  const transitDeviceId = activeTransit?.deviceId;
+  const transitHeadline = activeTransit?.text?.headline;
 
   const hasDispatchedOnLoad = useRef(false);
   const initialIdentifierRef = useRef(transitIdentifier);
@@ -387,6 +389,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
           ]);
         await commitAccountUpdate({
           identifier: identifier as string | undefined,
+          targetDeviceId: transitDeviceId,
           purpose: params.purpose,
           otpIdentifierType: otpIdentifierType as IdentifierType | undefined,
           verificationToken: verificationToken as string | undefined,
@@ -618,5 +621,6 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     allowedChannels,
     alternativeChannels,
     isMfaActivationPurpose,
+    transitHeadline,
   };
 };

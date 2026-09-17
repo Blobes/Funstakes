@@ -5,7 +5,7 @@ import { useVerificationNavigation } from "@repo/features";
 import { extractPayloadKeys, getCookie } from "@repo/helpers";
 import {
   VerifyIdentityMethod,
-  OtpTransitData,
+  VerificationTransitData,
   TransitPurpose,
   useGlobalStore,
   STORAGE_KEYS,
@@ -16,7 +16,7 @@ import {
 export interface BaseVerificationProps<
   P extends TransitPurpose = TransitPurpose,
 > {
-  activeTransit?: OtpTransitData<P>;
+  activeTransit?: VerificationTransitData<P>;
   onSuccess?: () => void;
   onSwitchMethod?: (targetMethod: VerifyIdentityMethod) => void;
   availableMethods?: VerifyIdentityMethod[];
@@ -29,20 +29,18 @@ export interface BaseVerificationProps<
 export interface VerifyIdentityProps<
   P extends TransitPurpose = TransitPurpose,
 > {
-  transitData?: OtpTransitData<P>[];
+  transitData?: VerificationTransitData<P>[];
   initialMethod?: VerifyIdentityMethod;
   onSuccess?: () => void;
   onRateLimitExceeded?: () => void;
   isBotChallengeAllowed?: () => boolean;
   setShouldRestrict?: (value: boolean) => void;
-  // customMethods?: VerifyIdentityMethod[];
   containerStyle?: React.CSSProperties;
 }
 
 export interface UseVerifyIdentityProps<P extends TransitPurpose> {
-  transitData?: OtpTransitData<P>[];
+  transitData?: VerificationTransitData<P>[];
   initialMethod?: VerifyIdentityMethod;
-  //  customMethods?: VerifyIdentityMethod[];
   setShouldRestrict?: (value: boolean) => void;
 }
 
@@ -79,7 +77,7 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
    * Checks session freshness and immediately purges cache keys when the temporary session cookie expires.
    */
   useEffect(() => {
-    const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+    const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
     if (!tempSession) {
       clearTemporarySession({ transitKey: storedTransitKey });
     }

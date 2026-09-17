@@ -1,6 +1,6 @@
 "use client";
 
-import { TEMP_STORAGE_KEYS, CACHE_KEYS, STORAGE_KEYS } from "@repo/core";
+import { TEMP_STORAGE_KEYS, CACHE_KEYS } from "@repo/core";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { QueryClient, QueryKey } from "@tanstack/react-query";
@@ -8,18 +8,10 @@ import { idbStorage } from "./storage";
 
 interface PurgeOptions {
   queryClient: QueryClient;
-  queryKeys: QueryKey | QueryKey[] | QueryKey[][];
+  queryKeys: QueryKey | QueryKey[] | QueryKey[][] | "ALL";
   purgeInMins?: number;
+  exact?: boolean;
 }
-
-// const NON_PERSISTENT_KEYS: readonly (readonly string[])[] = [
-//   STORAGE_KEYS.AUTH_TRANSIT,
-//   STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
-//   STORAGE_KEYS.MFA_UPDATE_TRANSIT,
-//   STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
-//   STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
-//   STORAGE_KEYS.ONBOARDING_TRANSIT,
-// ];
 
 /**
  * Creating the query client instance.
@@ -57,17 +49,6 @@ if (persister) {
         const isSuccess = query.state.status === "success";
         const isCachePage = query.queryKey[0] === CACHE_KEYS.CACHE_PAGE;
         const isGranular = query.queryKey.length > 1;
-
-        // // Checking if the query key matches any non-persistent transit key.
-        // const isNonPersistent = NON_PERSISTENT_KEYS.some((nonPersistentKey) =>
-        //   nonPersistentKey.every(
-        //     (part, index) => query.queryKey[index] === part,
-        //   ),
-        // );
-
-        // if (isNonPersistent) {
-        //   return false;
-        // }
 
         return isSuccess && (isCachePage || isGranular);
       },
@@ -165,17 +146,23 @@ const normalizeDomainKeys = (
 };
 
 /**
- * Purges the top-level list keys for a set of domains.
+ * Purges specified domain query keys or clears the entire cache.
  */
-export const purgeCacheKeys = (options: PurgeOptions) => {
-  const { queryClient, queryKeys, purgeInMins } = options;
-  const normalizedKeys = normalizeDomainKeys(queryKeys);
+export const purgeCache = (options: PurgeOptions) => {
+  const { queryClient, queryKeys, purgeInMins, exact = false } = options;
 
   const purge = () => {
+    if (queryKeys === "ALL") {
+      queryClient.clear();
+      return;
+    }
+
+    const normalizedKeys = normalizeDomainKeys(queryKeys);
     normalizedKeys.forEach((key) => {
-      queryClient.removeQueries({ queryKey: key, exact: true });
+      queryClient.removeQueries({ queryKey: key, exact });
     });
   };
+
   if (purgeInMins && purgeInMins > 0) {
     setTimeout(purge, purgeInMins * 60 * 1000);
   } else {

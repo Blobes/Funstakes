@@ -74,7 +74,7 @@ interface GlobalState {
   setAccessToken: (token: string | null) => void;
   setAuthLoading: (loading: boolean) => void;
   setAccountStatus: (status: AccountStatus) => void;
-  logout: () => void;
+  clearAuthUser: () => void;
   setSnackBarMsg: (msg: IMessage, override: boolean) => void;
   removeSnackBarMsg: (id?: string, clearAll?: boolean) => void;
   setInlineMsg: (inlineMsg: React.ReactNode | null) => void;
@@ -123,7 +123,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   setAccountStatus: (accountStatus) => set({ accountStatus }),
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
   setAccessToken: (accessToken) => set({ accessToken }),
-  logout: () =>
+  clearAuthUser: () =>
     set({ authUser: null, accessToken: null, authStatus: "UNAUTHENTICATED" }),
 
   // Language

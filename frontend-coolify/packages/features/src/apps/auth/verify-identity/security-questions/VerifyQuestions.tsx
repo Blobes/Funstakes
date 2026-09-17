@@ -40,6 +40,7 @@ export const VerifySecurityQuestions = <P extends TransitPurpose>(
     isVerifying,
     handleVerify,
     inlineMsg,
+    transitHeadline,
   } = useSecurityQuestions(props);
 
   return (
@@ -61,7 +62,8 @@ export const VerifySecurityQuestions = <P extends TransitPurpose>(
 
         <TransText
           component="h3"
-          {...AUTH_FEEDBACK.verify_without_msg_channel("SECURITY_QUESTIONS")}
+          {...(transitHeadline ||
+            AUTH_FEEDBACK.verify_without_msg_channel("SECURITY_QUESTIONS"))}
           sx={{ ...theme.typography.h6, fontWeight: 500, textAlign: "center" }}
         />
         <TransText

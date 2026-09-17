@@ -103,8 +103,8 @@ export const loginUser = async (
       accessToken: serviceResult.accessToken,
       refreshToken: serviceResult.refreshToken,
       payload: serviceResult.payload,
-      requireOtp: serviceResult.requireOtp,
-      otpReason: serviceResult.otpReason,
+      requireVerification: serviceResult.requireVerification,
+      otpReason: serviceResult.verificationReason,
     });
   } catch (error: any) {
     console.error("Login Error:", error);

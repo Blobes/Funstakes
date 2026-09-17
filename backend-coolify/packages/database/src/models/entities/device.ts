@@ -42,9 +42,9 @@ const DeviceSchema = new Schema<IDeviceDocument>(
       default: Date.now,
     },
 
-    lastVerifiedAt: {
-      type: Date,
-      default: Date.now,
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

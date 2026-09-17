@@ -5,7 +5,6 @@ import {
   userSensitiveFields,
   CACHE_KEYS,
   upsertDevice,
-  evaluateDeviceTrust,
   MESSAGES_REGISTRY,
   TransInfo,
   setCache,
@@ -13,6 +12,7 @@ import {
   fetchSingleUser,
   validateAccountStatus,
   RestrictionStatus,
+  validateHardwareTrust,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../../check/service";
@@ -39,9 +39,10 @@ interface ILoginResult {
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
+  deviceId?: string;
   payload?: any;
-  requireOtp?: boolean;
-  otpReason?: "UNVERIFIED_ACCOUNT" | "UNTRUSTED_DEVICE";
+  requireVerification?: boolean;
+  verificationReason?: "UNVERIFIED_ACCOUNT" | "UNTRUSTED_DEVICE";
 }
 
 const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -139,7 +140,12 @@ export const authenticateUser = async (
     primaryDeviceId?.toString(),
   );
 
-  const deviceTrust = await evaluateDeviceTrust(device);
+  const { isTrusted: isDeviceTrusted } = await validateHardwareTrust(
+    userId,
+    deviceToken,
+    deviceIdString,
+  );
+
   const isVerified =
     Boolean(user.isEmailVerified) || Boolean(user.isPhoneVerified);
 
@@ -149,13 +155,13 @@ export const authenticateUser = async (
   if (lastActive)
     isInactive = Date.now() - new Date(lastActive).getTime() > TRUST_WINDOW;
 
-  const requireOtp = !isVerified || !deviceTrust.trusted || isInactive;
+  const requireVerification = !isVerified || !isDeviceTrusted || isInactive;
 
   const now = new Date();
   user.lastPasswordVerifiedAt = now;
 
   let accessToken, refreshToken;
-  if (!requireOtp) {
+  if (!requireVerification) {
     const tokens = await issueAuthTokens({
       user,
       deviceId: deviceIdString,
@@ -179,8 +185,9 @@ export const authenticateUser = async (
     accessToken,
     refreshToken,
     payload: safeData,
-    requireOtp,
-    otpReason: requireOtp
+    deviceId: deviceIdString,
+    requireVerification,
+    verificationReason: requireVerification
       ? !isVerified
         ? "UNVERIFIED_ACCOUNT"
         : "UNTRUSTED_DEVICE"

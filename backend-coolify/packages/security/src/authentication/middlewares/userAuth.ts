@@ -38,13 +38,13 @@ export const verifyAuthTokens = (config: IAuthConfig): RequestHandler => {
       // ✅ Use injected secret
       const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET) as IJwtUser;
 
-      const needsOtp = await validateHardwareTrust(
+      const { isTrusted } = await validateHardwareTrust(
         payload.id,
         deviceToken,
         payload.deviceId,
       );
 
-      if (needsOtp) {
+      if (!isTrusted) {
         clearAuthCookies(res);
         return res.status(401).json({
           status: "UNAUTHORIZED",
@@ -100,13 +100,13 @@ export const verifyAuthOptionally = (config: IAuthConfig): RequestHandler => {
     try {
       const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET) as IJwtUser;
 
-      const needsOtp = await validateHardwareTrust(
+      const { isTrusted } = await validateHardwareTrust(
         payload.id,
         deviceToken,
         payload.deviceId,
       );
 
-      if (needsOtp) return next(); // silent fail
+      if (!isTrusted) return next(); // silent fail
 
       const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
 

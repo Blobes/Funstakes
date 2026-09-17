@@ -42,10 +42,8 @@ export interface UseFeedbackProps {
 
 export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
   const { navigateTo, isOnWeb } = usePage();
-  const {
-    handleVerificationNavigation: handleOtpNavigation,
-    checkTotpConfiguration,
-  } = useVerificationNavigation();
+  const { handleVerificationNavigation, checkTotpConfiguration } =
+    useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
@@ -60,9 +58,13 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
     async (feedbackProps: UseFeedbackProps) => {
       const { loginResponse, identifierType } = feedbackProps;
 
-      if (loginResponse?.httpStatus !== 200) return;
-      clearLoginLock();
+      if (loginResponse?.httpStatus !== 200) {
+        setGlobalLoading(false);
+        return;
+      }
+
       setGlobalLoading(true);
+      clearLoginLock();
 
       const user = loginResponse.payload as IUser;
       if (loginResponse.status === "SUCCESS" && user) {
@@ -71,18 +73,19 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
         const hasTotp = checkTotpConfiguration(user);
         const isEmail = identifierType === "EMAIL" && !hasTotp;
 
-        if (loginResponse.requireOtp) {
+        if (loginResponse.requireVerification) {
           setAccountStatus("NOT_VERIFIED");
-
-          handleOtpNavigation({
+          handleVerificationNavigation({
             user,
+            deviceId: loginResponse.deviceId,
             identifier: user.email || user.phoneNumber || identifier,
             identifierType:
               identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
             purpose: "LOGIN_VERIFICATION",
             otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
             verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
-            reason: loginResponse.otpReason,
+            reason: loginResponse.verificationReason,
+            text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
           });
           return;
         }
@@ -119,7 +122,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       setAccessToken,
       setAccountStatus,
       identifier,
-      handleOtpNavigation,
+      handleVerificationNavigation,
       setAuthUser,
       setAuthStatus,
       setStep,

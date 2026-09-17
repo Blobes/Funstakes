@@ -17,16 +17,16 @@ export const startDeviceCleanupTask = () => {
         thirtyDaysAgo.getTime() - GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
       );
 
-      // 1. Purge non-primaries older than 30 days
+      // 1. Purge non-primaries, stale grace-period devices, and unverified devices exceeding threshold
       await DeviceModel.deleteMany({
-        lastSeenAt: { $lt: thirtyDaysAgo },
-        isPrimary: { $ne: true },
-      });
-
-      // 2. Purge devices already marked as stale that have exceeded the grace period
-      await DeviceModel.deleteMany({
-        isStale: true,
-        lastSeenAt: { $lt: purgeDateWithGrace },
+        $or: [
+          // Non-primary devices older than threshold
+          { lastSeenAt: { $lt: thirtyDaysAgo }, isPrimary: { $ne: true } },
+          // Devices marked as stale that exceeded the grace period
+          { isStale: true, lastSeenAt: { $lt: purgeDateWithGrace } },
+          // Unverified devices older than threshold
+          { isVerified: false, createdAt: { $lt: thirtyDaysAgo } },
+        ],
       });
 
       // 3. Process primary devices that have just hit the 30-day inactivity mark
@@ -38,9 +38,27 @@ export const startDeviceCleanupTask = () => {
         .lean()
         .cursor();
 
-      let userUpdates = [];
-      let deviceUpdates = [];
-      let devicesToDelete = [];
+      let userUpdates: any[] = [];
+      let deviceUpdates: any[] = [];
+      let devicesToDelete: any[] = [];
+
+      /**
+       * Flushes queued batch operations to database.
+       */
+      const flushBatches = async () => {
+        const tasks = [];
+        if (userUpdates.length > 0)
+          tasks.push(UserModel.bulkWrite(userUpdates));
+        if (deviceUpdates.length > 0)
+          tasks.push(DeviceModel.bulkWrite(deviceUpdates));
+        if (devicesToDelete.length > 0)
+          tasks.push(DeviceModel.deleteMany({ _id: { $in: devicesToDelete } }));
+
+        await Promise.all(tasks);
+        userUpdates = [];
+        deviceUpdates = [];
+        devicesToDelete = [];
+      };
 
       for (
         let ghost = await ghostCursor.next();
@@ -83,37 +101,13 @@ export const startDeviceCleanupTask = () => {
           });
         }
 
-        // Batch execution logic
-        if (userUpdates.length >= 100) {
-          await Promise.all([
-            UserModel.bulkWrite(userUpdates),
-            DeviceModel.bulkWrite(deviceUpdates),
-            DeviceModel.deleteMany({ _id: { $in: devicesToDelete } }),
-          ]);
-          userUpdates = [];
-          deviceUpdates = [];
-          devicesToDelete = [];
+        if (userUpdates.length >= 100 || deviceUpdates.length >= 100) {
+          await flushBatches();
         }
       }
 
-      // Final flush
-      if (
-        userUpdates.length > 0 ||
-        deviceUpdates.length > 0 ||
-        devicesToDelete.length > 0
-      ) {
-        await Promise.all([
-          userUpdates.length > 0
-            ? UserModel.bulkWrite(userUpdates)
-            : Promise.resolve(),
-          deviceUpdates.length > 0
-            ? DeviceModel.bulkWrite(deviceUpdates)
-            : Promise.resolve(),
-          devicesToDelete.length > 0
-            ? DeviceModel.deleteMany({ _id: { $in: devicesToDelete } })
-            : Promise.resolve(),
-        ]);
-      }
+      // Flush remaining batch queues
+      await flushBatches();
     } catch (error) {
       console.error("[Cron] Grace-Period Cleanup Error:", error);
     }

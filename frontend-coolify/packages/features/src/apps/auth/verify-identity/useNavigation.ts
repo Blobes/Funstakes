@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import {
-  purgeCacheKeys,
+  purgeCache,
   queryClient,
   setCookie,
   getCookie,
@@ -11,9 +11,9 @@ import {
 import {
   CLIENT_ROUTES,
   IUser,
-  OtpTransitData,
+  VerificationTransitData,
   OtpMessageChannel,
-  OtpReason,
+  VerificationReason,
   TransitPurpose,
   IdentifierType,
   VerifyIdentityMethod,
@@ -21,22 +21,20 @@ import {
   useGlobalStore,
   IPage,
   SNACKBAR_DURATION,
+  TransData,
+  BaseVerificationPayload,
 } from "@repo/core";
 import { useCachedData, usePage, useSnackbar } from "@repo/shared-hooks";
 import { VerifyIdentityService } from "./services";
 
 type TransitKeyType = readonly string[] | readonly (readonly string[])[];
 
-export interface OtpNavigation {
+export interface VerificationNavigation extends BaseVerificationPayload {
   user?: IUser | null;
-  identifier?: string;
   identifierType?: IdentifierType;
-  reason: OtpReason;
+  reason: VerificationReason;
   purpose?: TransitPurpose;
   transitKey?: TransitKeyType;
-  otpMessageChannel?: OtpMessageChannel;
-  verificationMethod?: VerifyIdentityMethod;
-  dispatchOnload?: boolean;
   sessionDurationMins?: number;
 }
 
@@ -52,7 +50,7 @@ const DEFAULT_SESSION_DURATION_SECONDS = DEFAULT_SESSION_DURATION_MINUTES * 60;
  * Computes remaining session time in seconds from stored cookie timestamp.
  */
 const getRemainingSessionTime = (): number => {
-  const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+  const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
   if (!tempSession) return DEFAULT_SESSION_DURATION_SECONDS;
 
   const expiryMs = parseInt(tempSession, 10);
@@ -65,7 +63,7 @@ const getRemainingSessionTime = (): number => {
  * Retrieves the active transit key stored in the cookies.
  */
 const getStoredTransitKey = (): TransitKeyType | undefined => {
-  const stored = getCookie(STORAGE_KEYS.SESSION_TRANSIT_KEY);
+  const stored = getCookie(STORAGE_KEYS.TRANSIT_SESSION);
   if (!stored) return undefined;
   try {
     return JSON.parse(stored) as TransitKeyType;
@@ -87,9 +85,9 @@ export const useVerificationNavigation = () => {
     getStoredTransitKey(),
   );
 
-  let cachedTransit: OtpTransitData<TransitPurpose> | undefined;
+  let cachedTransit: VerificationTransitData<TransitPurpose> | undefined;
   if (activeTransitKeyRef.current) {
-    cachedTransit = useCachedData<OtpTransitData<TransitPurpose>>(
+    cachedTransit = useCachedData<VerificationTransitData<TransitPurpose>>(
       activeTransitKeyRef.current,
     )[0];
   }
@@ -130,14 +128,14 @@ export const useVerificationNavigation = () => {
       setAuthStatus("UNAUTHENTICATED");
 
       if (activeKey) {
-        purgeCacheKeys({
+        purgeCache({
           queryClient,
           queryKeys: activeKey,
         });
       }
 
-      deleteCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
-      deleteCookie(STORAGE_KEYS.SESSION_TRANSIT_KEY);
+      deleteCookie(STORAGE_KEYS.TEMPORARY_SESSION);
+      deleteCookie(STORAGE_KEYS.TRANSIT_SESSION);
 
       if (options.returnPage) navigateTo(options.returnPage);
     },
@@ -151,7 +149,7 @@ export const useVerificationNavigation = () => {
   );
   // Tracks temporary session countdown timer based on expiry cookie.
   useEffect(() => {
-    const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+    const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
     if (!tempSession) return;
 
     const storedTransitKey = getStoredTransitKey();
@@ -188,10 +186,11 @@ export const useVerificationNavigation = () => {
    * Prepares and routes user to the OTP verification flow.
    */
   const handleVerificationNavigation = useCallback(
-    (navOptions: OtpNavigation) => {
+    (navOptions: VerificationNavigation) => {
       const {
         user,
         identifier,
+        deviceId,
         identifierType,
         reason,
         purpose = "LOGIN_VERIFICATION",
@@ -200,6 +199,7 @@ export const useVerificationNavigation = () => {
         verificationMethod,
         dispatchOnload,
         sessionDurationMins = DEFAULT_SESSION_DURATION_MINUTES,
+        text,
       } = navOptions;
 
       if (!user) return;
@@ -210,9 +210,10 @@ export const useVerificationNavigation = () => {
 
       const hasTotp = checkTotpConfiguration(user);
 
-      const otpTransitData: OtpTransitData<typeof purpose> = {
+      const otpTransitData: VerificationTransitData<typeof purpose> = {
         transitId: transitKey.join("_"),
         identifier,
+        deviceId,
         otpMessageChannel: activeChannel,
         purpose,
         payload: { user },
@@ -220,6 +221,8 @@ export const useVerificationNavigation = () => {
         verificationMethod:
           verificationMethod ?? (hasTotp ? "TOTP" : "MESSAGING"),
         dispatchOnload,
+        text,
+        onVerificationSuccess: clearTemporarySession,
       };
 
       activeTransitKeyRef.current = transitKey;
@@ -228,12 +231,12 @@ export const useVerificationNavigation = () => {
       const expiryTimestamp = Date.now() + sessionDurationMins * 60 * 1000;
 
       setCookie(
-        STORAGE_KEYS.TEMPORARY_SESSION_KEY,
+        STORAGE_KEYS.TEMPORARY_SESSION,
         expiryTimestamp.toString(),
         sessionDurationMins,
       );
       setCookie(
-        STORAGE_KEYS.SESSION_TRANSIT_KEY,
+        STORAGE_KEYS.TRANSIT_SESSION,
         JSON.stringify(transitKey),
         sessionDurationMins,
       );

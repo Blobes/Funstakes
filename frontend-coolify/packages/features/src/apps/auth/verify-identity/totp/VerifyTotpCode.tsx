@@ -30,6 +30,7 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
     handleVerify,
     inlineMsg,
     isMfaActivationPurpose,
+    transitHeadline,
   } = useTotp({
     ...props,
     // currStep: "VERIFY_TOTP_CODE",
@@ -53,7 +54,8 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
         />
         <TransText
           component="h3"
-          {...AUTH_FEEDBACK.verify_without_msg_channel("TOTP")}
+          {...(transitHeadline ||
+            AUTH_FEEDBACK.verify_without_msg_channel("TOTP"))}
           sx={{ ...theme.typography.h6, fontWeight: 500, textAlign: "center" }}
         />
         <TransText
