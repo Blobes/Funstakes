@@ -57,7 +57,7 @@ export const executeSessionVerification = async (
   );
 
   if (!isTrusted) {
-    await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
+    //  await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
     return {
       status: "TRUST_EXPIRED",
       transInfo: MESSAGES_REGISTRY.AUTH.DEVICE_TRUST_EXPIRED,

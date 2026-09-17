@@ -16,12 +16,10 @@ import {
   VerificationReason,
   TransitPurpose,
   IdentifierType,
-  VerifyIdentityMethod,
   STORAGE_KEYS,
   useGlobalStore,
   IPage,
   SNACKBAR_DURATION,
-  TransData,
   BaseVerificationPayload,
 } from "@repo/core";
 import { useCachedData, usePage, useSnackbar } from "@repo/shared-hooks";
@@ -43,19 +41,16 @@ export interface ClearSession {
   returnPage?: IPage;
 }
 
-const DEFAULT_SESSION_DURATION_MINUTES = 15;
-const DEFAULT_SESSION_DURATION_SECONDS = DEFAULT_SESSION_DURATION_MINUTES * 60;
+const DEFAULT_SESSION_DURATION_MINUTES = 5;
 
 /**
  * Computes remaining session time in seconds from stored cookie timestamp.
  */
 const getRemainingSessionTime = (): number => {
   const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
-  if (!tempSession) return DEFAULT_SESSION_DURATION_SECONDS;
-
+  if (!tempSession) return 0;
   const expiryMs = parseInt(tempSession, 10);
-  if (isNaN(expiryMs)) return DEFAULT_SESSION_DURATION_SECONDS;
-
+  if (isNaN(expiryMs)) return 0;
   return Math.max(0, Math.round((expiryMs - Date.now()) / 1000));
 };
 
@@ -102,7 +97,6 @@ export const useVerificationNavigation = () => {
 
       if (recipient) {
         setIsTerminatingSession(true);
-        console.log("hello");
         try {
           const resetRes = await resetMsgCode(recipient);
           const msg = resetRes.localizedSuccessMsg;
@@ -125,17 +119,11 @@ export const useVerificationNavigation = () => {
         }
       }
 
-      setAuthStatus("UNAUTHENTICATED");
-
-      if (activeKey) {
-        purgeCache({
-          queryClient,
-          queryKeys: activeKey,
-        });
-      }
-
+      if (activeKey) purgeCache({ queryClient, queryKeys: activeKey });
       deleteCookie(STORAGE_KEYS.TEMPORARY_SESSION);
       deleteCookie(STORAGE_KEYS.TRANSIT_SESSION);
+      setTimeLeft(0);
+      setAuthStatus("UNAUTHENTICATED");
 
       if (options.returnPage) navigateTo(options.returnPage);
     },
@@ -145,28 +133,34 @@ export const useVerificationNavigation = () => {
       setSBMessage,
       setIsTerminatingSession,
       navigateTo,
+      setTimeLeft,
+      cachedTransit?.identifier,
     ],
   );
   // Tracks temporary session countdown timer based on expiry cookie.
   useEffect(() => {
     const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
-    if (!tempSession) return;
+    if (!tempSession) {
+      setTimeLeft(0);
+      return;
+    }
 
     const storedTransitKey = getStoredTransitKey();
     if (storedTransitKey) {
       activeTransitKeyRef.current = storedTransitKey;
     }
 
-    const interval = setInterval(() => {
-      const diff = Math.max(
-        0,
-        Math.round((parseInt(tempSession, 10) - Date.now()) / 1000),
-      );
-      setTimeLeft(diff);
+    setTimeLeft(getRemainingSessionTime());
 
-      if (diff <= 0) {
+    const interval = setInterval(() => {
+      const remaining = getRemainingSessionTime();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
         clearInterval(interval);
-        clearTemporarySession({ transitKey: activeTransitKeyRef.current });
+        clearTemporarySession({
+          transitKey: activeTransitKeyRef.current,
+          returnPage: CLIENT_ROUTES.login,
+        });
       }
     }, 1000);
 
@@ -245,7 +239,7 @@ export const useVerificationNavigation = () => {
 
       navigateTo(CLIENT_ROUTES.verifyIdentity, { loadPage: true });
     },
-    [navigateTo, checkTotpConfiguration],
+    [navigateTo, checkTotpConfiguration, clearTemporarySession],
   );
 
   return {

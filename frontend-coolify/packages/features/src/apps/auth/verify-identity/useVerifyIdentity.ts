@@ -2,13 +2,12 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useVerificationNavigation } from "@repo/features";
-import { extractPayloadKeys, getCookie } from "@repo/helpers";
+import { extractPayloadKeys } from "@repo/helpers";
 import {
   VerifyIdentityMethod,
   VerificationTransitData,
   TransitPurpose,
   useGlobalStore,
-  STORAGE_KEYS,
   AUTH_BUTTON_LABELS,
   IUser,
 } from "@repo/core";
@@ -54,12 +53,8 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
   const activeTransit = transitData?.[0];
   const authUser = useGlobalStore((state) => state.authUser);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-  const {
-    checkTotpConfiguration,
-    clearTemporarySession,
-    timeLeft,
-    storedTransitKey,
-  } = useVerificationNavigation();
+  const { checkTotpConfiguration, timeLeft, isTerminatingSession } =
+    useVerificationNavigation();
 
   const payloadUser = extractPayloadKeys(activeTransit?.payload, ["user"])
     .user as IUser | null;
@@ -74,16 +69,6 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
 
   /**
-   * Checks session freshness and immediately purges cache keys when the temporary session cookie expires.
-   */
-  useEffect(() => {
-    const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
-    if (!tempSession) {
-      clearTemporarySession({ transitKey: storedTransitKey });
-    }
-  }, [clearTemporarySession, storedTransitKey]);
-
-  /**
    * Evaluates active transit session validity to update restrict state.
    */
   useEffect(() => {
@@ -94,8 +79,6 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
   const purpose = activeTransit?.purpose;
 
   const availableMethods = useMemo<VerifyIdentityMethod[]>(() => {
-    //  if (customMethods && customMethods.length > 0) return customMethods;
-
     if (purpose === "SIGNUP_VERIFICATION") return ["MESSAGING"];
 
     const hasSecurityQuestions = Boolean(targetUser?.securityQuestionsId);
@@ -186,5 +169,6 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     getMethodLabelProps,
     activeTransit,
     timeLeft,
+    isTerminatingSession,
   };
 };

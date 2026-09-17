@@ -44,6 +44,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
     getMethodLabelProps,
     activeTransit,
     timeLeft,
+    isTerminatingSession,
   } = useVerifyIdentity({
     transitData,
     initialMethod,
@@ -196,8 +197,10 @@ export const VerifyIdentity = <P extends TransitPurpose>(
           },
         }}
       >
-        Session: {Math.floor(timeLeft / 60)}:
-        {(timeLeft % 60).toString().padStart(2, "0")}
+        {isTerminatingSession
+          ? "Closing session..."
+          : `Session: ${Math.floor(timeLeft / 60)}:
+        ${(timeLeft % 60).toString().padStart(2, "0")}`}
       </Box>
 
       <Stepper

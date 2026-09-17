@@ -156,7 +156,7 @@ export const SplashUI = ({ duration = 2500 }: SplashUIProps) => {
         gap: theme.gap(10),
       }}
     >
-      <AppLogo withName size={200} />
+      <AppLogo withName size={170} />
       <ProgressIcon
         type="linear"
         value={progress}
@@ -164,7 +164,8 @@ export const SplashUI = ({ duration = 2500 }: SplashUIProps) => {
           variant: "indeterminate",
         }}
         style={{
-          width: 200,
+          width: 170,
+          height: 3,
         }}
       />
     </RootUIContainer>

@@ -137,10 +137,12 @@ export const usePage = () => {
    */
   const handlePageChange = useCallback(() => {
     const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
+    const tempSessionValid =
+      temporarySession && parseInt(temporarySession, 10) > Date.now();
     setInlineMsg(null);
 
     if (routeGuards.isRedirecting) {
-      if (temporarySession) return; // Disabled auto redirect if there is an available temporary session
+      if (tempSessionValid) return; // Disabled auto redirect if there is an available temporary session
 
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)
@@ -165,7 +167,8 @@ export const usePage = () => {
     setLastPage,
     setInlineMsg,
     navigateTo,
-    setPendingPath,
+    isDoNotSaveRoute,
+    // setPendingPath,
   ]);
 
   return {
