@@ -8,22 +8,16 @@ services:
       target: node-runner
       args:
         SERVICE_NAME: gateway
+    expose:
+      - "8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 3
-      start_period: 40s
+      start_period: 30s
     labels:
       - "coolify.exposed_port=8000"
-    #   - "coolify.name=funstakes-backend-gateway"
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.gateway-router.rule=Host(`api.funstakes.net`)"
-    #   - "traefik.http.routers.gateway-router.entrypoints=https"
-    #   - "traefik.http.routers.gateway-router.tls=true"
-    #   - "traefik.http.services.gateway-service.loadbalancer.server.port=8000"
-    # networks:
-    #   - coolify
 
   account-service:
     build:
@@ -34,10 +28,10 @@ services:
         SERVICE_NAME: account-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 3
-      start_period: 40s
+      start_period: 30s
     # networks:
     #   - coolify
 
@@ -50,10 +44,10 @@ services:
         SERVICE_NAME: post-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 3
-      start_period: 40s
+      start_period: 30s
     # networks:
     #   - coolify
 
@@ -68,10 +62,10 @@ services:
         APP_PATH: apps/worker-service/node-worker
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 3
-      start_period: 40s
+      start_period: 30s
     # networks:
     #   - coolify
 
@@ -83,10 +77,10 @@ services:
       target: go-runner
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f go-worker-bin || exit 1"]
-      interval: 15s
+      interval: 60s
       timeout: 5s
       retries: 3
-      start_period: 20s
+      start_period: 30s
     # networks:
     #   - coolify
 
@@ -99,10 +93,10 @@ services:
         SERVICE_NAME: platform-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 3
-      start_period: 40s
+      start_period: 30s
 #     networks:
 #       - coolify
 
