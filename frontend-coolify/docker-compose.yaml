@@ -15,6 +15,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      HOSTNAME: "0.0.0.0"
       AUTH_URL: http://auth-app:3002
       POST_URL: http://post-app:3003
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
@@ -47,6 +48,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3002
+      HOSTNAME: "0.0.0.0"
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
@@ -72,6 +74,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3003
+      HOSTNAME: "0.0.0.0"
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
