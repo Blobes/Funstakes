@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   # =========================
   # 🧠 SHELL APP (Main Entry)
@@ -23,12 +24,6 @@ services:
     depends_on:
       - auth-app
       - post-app
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
     networks:
       - coolify
     labels:
@@ -36,7 +31,6 @@ services:
       - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`)"
       - "traefik.http.routers.shell.entrypoints=https"
       - "traefik.http.routers.shell.tls=true"
-      - "traefik.http.services.shell.loadbalancer.server.port=3000"
       - "coolify.exposed_port=3000"
 
   # =========================
@@ -57,12 +51,6 @@ services:
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
       - "3002"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
     networks:
       - coolify
 
@@ -84,12 +72,6 @@ services:
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
       - "3003"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
     networks:
       - coolify
 
