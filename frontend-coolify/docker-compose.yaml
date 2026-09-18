@@ -31,6 +31,8 @@ services:
       - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`) || Host(`dev.funstakes.net`)"
       - "traefik.http.routers.shell.entrypoints=https"
       - "traefik.http.routers.shell.tls=true"
+      - "traefik.http.routers.shell.service=shell-service"
+      - "traefik.http.services.shell-service.loadbalancer.server.port=3000"
       - "coolify.exposed_port=3000"
 
   # =========================
