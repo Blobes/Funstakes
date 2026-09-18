@@ -36,6 +36,7 @@ ARG APP_NAME
 ENV APP_NAME=$APP_NAME
 ENV NODE_ENV=production
 ENV PORT=3000
+RUN apk add --no-cache curl
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
