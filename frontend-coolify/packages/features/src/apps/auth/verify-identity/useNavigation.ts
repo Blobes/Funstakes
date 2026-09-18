@@ -41,7 +41,7 @@ export interface ClearSession {
   returnPage?: IPage;
 }
 
-const DEFAULT_SESSION_DURATION_MINUTES = 5;
+const DEFAULT_SESSION_DURATION_MINUTES = 15;
 
 /**
  * Computes remaining session time in seconds from stored cookie timestamp.

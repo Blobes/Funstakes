@@ -84,7 +84,7 @@ export const useMessagingOtp = <P extends TransitPurpose>(
 
   const transitIdentifier = activeTransit?.identifier;
   const transitPurpose = activeTransit?.purpose;
-  const dispatchOnload = activeTransit?.dispatchOnload ?? false;
+  const dispatchOnload = activeTransit?.dispatchOnload ?? true;
   const transitDeviceId = activeTransit?.deviceId;
   const transitHeadline = activeTransit?.text?.headline;
 
