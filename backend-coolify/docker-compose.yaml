@@ -19,6 +19,7 @@ services:
     labels:
       - "coolify.exposed_port=8000"
 
+  # Account service Instance
   account-service:
     build:
       context: .
@@ -33,6 +34,7 @@ services:
       retries: 3
       start_period: 30s
 
+  # Post service Instance
   post-service:
     build:
       context: .
