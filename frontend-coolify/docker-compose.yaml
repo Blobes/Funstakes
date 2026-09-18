@@ -24,7 +24,7 @@ services:
       - auth-app
       - post-app
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -58,7 +58,7 @@ services:
     expose:
       - "3002"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002"]
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -85,7 +85,7 @@ services:
     expose:
       - "3003"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003"]
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
       interval: 15s
       timeout: 5s
       retries: 3
