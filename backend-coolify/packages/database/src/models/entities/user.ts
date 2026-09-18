@@ -168,6 +168,10 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
         type: [Number],
         default: [],
       },
+      lastVerifiedAt: {
+        type: Date,
+        default: null,
+      },
     },
 
     // --- METRICS & PREFERENCES ---

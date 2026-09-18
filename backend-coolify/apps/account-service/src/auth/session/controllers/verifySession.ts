@@ -1,6 +1,9 @@
 import { Response, RequestHandler, NextFunction } from "express";
 import {
+  buildLocationFromRequest,
   forwardError,
+  generateRandomIp,
+  getClientIp,
   getOrSetDeviceToken,
   IAuthRequest,
   MESSAGES_REGISTRY,
@@ -23,6 +26,9 @@ export const verifySession: RequestHandler = async (
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "unknown";
 
+  const userIp = getClientIp(req) || generateRandomIp();
+  const location = await buildLocationFromRequest(req, userIp);
+
   try {
     const serviceResult = await executeSessionVerification({
       userId,
@@ -30,6 +36,7 @@ export const verifySession: RequestHandler = async (
       jwtDeviceId,
       deviceToken,
       userAgent,
+      location,
     });
 
     if (serviceResult.status === "CONTEXT_MISSING") {

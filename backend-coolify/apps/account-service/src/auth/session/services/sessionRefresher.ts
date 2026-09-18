@@ -20,6 +20,7 @@ interface IRefreshSessionInput {
   refreshToken: string;
   deviceToken: string;
   userAgent: string;
+  ipAddress: string;
 }
 
 interface IRefreshSessionResult {
@@ -40,7 +41,7 @@ interface IRefreshSessionResult {
 export const executeSessionRefresh = async (
   input: IRefreshSessionInput,
 ): Promise<IRefreshSessionResult> => {
-  const { refreshToken, deviceToken, userAgent } = input;
+  const { refreshToken, deviceToken, userAgent, ipAddress } = input;
 
   try {
     const payload = jwt.verify(
@@ -104,6 +105,8 @@ export const executeSessionRefresh = async (
       deviceId: deviceIdString,
       sessionId: payload.sessionId,
       authTokens,
+      userAgent,
+      ipAddress,
     });
 
     return {

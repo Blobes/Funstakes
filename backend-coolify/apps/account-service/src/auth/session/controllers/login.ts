@@ -4,6 +4,7 @@ import {
   generateRandomIp,
   MESSAGES_REGISTRY,
   forwardError,
+  getClientIp,
 } from "@repo/shared";
 import { authenticateUser } from "@/auth/session/services/authenticate";
 import { setAuthCookies } from "@repo/security";
@@ -24,8 +25,6 @@ export const loginUser = async (
   next: NextFunction,
 ): Promise<any> => {
   const { identifier, password } = req.body;
-  const userAgent = req.headers["user-agent"] || "unknown";
-
   if (!identifier || !password) {
     return res.status(400).json({
       status: "ERROR",
@@ -34,8 +33,9 @@ export const loginUser = async (
     });
   }
 
+  const userAgent = req.headers["user-agent"] || "unknown";
+  const userIp = getClientIp(req) || generateRandomIp();
   const deviceToken = getOrSetDeviceToken(req, res);
-  const randomIp = generateRandomIp();
 
   try {
     const serviceResult = await authenticateUser({
@@ -43,7 +43,7 @@ export const loginUser = async (
       password,
       deviceToken,
       userAgent,
-      ipAddress: randomIp,
+      ipAddress: userIp,
     });
 
     if (serviceResult.status === "USER_NOT_FOUND") {

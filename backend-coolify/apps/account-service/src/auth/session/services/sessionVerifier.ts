@@ -1,4 +1,4 @@
-import { IDeviceDocument } from "@repo/database";
+import { IDeviceDocument, ILocation } from "@repo/database";
 import {
   CACHE_KEYS,
   validateHardwareTrust,
@@ -20,6 +20,7 @@ interface IVerifySessionInput {
   jwtDeviceId?: string;
   deviceToken: string;
   userAgent: string;
+  location?: ILocation;
 }
 
 interface IVerifySessionResult {
@@ -35,13 +36,21 @@ interface IVerifySessionResult {
   payload?: any;
 }
 
+const LOCATION_REFRESH_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
+
+const shouldRefreshLocation = (lastVerifiedAt?: Date | null): boolean => {
+  if (!lastVerifiedAt) return true;
+  return Date.now() - new Date(lastVerifiedAt).getTime() > LOCATION_REFRESH_MS;
+};
+
 /**
  * Validates active session state, hardware fingerprints, and sliding window policies again.
  */
 export const executeSessionVerification = async (
   input: IVerifySessionInput,
 ): Promise<IVerifySessionResult> => {
-  const { userId, sessionId, jwtDeviceId, deviceToken, userAgent } = input;
+  const { userId, sessionId, jwtDeviceId, deviceToken, userAgent, location } =
+    input;
 
   if (!userId || !sessionId || !jwtDeviceId) {
     return {
@@ -80,7 +89,7 @@ export const executeSessionVerification = async (
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
   const sessionData = await getCache<IDeviceDocument>(sessionKey);
 
-  if (!sessionData || sessionData.deviceToken !== jwtDeviceId) {
+  if (!sessionData || sessionData._id.toString() !== jwtDeviceId) {
     return {
       status: "SESSION_MISMATCH",
       transInfo: MESSAGES_REGISTRY.AUTH.SESSIONS_EXPIRED,
@@ -113,6 +122,16 @@ export const executeSessionVerification = async (
   );
 
   user.lastActiveAt = new Date();
+
+  // Update user location
+  if (location && shouldRefreshLocation(user.location?.lastVerifiedAt)) {
+    const newLocation: ILocation = {
+      ...location,
+      lastVerifiedAt: location.lastVerifiedAt,
+    };
+    user.location = newLocation;
+  }
+
   user.save();
 
   const safePayload = user.toObject();

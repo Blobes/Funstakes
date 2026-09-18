@@ -4,6 +4,8 @@ import {
   IAuthRequest,
   MESSAGES_REGISTRY,
   forwardError,
+  getClientIp,
+  generateRandomIp,
 } from "@repo/shared";
 import { executeSessionRefresh } from "@/auth/session/services/sessionRefresher";
 import { clearAuthCookies, setAuthCookies } from "@repo/security";
@@ -17,8 +19,6 @@ export const refreshSession: RequestHandler = async (
   next: NextFunction,
 ): Promise<any> => {
   const refreshToken = req.cookies.refresh_token;
-  const deviceToken = getOrSetDeviceToken(req, res);
-  const userAgent = req.headers["user-agent"] || "unknown";
 
   if (!refreshToken) {
     return res.status(401).json({
@@ -27,11 +27,16 @@ export const refreshSession: RequestHandler = async (
     });
   }
 
+  const deviceToken = getOrSetDeviceToken(req, res);
+  const userAgent = req.headers["user-agent"] || "unknown";
+  const userIp = getClientIp(req) || generateRandomIp();
+
   try {
     const serviceResult = await executeSessionRefresh({
       refreshToken,
       deviceToken,
       userAgent,
+      ipAddress: userIp,
     });
 
     if (serviceResult.status === "INVALID_SESSION") {
