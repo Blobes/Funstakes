@@ -29,11 +29,11 @@ services:
     labels:
       - "coolify.exposed_port=3000"
       - "traefik.enable=true"
-      - "traefik.http.routers.shell-${APP_ENV:-staging}.rule=Host(`${APP_DOMAIN:-dev.funstakes.net}`)"
-      - "traefik.http.routers.shell-${APP_ENV:-staging}.entrypoints=https"
-      - "traefik.http.routers.shell-${APP_ENV:-staging}.tls=true"
-      - "traefik.http.routers.shell-${APP_ENV:-staging}.service=shell-svc-${APP_ENV:-staging}"
-      - "traefik.http.services.shell-svc-${APP_ENV:-staging}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.shell-${APP_ENV}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.shell-${APP_ENV}.entrypoints=https"
+      - "traefik.http.routers.shell-${APP_ENV}.tls=true"
+      - "traefik.http.routers.shell-${APP_ENV}.service=shell-svc-${APP_ENV}"
+      - "traefik.http.services.shell-svc-${APP_ENV}.loadbalancer.server.port=3000"
 
   # =========================
   # 🔐 AUTH APP
