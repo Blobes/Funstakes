@@ -24,16 +24,8 @@ services:
     depends_on:
       - auth-app
       - post-app
-    # networks:
-    #   - coolify
     labels:
       - "coolify.exposed_port=3000"
-      # - "traefik.enable=true"
-      # - "traefik.http.routers.shell-${APP_ENV}.rule=Host(`${APP_DOMAIN}`)"
-      # - "traefik.http.routers.shell-${APP_ENV}.entrypoints=https"
-      # - "traefik.http.routers.shell-${APP_ENV}.tls=true"
-      # - "traefik.http.routers.shell-${APP_ENV}.service=shell-svc-${APP_ENV}"
-      # - "traefik.http.services.shell-svc-${APP_ENV}.loadbalancer.server.port=3000"
 
   # =========================
   # 🔐 AUTH APP
@@ -53,8 +45,6 @@ services:
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
       - "3002"
-    # networks:
-    #   - coolify
 
   # =========================
   # 📝 POST APP
@@ -74,9 +64,3 @@ services:
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
       - "3003"
-    # networks:
-    #   - coolify
-
-# networks:
-#   coolify:
-#     external: true
