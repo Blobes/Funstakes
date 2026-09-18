@@ -109,7 +109,9 @@ export const CACHE_KEYS = {
  * Standard expiration duration constants in seconds.
  */
 export const CACHE_EXPIRY = {
+  MIN_2: 2 * 60, // 2 minutes
   MIN_5: 5 * 60, // 5 minutes
+  MIN_10: 10 * 60, // 10 minutes
   MIN_15: 15 * 60, // 15 minutes
   MIN_20: 20 * 60, // 20 minutes
   MIN_30: 30 * 60, // 30 minutes
@@ -118,4 +120,4 @@ export const CACHE_EXPIRY = {
   HOUR_24: 24 * 60 * 60, // 24 hours
   DAY_7: 7 * 24 * 60 * 60, // 7 days
   DAY_20: 20 * 24 * 60 * 60, // 20 days
-};
+} as const;

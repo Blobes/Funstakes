@@ -6,6 +6,7 @@ import { EmailOtpParams, getEmailOtpVariables } from "../variables";
 import { createDomainError, IAppError } from "../../../utils/error";
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import { renderEmailOtpHtml } from "./template";
+import { enforceOtpRateLimit } from "../rateLimit";
 
 const FORCE_SMTP_TEST = false;
 
@@ -21,6 +22,14 @@ export async function dispatchEmailCode(
 
   const variables = getEmailOtpVariables({ code, recipient });
   const htmlContent = renderEmailOtpHtml(variables);
+
+  if (recipient?.userIp) {
+    await enforceOtpRateLimit({
+      identifier: recipient.email,
+      userIp: recipient.userIp,
+      requestLimit: 6,
+    });
+  }
 
   // -----------------------------
   // 1. PRIMARY: RESEND DISPATCH

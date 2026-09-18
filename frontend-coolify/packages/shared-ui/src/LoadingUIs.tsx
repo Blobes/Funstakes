@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   CircularProgress,
   LinearProgress,
@@ -11,8 +11,6 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { RootUIContainer } from "./Containers";
 import { GenericStyle } from "@repo/core";
-import { asset } from "@repo/assets";
-import { SVGWrapper } from "./SvgWrapper";
 import { TransText } from "./Text";
 import { AppLogo } from "./AppLogo";
 
@@ -111,14 +109,28 @@ export const ProgressIcon = (props: ProgressProps) => {
  * Renders page navigation loading animation.
  */
 export const PageLoaderUI = () => {
+  const theme = useTheme();
+
   return (
     <RootUIContainer
       style={{
         alignItems: "center",
         justifyContent: "center",
+        gap: theme.gap(12),
       }}
     >
-      <SVGWrapper src={asset.LoadingAnimation} size={46} preserveColor />
+      <AppLogo size={44} />
+      <ProgressIcon
+        type="linear"
+        options={{
+          variant: "indeterminate",
+        }}
+        style={{
+          width: 50,
+          height: 5,
+        }}
+      />
+      {/* <SVGWrapper src={asset.LoadingAnimation} size={46} preserveColor /> */}
     </RootUIContainer>
   );
 };
@@ -126,27 +138,8 @@ export const PageLoaderUI = () => {
 /**
  * Renders the application splash screen with a linear progress bar driving towards completion.
  */
-export const SplashUI = ({ duration = 2500 }: SplashUIProps) => {
+export const SplashUI = () => {
   const theme = useTheme();
-  const [progress, setProgress] = useState(0);
-
-  // Animates the linear progress bar continuously over the specified duration.
-  useEffect(() => {
-    let animationFrameId: number;
-    const startTime = performance.now();
-    const updateProgress = (currentTime: number) => {
-      const elapsedTime = currentTime - startTime;
-      const calculatedProgress = Math.min((elapsedTime / duration) * 100, 100);
-      setProgress(calculatedProgress);
-      if (elapsedTime < duration) {
-        animationFrameId = requestAnimationFrame(updateProgress);
-      }
-    };
-    animationFrameId = requestAnimationFrame(updateProgress);
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [duration]);
 
   return (
     <RootUIContainer
@@ -159,7 +152,7 @@ export const SplashUI = ({ duration = 2500 }: SplashUIProps) => {
       <AppLogo withName size={170} />
       <ProgressIcon
         type="linear"
-        value={progress}
+        //  value={progress}
         options={{
           variant: "indeterminate",
         }}

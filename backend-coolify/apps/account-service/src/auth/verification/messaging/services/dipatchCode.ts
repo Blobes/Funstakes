@@ -111,7 +111,7 @@ export const executeOtpDispatch = async (
   if (isEmail) {
     await dispatchEmailCode(
       {
-        recipient: { email: normalized, firstName: user.firstName },
+        recipient: { email: normalized, firstName: user.firstName, userIp },
         code: newCode,
       },
       emailDispatchTokens,

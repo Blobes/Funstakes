@@ -15,6 +15,7 @@ interface IInitiatePhoneChangeInput {
   userId: string;
   newPhoneNumber: string;
   otpChannelType?: OtpMessageChannel;
+  userIp?: string;
 }
 
 interface IInitiatePhoneChangeResult {
@@ -37,9 +38,8 @@ interface IInitiatePhoneChangeResult {
 export const startPhoneChange = async (
   input: IInitiatePhoneChangeInput,
 ): Promise<IInitiatePhoneChangeResult> => {
-  const { userId, newPhoneNumber, otpChannelType = "WHATSAPP" } = input;
+  const { userId, newPhoneNumber, otpChannelType = "WHATSAPP", userIp } = input;
   const CHANGE_COOLDOWN = 90 * 24 * 60 * 60 * 1000;
-  const SEND_COOLDOWN = 60 * 1000;
 
   const user = await fetchSingleUser({
     identifier: userId,
@@ -143,6 +143,7 @@ export const startPhoneChange = async (
         code,
         type: "WHATSAPP",
         firstName: user.firstName,
+        userIp,
       },
       FUNSTAKES_REDIS_URL,
     );
@@ -153,6 +154,7 @@ export const startPhoneChange = async (
         code,
         type: "SMS",
         firstName: user.firstName,
+        userIp,
       },
       FUNSTAKES_REDIS_URL,
     );

@@ -118,7 +118,6 @@ export const usePage = () => {
       // Ensure loading is reset after navigation triggers
       if (loadPage) await delay(400);
       setPendingPath(null);
-      // setGlobalLoading(false);
     },
     [
       drawerContent,
@@ -168,7 +167,6 @@ export const usePage = () => {
     setInlineMsg,
     navigateTo,
     isDoNotSaveRoute,
-    // setPendingPath,
   ]);
 
   return {

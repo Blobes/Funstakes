@@ -16,6 +16,7 @@ interface IInitiateEmailChangeInput {
   userId: string;
   newEmail: string;
   password?: string;
+  userIp?: string;
 }
 
 interface IInitiateEmailChangeResult {
@@ -41,7 +42,7 @@ interface IInitiateEmailChangeResult {
 export const startEmailChange = async (
   input: IInitiateEmailChangeInput,
 ): Promise<IInitiateEmailChangeResult> => {
-  const { userId, newEmail, password } = input;
+  const { userId, newEmail, password, userIp } = input;
   const GRACE_PERIOD_MS = 15 * 60 * 1000;
   const ALLOWED_NO_OF_DAYS = 30 * 24 * 60 * 60 * 1000;
 
@@ -172,6 +173,7 @@ export const startEmailChange = async (
       code,
       type: "EMAIL",
       firstName: user.firstName,
+      userIp,
     },
     FUNSTAKES_REDIS_URL,
   );

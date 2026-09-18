@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useSnackbar, usePage, useStaticTranslation } from "@repo/shared-hooks";
 import {
   AUTH_FEEDBACK,
@@ -11,6 +12,9 @@ import {
 } from "@repo/core";
 import { purgeCache, queryClient } from "@repo/helpers";
 
+/**
+ * Hook providing memoized handlers for authentication and account feedback operations.
+ */
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
   const { navigateTo } = usePage();
@@ -22,16 +26,10 @@ export const useFeedback = () => {
   /**
    * Processes authentication success and updates application global store.
    */
-  const handleAuthSuccess = (user?: IUser, onSuccessCallback?: () => void) => {
-    if (user) {
-      const userClone = { ...user };
-      setAuthUser(userClone);
+  const handleAuthSuccess = useCallback(
+    async (user?: IUser, onSuccessCallback?: () => void) => {
+      setAccountStatus("ACTIVE");
       setAuthStatus("AUTHENTICATED");
-
-      purgeCache({
-        queryClient,
-        queryKeys: STORAGE_KEYS.AUTH_TRANSIT,
-      });
 
       setSBMessage({
         msg: {
@@ -42,24 +40,33 @@ export const useFeedback = () => {
         },
       });
 
-      if (onSuccessCallback) onSuccessCallback();
-
-      if (!userClone.isOnboarded) {
-        setAccountStatus("NOT_ONBOARDED");
-        navigateTo(CLIENT_ROUTES.onboarding, {
-          loadPage: true,
-        });
+      if (user) {
+        const userClone = { ...user };
+        setAuthUser(userClone);
+        if (!userClone.isOnboarded) {
+          setAccountStatus("NOT_ONBOARDED");
+          await navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
+          onSuccessCallback?.();
+          return;
+        }
       }
-    } else {
-      setAccountStatus("ACTIVE");
-      navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
-    }
-  };
+      await navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
+      onSuccessCallback?.();
+    },
+    [
+      setAuthUser,
+      setAuthStatus,
+      setSBMessage,
+      translateTxtString,
+      setAccountStatus,
+      navigateTo,
+    ],
+  );
 
   /**
    * Processes settings or profile update verification.
    */
-  const handleAccountUpdateSuccess = () => {
+  const handleAccountUpdateSuccess = useCallback(() => {
     purgeCache({
       queryClient,
       queryKeys: STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
@@ -74,59 +81,62 @@ export const useFeedback = () => {
       },
     });
     navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
-  };
+  }, [setSBMessage, translateTxtString, navigateTo]);
 
   /**
    * Processes password reset authorization step success.
    */
-  const handlePassResetSuccess = (identifier?: string) => {
-    const transitData: TransitData<"PASSWORD_RESET"> = {
-      transitId: "transit:otp-auth",
-      purpose: "PASSWORD_RESET",
-      payload: { nextStep: "NEW_PASSWORD", identifier },
-    };
-    queryClient.setQueryData(
-      STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
-      transitData,
-    );
+  const handlePassResetSuccess = useCallback(
+    (identifier?: string) => {
+      const transitData: TransitData<"PASSWORD_RESET"> = {
+        transitId: "transit:otp-auth",
+        purpose: "PASSWORD_RESET",
+        payload: { nextStep: "NEW_PASSWORD", identifier },
+      };
+      queryClient.setQueryData(
+        STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
+        transitData,
+      );
 
-    setSBMessage({
-      msg: {
-        tagline: translateTxtString(
-          AUTH_FEEDBACK.verification_successful_tagline,
-        ),
-        msgStatus: "SUCCESS",
-      },
-    });
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.verification_successful_tagline,
+          ),
+          msgStatus: "SUCCESS",
+        },
+      });
 
-    purgeCache({
-      queryClient,
-      queryKeys: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
-    });
+      purgeCache({
+        queryClient,
+        queryKeys: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
+      });
 
-    navigateTo(CLIENT_ROUTES.resetPassword, {
-      loadPage: true,
-      type: "replace",
-    });
-  };
+      navigateTo(CLIENT_ROUTES.resetPassword, {
+        loadPage: true,
+        type: "replace",
+      });
+    },
+    [setSBMessage, translateTxtString, navigateTo],
+  );
 
   /**
    * Processes settings or profile update completion.
    */
-  const handleMfaActivationSuccess = () => {
-    purgeCache({
-      queryClient,
-      queryKeys: STORAGE_KEYS.MFA_UPDATE_TRANSIT,
-    });
+  const handleMfaActivationSuccess = useCallback(
+    async (onSuccessCallback?: () => void) => {
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(AUTH_FEEDBACK.mfa_activated),
+          msgStatus: "SUCCESS",
+        },
+      });
 
-    setSBMessage({
-      msg: {
-        tagline: translateTxtString(AUTH_FEEDBACK.mfa_activated),
-        msgStatus: "SUCCESS",
-      },
-    });
-    navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
-  };
+      await navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
+      onSuccessCallback?.();
+    },
+    [setSBMessage, translateTxtString, navigateTo],
+  );
 
   return {
     handleAuthSuccess,

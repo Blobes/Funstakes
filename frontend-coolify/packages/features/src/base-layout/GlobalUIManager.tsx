@@ -145,7 +145,7 @@ export const GlobalUIManager = ({
   const showSplashUI = isReload && (!isSplashTimerDone || isAuthInitializing);
 
   if (showSplashUI) {
-    return <SplashUI duration={SPLASH_DURATION} />;
+    return <SplashUI />;
   }
 
   // Determining if the app is still in its initial boot state

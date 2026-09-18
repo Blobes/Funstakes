@@ -22,7 +22,7 @@ export const otpDispatchWorker = () => {
   const worker = new Worker<OtpJobPayload, any, "send_otp">(
     "otp_queue",
     async (job: Job<OtpJobPayload, any, "send_otp">) => {
-      const { code, type, email, phone, firstName } = job.data;
+      const { code, type, email, phone, firstName, userIp } = job.data;
       const otpType: OtpMessageChannel = type;
       const receiver = otpType === "EMAIL" ? email : phone;
 
@@ -35,19 +35,19 @@ export const otpDispatchWorker = () => {
       switch (otpType) {
         case "EMAIL":
           await dispatchEmailCode(
-            { code, recipient: { email: receiver, firstName } },
+            { code, recipient: { email: receiver, firstName, userIp } },
             codeDispatchTokens,
           );
           break;
         case "WHATSAPP":
           await dispatchWhatsAppOtp(
-            { phoneNumber: receiver, code },
+            { phoneNumber: receiver, code, userIp },
             phoneDispatchTokens,
           );
           break;
         case "SMS":
           await dispatchSmsOtp(
-            { phoneNumber: receiver, code },
+            { phoneNumber: receiver, code, userIp },
             phoneDispatchTokens,
           );
           break;

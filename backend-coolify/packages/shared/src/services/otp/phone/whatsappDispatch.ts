@@ -1,7 +1,7 @@
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
-import { enforceOtpRateLimit } from "./rateLimit";
+import { enforceOtpRateLimit } from "../rateLimit";
 import { IPhoneRecipient } from "./smsDispatch";
 import { APP_INFO } from "../variables";
 
@@ -25,7 +25,10 @@ export async function dispatchWhatsAppOtp(
   const recipientPhone = recipient.phoneNumber.trim().replace(/^\+/, "");
 
   if (recipient?.userIp) {
-    await enforceOtpRateLimit(recipientPhone, recipient.userIp);
+    await enforceOtpRateLimit({
+      identifier: recipientPhone,
+      userIp: recipient.userIp,
+    });
   }
 
   const WHATSAPP_TOKEN = dispatchConfig.WHATSAPP_ACCESS_KEY;

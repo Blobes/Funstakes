@@ -564,10 +564,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.otp_reset_success",
       message: "Otp has been restored back to default.",
     },
-    PHONE_OTP_LIMIT_EXCEEDED: (duration: number): TransInfo => ({
-      i18nKey: "auth.phone_otp_limit_exceeded",
+    OTP_REQUEST_LIMIT_EXCEEDED: (duration: number): TransInfo => ({
+      i18nKey: "auth.otp_request_limit_exceeded",
       message:
-        "Too many verification requests for this number. Please wait {{duration}} minutes to dispatch via phone number or you can use an alternative dispatch method.",
+        "You've reached the limit for verification code requests. Please try again in {{duration}} minutes or use a different option.",
       interpolations: { duration },
     }),
     OAUTH_PROVIDER_CONFLICT: (provider: string): TransInfo => ({

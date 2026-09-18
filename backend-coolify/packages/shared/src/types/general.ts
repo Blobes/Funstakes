@@ -146,6 +146,7 @@ export interface OtpJobPayload {
   email?: string;
   phone?: string;
   firstName?: string;
+  userIp?: string;
 }
 
 export interface IModResult {

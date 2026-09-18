@@ -1,5 +1,5 @@
 import { ILocation } from "@repo/database";
-import { OtpMessageChannel, OtpIdentifierType } from "../types/general";
+import { OtpIdentifierType } from "../types/general";
 
 /**
  * Calculates a dynamic threshold based on post popularity.
@@ -13,8 +13,6 @@ export const calculateThreshold = (viewCount: number = 0): number => {
 
   if (viewCount < 100) return BASE_THRESHOLD;
 
-  // Math.log10(100) = 2 -> (2 * 6) + 5 = 17
-  // Math.log10(100,000) = 5 -> (5 * 6) + 5 = 35
   const dynamicValue =
     BASE_THRESHOLD + Math.floor(Math.log10(viewCount) * MULTIPLIER);
 

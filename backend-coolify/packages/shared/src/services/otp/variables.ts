@@ -17,6 +17,7 @@ export interface RecipientInfo {
   email: string;
   firstName?: string;
   lastName?: string;
+  userIp?: string;
 }
 
 export interface CodePayload {

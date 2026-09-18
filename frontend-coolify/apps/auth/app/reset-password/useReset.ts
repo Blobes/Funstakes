@@ -40,6 +40,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const authStatus = useGlobalStore((state) => state.authStatus);
   const { navigateTo } = usePage();
   const { checkEmail, checkPhone } = LoginService();
 

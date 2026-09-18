@@ -18,6 +18,7 @@ export interface IResetInitiationInput {
   identifier: string;
   otpChannelType?: OtpMessageChannel;
   resetMethod?: VerificationMethod;
+  userIp?: string;
 }
 
 export interface IResetInitiationResult {
@@ -47,6 +48,7 @@ export const executeResetInitiation = async (
     identifier,
     otpChannelType = "EMAIL",
     resetMethod = "MESSAGING",
+    userIp,
   } = input;
 
   if (!identifier) {
@@ -137,6 +139,7 @@ export const executeResetInitiation = async (
           code,
           type: "EMAIL",
           firstName: user.firstName,
+          userIp,
         },
         FUNSTAKES_REDIS_URL,
       );
@@ -147,6 +150,7 @@ export const executeResetInitiation = async (
           code,
           type: "WHATSAPP",
           firstName: user.firstName,
+          userIp,
         },
         FUNSTAKES_REDIS_URL,
       );
@@ -157,6 +161,7 @@ export const executeResetInitiation = async (
           code,
           type: "SMS",
           firstName: user.firstName,
+          userIp,
         },
         FUNSTAKES_REDIS_URL,
       );

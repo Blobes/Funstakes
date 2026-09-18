@@ -20,7 +20,7 @@ interface StrategyDependencies {
   handleAuthSuccess: (user?: IUser, cb?: () => void) => void;
   handleAccountUpdateSuccess: () => void;
   handlePassResetSuccess: (recipient?: string) => void;
-  handleMfaActivationSuccess: () => void;
+  handleMfaActivationSuccess: (cb?: () => void) => void;
   recipient?: string;
 }
 

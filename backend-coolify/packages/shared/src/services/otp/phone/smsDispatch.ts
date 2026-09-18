@@ -6,7 +6,7 @@ import {
 } from "../../../constants/others";
 import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
-import { enforceOtpRateLimit } from "./rateLimit";
+import { enforceOtpRateLimit } from "../rateLimit";
 
 export interface IPhoneRecipient {
   phoneNumber: string;
@@ -120,7 +120,10 @@ export async function dispatchSmsOtp(
   const recipientPhone = recipient.phoneNumber.trim().replace(/^\+/, "");
 
   if (recipient?.userIp) {
-    await enforceOtpRateLimit(recipientPhone, recipient.userIp);
+    await enforceOtpRateLimit({
+      identifier: recipientPhone,
+      userIp: recipient.userIp,
+    });
   }
 
   const formattedRecipient = { ...recipient, phoneNumber: recipientPhone };

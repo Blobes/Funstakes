@@ -134,6 +134,7 @@ export const registerUserAccount = async (
         email: normalizedEmail,
         code,
         type: "EMAIL",
+        userIp: ipAddress,
       },
       FUNSTAKES_REDIS_URL,
     );

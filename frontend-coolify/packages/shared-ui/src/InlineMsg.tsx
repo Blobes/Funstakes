@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IconButton } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { AlertCircle, X } from "lucide-react";
 import { TransText } from "./Text";
 
@@ -80,7 +80,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
             : theme.palette.error.trans[1],
       }}
     >
-      <div
+      <Box
         style={{
           display: "flex",
           flexDirection: "row",
@@ -96,11 +96,11 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
             stroke:
               type === "SUCCESS"
                 ? theme.palette.primary.main
-                : theme.palette.error.main,
+                : theme.palette.error.light,
           }}
         />
         {msg}
-      </div>
+      </Box>
 
       {showClose && (
         <IconButton
@@ -110,7 +110,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
             padding: theme.boxSpacing(2),
             flexShrink: 0,
             "& svg": {
-              stroke: theme.palette.error.main,
+              stroke: theme.palette.error.light,
             },
           }}
         >

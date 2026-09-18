@@ -39,6 +39,7 @@ export interface VerificationNavigation extends BaseVerificationPayload {
 export interface ClearSession {
   transitKey?: TransitKeyType;
   returnPage?: IPage;
+  clearAuth?: boolean;
 }
 
 const DEFAULT_SESSION_DURATION_MINUTES = 15;
@@ -72,6 +73,7 @@ export const useVerificationNavigation = () => {
   const { resetMsgCode } = VerifyIdentityService();
   const { setSBMessage } = useSnackbar();
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const authStatus = useGlobalStore((state) => state.authStatus);
   const [timeLeft, setTimeLeft] = useState<number>(getRemainingSessionTime);
   const [isTerminatingSession, setIsTerminatingSession] = useState(false);
 
@@ -80,42 +82,27 @@ export const useVerificationNavigation = () => {
     getStoredTransitKey(),
   );
 
-  let cachedTransit: VerificationTransitData<TransitPurpose> | undefined;
-  if (activeTransitKeyRef.current) {
-    cachedTransit = useCachedData<VerificationTransitData<TransitPurpose>>(
-      activeTransitKeyRef.current,
-    )[0];
-  }
+  const cachedTransit = useCachedData<VerificationTransitData<TransitPurpose>>(
+    activeTransitKeyRef.current ?? STORAGE_KEYS.AUTH_TRANSIT,
+  )[0];
 
   /**
    * Clears active temporary cookies, purges cache transit keys, resets auth status, and resets OTP state.
    */
   const clearTemporarySession = useCallback(
     async (options: ClearSession = {}) => {
-      const activeKey = options.transitKey || activeTransitKeyRef.current;
+      const { transitKey, clearAuth = true, returnPage } = options;
+      const activeKey = transitKey || activeTransitKeyRef.current;
       const recipient = cachedTransit?.identifier;
 
       if (recipient) {
-        setIsTerminatingSession(true);
         try {
-          const resetRes = await resetMsgCode(recipient);
-          const msg = resetRes.localizedSuccessMsg;
-          if (msg) {
-            setSBMessage({
-              msg: {
-                tagline: msg,
-                msgStatus: "SUCCESS",
-                duration: SNACKBAR_DURATION.SECS_6,
-              },
-            });
-          }
+          resetMsgCode(recipient);
         } catch (error) {
           console.error(
             "[clearTemporarySession] Failed to reset OTP code:",
             error,
           );
-        } finally {
-          setIsTerminatingSession(false);
         }
       }
 
@@ -123,9 +110,11 @@ export const useVerificationNavigation = () => {
       deleteCookie(STORAGE_KEYS.TEMPORARY_SESSION);
       deleteCookie(STORAGE_KEYS.TRANSIT_SESSION);
       setTimeLeft(0);
-      setAuthStatus("UNAUTHENTICATED");
 
-      if (options.returnPage) navigateTo(options.returnPage);
+      if (clearAuth && authStatus === "TEMPORARY")
+        setAuthStatus("UNAUTHENTICATED");
+
+      if (returnPage) navigateTo(returnPage);
     },
     [
       setAuthStatus,
@@ -216,7 +205,11 @@ export const useVerificationNavigation = () => {
           verificationMethod ?? (hasTotp ? "TOTP" : "MESSAGING"),
         dispatchOnload,
         text,
-        onVerificationSuccess: clearTemporarySession,
+        onVerificationSuccess: () =>
+          clearTemporarySession({
+            transitKey,
+            clearAuth: false,
+          }),
       };
 
       activeTransitKeyRef.current = transitKey;
@@ -236,7 +229,6 @@ export const useVerificationNavigation = () => {
       );
 
       setTimeLeft(sessionDurationMins * 60);
-
       navigateTo(CLIENT_ROUTES.verifyIdentity, { loadPage: true });
     },
     [navigateTo, checkTotpConfiguration, clearTemporarySession],

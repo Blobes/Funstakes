@@ -2,7 +2,7 @@ import { DeviceModel, IDeviceDocument, IUserDocument } from "@repo/database";
 import { UAParser } from "ua-parser-js";
 import mongoose, { Types } from "mongoose";
 import { cleanDeviceSessions } from "./session";
-import { CACHE_KEYS } from "../constants/cacheKeys";
+import { CACHE_EXPIRY, CACHE_KEYS } from "../constants/cacheKeys";
 import { deleteCache, getOrSetCache } from "./redis/cache/helpers";
 
 const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -208,6 +208,6 @@ export const validateHardwareTrust = async (
 
       return { isTrusted: trust.trusted };
     },
-    600, // 10 minutes cache
+    CACHE_EXPIRY.MIN_2,
   );
 };

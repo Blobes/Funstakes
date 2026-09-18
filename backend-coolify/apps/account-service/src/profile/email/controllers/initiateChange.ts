@@ -1,5 +1,11 @@
 import { NextFunction, Response } from "express";
-import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import {
+  forwardError,
+  generateRandomIp,
+  getClientIp,
+  IAuthRequest,
+  MESSAGES_REGISTRY,
+} from "@repo/shared";
 import { startEmailChange } from "../services/initiateChange";
 
 interface UserEmailRequest extends IAuthRequest {
@@ -21,6 +27,7 @@ export const initiateEmailChange = async (
 ): Promise<any> => {
   const userId = req.user?.id;
   const { newEmail, password } = req.body;
+  const userIp = getClientIp(req) || generateRandomIp();
 
   if (!userId) {
     return res.status(401).json({
@@ -43,6 +50,7 @@ export const initiateEmailChange = async (
       userId,
       newEmail,
       password,
+      userIp,
     });
 
     if (serviceResult.status === "NOT_FOUND") {

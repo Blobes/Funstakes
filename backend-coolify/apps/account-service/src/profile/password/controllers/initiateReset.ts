@@ -1,5 +1,11 @@
 import { NextFunction, Response } from "express";
-import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import {
+  forwardError,
+  generateRandomIp,
+  getClientIp,
+  IAuthRequest,
+  MESSAGES_REGISTRY,
+} from "@repo/shared";
 import {
   executeResetInitiation,
   IResetInitiationInput,
@@ -18,12 +24,14 @@ export const initiatePasswordReset = async (
   next: NextFunction,
 ): Promise<any> => {
   const { identifier, otpChannelType, resetMethod } = req.body;
+  const userIp = getClientIp(req) || generateRandomIp();
 
   try {
     const serviceResult = await executeResetInitiation({
       identifier,
       otpChannelType,
       resetMethod,
+      userIp,
     });
 
     if (
