@@ -44,7 +44,7 @@ export interface UseVerifyIdentityProps<P extends TransitPurpose> {
 }
 
 /**
- * Manages verification method selection, active transit session evaluation, and security restrictions.
+ * Manages verification method selection, active transit session evaluation, and security restrictions added.
  */
 export const useVerifyIdentity = <P extends TransitPurpose>(
   props: UseVerifyIdentityProps<P> = {},
