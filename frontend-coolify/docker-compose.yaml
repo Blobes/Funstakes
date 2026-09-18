@@ -24,8 +24,8 @@ services:
     depends_on:
       - auth-app
       - post-app
-    networks:
-      - coolify
+    # networks:
+    #   - coolify
     labels:
       - "coolify.exposed_port=3000"
       # - "traefik.enable=true"
@@ -53,8 +53,8 @@ services:
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
       - "3002"
-    networks:
-      - coolify
+    # networks:
+    #   - coolify
 
   # =========================
   # 📝 POST APP
@@ -74,8 +74,8 @@ services:
       NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
     expose:
       - "3003"
-    networks:
-      - coolify
+    # networks:
+    #   - coolify
 
 # networks:
 #   coolify:
