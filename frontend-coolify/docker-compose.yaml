@@ -27,13 +27,13 @@ services:
     networks:
       - coolify
     labels:
-      # - "traefik.enable=true"
-      # - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`) || Host(`dev.funstakes.net`)"
-      # - "traefik.http.routers.shell.entrypoints=https"
-      # - "traefik.http.routers.shell.tls=true"
-      # - "traefik.http.routers.shell.service=shell-service"
-      # - "traefik.http.services.shell-service.loadbalancer.server.port=3000"
       - "coolify.exposed_port=3000"
+      - "traefik.enable=true"
+      - "traefik.http.routers.shell-${APP_ENV:-prod}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.shell-${APP_ENV:-prod}.entrypoints=https"
+      - "traefik.http.routers.shell-${APP_ENV:-prod}.tls=true"
+      - "traefik.http.routers.shell-${APP_ENV:-prod}.service=shell-svc-${APP_ENV:-prod}"
+      - "traefik.http.services.shell-svc-${APP_ENV:-prod}.loadbalancer.server.port=3000"
 
   # =========================
   # 🔐 AUTH APP
