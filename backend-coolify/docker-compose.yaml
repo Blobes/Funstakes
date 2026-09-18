@@ -32,8 +32,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
-    # networks:
-    #   - coolify
 
   post-service:
     build:
@@ -48,8 +46,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
-    # networks:
-    #   - coolify
 
   # Node JS Worker Instance
   node-worker-service:
@@ -66,8 +62,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
-    # networks:
-    #   - coolify
 
   # Go Worker Instance
   go-worker-service:
@@ -81,8 +75,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    # networks:
-    #   - coolify
 
   platform-service:
     build:
@@ -97,9 +89,3 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
-#     networks:
-#       - coolify
-
-# networks:
-#   coolify:
-#     external: true
