@@ -27,10 +27,10 @@ services:
     networks:
       - coolify
     labels:
-      # - "traefik.enable=true"
-      # - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`)"
-      # - "traefik.http.routers.shell.entrypoints=https"
-      # - "traefik.http.routers.shell.tls=true"
+      - "traefik.enable=true"
+      - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`) || Host(`dev.funstakes.net`)"
+      - "traefik.http.routers.shell.entrypoints=https"
+      - "traefik.http.routers.shell.tls=true"
       - "coolify.exposed_port=3000"
 
   # =========================
