@@ -96,7 +96,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
             stroke:
               type === "SUCCESS"
                 ? theme.palette.primary.main
-                : theme.palette.error.light,
+                : theme.palette.error.dark,
           }}
         />
         {msg}
@@ -110,7 +110,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
             padding: theme.boxSpacing(2),
             flexShrink: 0,
             "& svg": {
-              stroke: theme.palette.error.light,
+              stroke: theme.palette.error.dark,
             },
           }}
         >
