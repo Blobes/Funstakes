@@ -1,12 +1,12 @@
 {
   "name": "funstakes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "dotenv -e .env.development -- turbo run dev",
     "build": "turbo run build",
     "start": "dotenv -e .env.development -- turbo run start",
-    "deploy": "pnpm version patch --no-git-tag-version && git add package.json && git commit -m 'chore: bump version' && git push",
+    "release": "pnpm version patch --no-git-tag-version && git add package.json && git commit -m 'chore: bump version' && git push",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types",
