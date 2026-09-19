@@ -30,14 +30,11 @@ export const usePageScroll = (ref?: React.RefObject<HTMLElement | null>) => {
 
       if (Math.abs(diff) > 16) {
         const newDir = diff > 0 ? "down" : "up";
-
         if (newDir !== scrollDirRef.current) {
           setScrollDir(newDir);
         }
-
         prevOffset.current = currentOffset <= 0 ? 0 : currentOffset;
       }
-
       ticking.current = false;
     };
 
@@ -47,7 +44,6 @@ export const usePageScroll = (ref?: React.RefObject<HTMLElement | null>) => {
         ticking.current = true;
       }
     };
-
     scrollTarget.addEventListener("scroll", onScroll, { passive: true });
     return () => scrollTarget.removeEventListener("scroll", onScroll);
   }, [ref]);
