@@ -9,9 +9,8 @@ interface NavProps {
   scrollRef?: React.RefObject<HTMLElement | null>;
 }
 export const BottomNav: React.FC<NavProps> = ({ scrollRef }) => {
+  const { scrollDir } = usePageScroll(scrollRef);
   const theme = useTheme();
-  const { handlePageScroll } = usePageScroll();
-  const scrollDir = handlePageScroll(scrollRef);
 
   return (
     <AppBar
@@ -29,7 +28,8 @@ export const BottomNav: React.FC<NavProps> = ({ scrollRef }) => {
         backdropFilter: "blur(24px)",
         transition: "transform 0.3s ease-in-out",
         transform: scrollDir === "down" ? "translateY(100%)" : "translateY(0)",
-      }}>
+      }}
+    >
       <Typography>Bottom navigation</Typography>
     </AppBar>
   );

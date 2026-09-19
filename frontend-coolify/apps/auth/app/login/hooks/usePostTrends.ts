@@ -16,7 +16,7 @@ export const useTrendingData = () => {
     [CACHE_KEYS.POST.STAKES],
   ]);
 
-  usePageCache(rawData, CACHE_KEYS.POST.FEED);
+  // usePageCache(rawData, CACHE_KEYS.POST.FEED);
   const posts = onlinePosts.length > 0 ? onlinePosts : cachedPosts;
 
   const avatars = [

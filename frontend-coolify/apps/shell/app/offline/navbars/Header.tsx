@@ -13,9 +13,8 @@ interface AppHeaderProps {
 }
 export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
   const { isDesktop } = useMisc();
-  const { handlePageScroll } = usePageScroll();
+  const { scrollDir } = usePageScroll(scrollRef);
   const theme = useTheme();
-  const scrollDir = handlePageScroll(scrollRef);
 
   /* ---------------------------------- render ---------------------------------- */
   return (

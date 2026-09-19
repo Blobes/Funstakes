@@ -50,7 +50,7 @@ export const CACHE_KEYS = {
   [KeyType.POST]: {
     GISTS: "gists",
     STAKES: "stakes",
-    FEED: "gists",
+    FEED: "feed",
     SEEN: "seen",
     LOOKUP_TOPICS: "lookup_topics",
     TRANSLATION: "post_translation",

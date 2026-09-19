@@ -46,7 +46,7 @@ export const Feed = () => {
     [CACHE_KEYS.POST.STAKES],
   ]);
 
-  usePageCache(rawData, CACHE_KEYS.POST.FEED);
+  // usePageCache(rawData, CACHE_KEYS.POST.FEED);
 
   const { translateTxtString } = useStaticTranslation();
   const { sentinelRef } = useInfiniteScroll({
@@ -126,7 +126,8 @@ export const Feed = () => {
                 display: "flex",
                 justifyContent: "center",
                 minHeight: "40px",
-              }}>
+              }}
+            >
               {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
             </Box>
           )}

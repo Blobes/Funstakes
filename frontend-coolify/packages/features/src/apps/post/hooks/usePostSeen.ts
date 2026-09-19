@@ -7,6 +7,37 @@ import { useIntersectionObserver } from "@repo/shared-hooks";
 import { PostService } from "../postService";
 import { updateCacheItem } from "@repo/helpers";
 
+const MAX_PERSISTED_POSTS = 200;
+
+const enforcePersistCap = (queryClient: ReturnType<typeof useQueryClient>) => {
+  const seenEntries = queryClient
+    .getQueryCache()
+    .findAll({ queryKey: [CACHE_KEYS.POST.SEEN] })
+    .map((q) => ({
+      postId: q.queryKey[1] as string,
+      seenAt: new Date(q.state.data as Date).getTime(),
+    }))
+    .sort((a, b) => a.seenAt - b.seenAt); // oldest first
+
+  const excess = seenEntries.length - MAX_PERSISTED_POSTS;
+  if (excess <= 0) return;
+
+  seenEntries.slice(0, excess).forEach(({ postId }) => {
+    queryClient.removeQueries({
+      queryKey: [CACHE_KEYS.POST.SEEN, postId],
+      exact: true,
+    });
+    queryClient.removeQueries({
+      queryKey: [CACHE_KEYS.POST.GISTS, postId],
+      exact: true,
+    });
+    queryClient.removeQueries({
+      queryKey: [CACHE_KEYS.POST.STAKES, postId],
+      exact: true,
+    });
+  });
+};
+
 /**
  * Marks a post as viewed after a deliberate dwell time and updates multiple cache keys.
  * @param postId - The ID of the post.
@@ -31,6 +62,7 @@ export const usePostSeen = (
     mutationFn: async () => {
       // Prevent further triggers in this session immediately
       queryClient.setQueryData([CACHE_KEYS.POST.SEEN, postId], new Date());
+      enforcePersistCap(queryClient);
       return await markAsSeen(postId, postType);
     },
     onSuccess: (response) => {

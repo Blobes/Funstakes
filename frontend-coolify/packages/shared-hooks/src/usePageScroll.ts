@@ -1,67 +1,58 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useIntersectionObserver } from "./useObserver";
 
 /**
- * Optimized hook for tracking scroll direction.
- * Uses a threshold and throttle to prevent main-thread blocking.
+ * Tracks scroll direction on a target element or window.
+ * Uses a threshold and rAF-throttling to prevent main-thread blocking.
  */
-export const usePageScroll = () => {
-  /**
-   * Tracks scroll direction on a target element or window.
-   */
-  const handlePageScroll = (ref?: React.RefObject<HTMLElement | null>) => {
-    const [scrollDir, setScrollDir] = useState<"up" | "down">("up");
+export const usePageScroll = (ref?: React.RefObject<HTMLElement | null>) => {
+  const [scrollDir, setScrollDir] = useState<"up" | "down">("up");
+  const prevOffset = useRef(0);
+  const ticking = useRef(false);
+  const scrollDirRef = useRef(scrollDir);
 
-    // We use a ref for the offset to avoid re-rendering on every single pixel move
-    const prevOffset = useRef(0);
-    const ticking = useRef(false);
+  useEffect(() => {
+    scrollDirRef.current = scrollDir;
+  }, [scrollDir]);
 
-    useEffect(() => {
-      const scrollTarget = ref?.current || window;
+  useEffect(() => {
+    const scrollTarget = ref?.current || window;
 
-      const updateScrollDir = () => {
-        const currentOffset =
-          scrollTarget instanceof Window
-            ? window.scrollY
-            : scrollTarget.scrollTop;
+    const updateScrollDir = () => {
+      const currentOffset =
+        scrollTarget instanceof Window
+          ? window.scrollY
+          : scrollTarget.scrollTop;
 
-        const diff = currentOffset - prevOffset.current;
+      const diff = currentOffset - prevOffset.current;
 
-        // 1. Logic: Check direction and apply threshold (16px)
-        // Only update state if direction changed and threshold is met
-        if (Math.abs(diff) > 16) {
-          const newDir = diff > 0 ? "down" : "up";
+      if (Math.abs(diff) > 16) {
+        const newDir = diff > 0 ? "down" : "up";
 
-          if (newDir !== scrollDir) {
-            setScrollDir(newDir);
-          }
-
-          // Update ref value without triggering a render
-          prevOffset.current = currentOffset <= 0 ? 0 : currentOffset;
+        if (newDir !== scrollDirRef.current) {
+          setScrollDir(newDir);
         }
 
-        ticking.current = false;
-      };
+        prevOffset.current = currentOffset <= 0 ? 0 : currentOffset;
+      }
 
-      const onScroll = () => {
-        if (!ticking.current) {
-          window.requestAnimationFrame(updateScrollDir);
-          ticking.current = true;
-        }
-      };
+      ticking.current = false;
+    };
 
-      scrollTarget.addEventListener("scroll", onScroll, { passive: true });
-      return () => scrollTarget.removeEventListener("scroll", onScroll);
-    }, [scrollDir, ref]); // Only re-bind if the target or direction changes
+    const onScroll = () => {
+      if (!ticking.current) {
+        window.requestAnimationFrame(updateScrollDir);
+        ticking.current = true;
+      }
+    };
 
-    return scrollDir;
-  };
+    scrollTarget.addEventListener("scroll", onScroll, { passive: true });
+    return () => scrollTarget.removeEventListener("scroll", onScroll);
+  }, [ref]);
 
-  return {
-    handlePageScroll,
-  };
+  return { scrollDir };
 };
 
 interface InfiniteScrollOptions {

@@ -46,7 +46,7 @@ export const Gists = () => {
   });
 
   // Activate progressive caching for the gist domain.
-  usePageCache(rawData, CACHE_KEYS.POST.GISTS);
+  // usePageCache(rawData, CACHE_KEYS.POST.GISTS);
 
   const gists = onlineGists.length > 0 ? onlineGists : cachedGists || [];
 
@@ -105,7 +105,8 @@ export const Gists = () => {
                 display: "flex",
                 justifyContent: "center",
                 minHeight: "40px",
-              }}>
+              }}
+            >
               {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
             </Box>
           )}

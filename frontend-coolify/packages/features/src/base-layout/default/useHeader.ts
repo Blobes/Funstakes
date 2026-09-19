@@ -23,14 +23,13 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
 
   const { isDesktop, handleWindowResize } = useMisc();
   const { setLastPage, navigateTo } = usePage();
-  const { handlePageScroll } = usePageScroll();
+  const { scrollDir } = usePageScroll(scrollRef);
   const { openPopup } = usePopup();
 
   const router = useRouter();
   const menuRef = useRef<MenuRef>(null);
   const createPostRef = useRef<MenuRef>(null);
 
-  const scrollDir = handlePageScroll(scrollRef);
   const isLoggedIn = authStatus === "AUTHENTICATED";
 
   /** * Redirects to the notification center.
