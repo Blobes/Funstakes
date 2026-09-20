@@ -8,7 +8,7 @@ catalog:
   typescript: ^5.9.2
   turbo: ^2.8.10
   prettier: ^3.7.4
-  next: ^16.2.6
+  next: ^16.3.3
   eslint: ^9.39.1
   colorthief: ^2.6.0
   idb-keyval: ^6.2.2
