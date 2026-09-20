@@ -4,13 +4,13 @@ import { useMemo } from "react";
 import { asset } from "@repo/assets";
 import { CACHE_KEYS, IPost, IGistPayload } from "@repo/core";
 import { useFeed } from "@repo/features";
-import { useCachedData, usePageCache } from "@repo/shared-hooks";
+import { useCachedData } from "@repo/shared-hooks";
 
 /**
  * Filter and compute the top trending posts based on engagement heuristics.
  */
 export const useTrendingData = () => {
-  const { feed: onlinePosts, isLoading, rawData } = useFeed();
+  const { feed: onlinePosts, isLoading } = useFeed();
   const cachedPosts = useCachedData<IPost>([
     [CACHE_KEYS.POST.GISTS],
     [CACHE_KEYS.POST.STAKES],

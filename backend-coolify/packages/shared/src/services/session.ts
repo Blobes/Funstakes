@@ -1,4 +1,5 @@
 import { CACHE_KEYS } from "../constants/cacheKeys";
+import { ISessionCache } from "../types/general";
 import {
   deleteCache,
   getCache,
@@ -70,19 +71,52 @@ export const removeSession = async (
 /**
  * Scans Redis for all sessions belonging to a user and returns their data.
  */
+// export const findUserSessions = async (
+//   userId: string,
+//   filter?: (session: any) => boolean,
+// ): Promise<{ key: string; sessionId: string; data: any }[]> => {
+//   const pattern = CACHE_KEYS.WILDCARD_USER_SESSIONS(userId);
+//   let cursor = "0";
+//   const matches: { key: string; sessionId: string; data: any }[] = [];
+
+//   do {
+//     const [nextCursor, keys] = await scanCache(cursor, pattern, 100);
+
+//     if (keys.length > 0) {
+//       const sessions = await pipelineGetCache(keys);
+
+//       sessions.forEach((session, index) => {
+//         if (session) {
+//           const include = filter ? filter(session) : true;
+//           if (include) {
+//             matches.push({
+//               key: keys[index],
+//               sessionId: keys[index].split(":").pop() || "",
+//               data: session,
+//             });
+//           }
+//         }
+//       });
+//     }
+//     cursor = nextCursor;
+//   } while (cursor !== "0");
+
+//   return matches;
+// };
+
 export const findUserSessions = async (
   userId: string,
-  filter?: (session: any) => boolean,
-): Promise<{ key: string; sessionId: string; data: any }[]> => {
+  filter?: (session: ISessionCache) => boolean,
+): Promise<{ key: string; sessionId: string; data: ISessionCache }[]> => {
   const pattern = CACHE_KEYS.WILDCARD_USER_SESSIONS(userId);
   let cursor = "0";
-  const matches: { key: string; sessionId: string; data: any }[] = [];
+  const matches: { key: string; sessionId: string; data: ISessionCache }[] = [];
 
   do {
     const [nextCursor, keys] = await scanCache(cursor, pattern, 100);
 
     if (keys.length > 0) {
-      const sessions = await pipelineGetCache(keys);
+      const sessions = await pipelineGetCache<ISessionCache>(keys);
 
       sessions.forEach((session, index) => {
         if (session) {
@@ -136,7 +170,7 @@ export const cleanDeviceSessions = async (
       allSessions.map(async (s) => ({
         key: s.key,
         sessionId: s.sessionId,
-        data: (await getCache(s.key)) as any,
+        data: (await getCache<ISessionCache>(s.key)) as ISessionCache | null,
       })),
     );
 

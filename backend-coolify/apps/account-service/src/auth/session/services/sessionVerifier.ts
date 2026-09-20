@@ -12,6 +12,7 @@ import {
   setCache,
   CACHE_EXPIRY,
   fetchSingleUser,
+  ISessionCache,
 } from "@repo/shared";
 
 interface IVerifySessionInput {
@@ -87,9 +88,13 @@ export const executeSessionVerification = async (
   }
 
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData = await getCache<IDeviceDocument>(sessionKey);
+  const sessionData = await getCache<ISessionCache>(sessionKey);
 
-  if (!sessionData || sessionData._id.toString() !== jwtDeviceId) {
+  if (
+    !sessionData ||
+    !sessionData.deviceId ||
+    sessionData.deviceId.toString() !== jwtDeviceId
+  ) {
     return {
       status: "SESSION_MISMATCH",
       transInfo: MESSAGES_REGISTRY.AUTH.SESSIONS_EXPIRED,

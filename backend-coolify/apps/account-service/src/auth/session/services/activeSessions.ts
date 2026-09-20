@@ -1,13 +1,13 @@
-import { findUserSessions, MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
+import {
+  findUserSessions,
+  ISessionCache,
+  MESSAGES_REGISTRY,
+  TransInfo,
+} from "@repo/shared";
 
-interface ISessionItem {
+interface ISessionItem extends ISessionCache {
   sessionId: string;
-  deviceId: string;
   isCurrentDevice: boolean;
-  userAgent: string;
-  ip: string;
-  lastActive: string | Date;
-  createdAt: string | Date;
 }
 
 interface IActiveSessionsResult {

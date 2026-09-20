@@ -9,6 +9,7 @@ import {
   MESSAGES_REGISTRY,
   validateHardwareTrust,
   getCache,
+  ISessionCache,
 } from "@repo/shared";
 import { clearAuthCookies } from "../jwt";
 
@@ -55,7 +56,7 @@ export const verifyAuthTokens = (config: IAuthConfig): RequestHandler => {
 
       const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
 
-      const sessionData: any = await getCache(sessionKey);
+      const sessionData = await getCache<ISessionCache>(sessionKey);
 
       if (!sessionData || sessionData.deviceId !== payload.deviceId) {
         clearAuthCookies(res);
@@ -110,7 +111,7 @@ export const verifyAuthOptionally = (config: IAuthConfig): RequestHandler => {
 
       const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
 
-      const sessionData: any = await getCache(sessionKey);
+      const sessionData = await getCache<ISessionCache>(sessionKey);
 
       if (sessionData && sessionData.deviceId === payload.deviceId) {
         req.user = payload;

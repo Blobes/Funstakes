@@ -17,15 +17,6 @@ export interface IDeviceDocument extends Document {
   isStale: boolean;
   lastSeenAt: Date;
   isVerified?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-/**
- * Interface representing the trusted device registry entry.
- */
-export interface ITrustedDevice {
-  deviceId: string;
-  isVerified: boolean;
-  name: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

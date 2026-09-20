@@ -6,6 +6,7 @@ import {
   setCache,
   getCache,
   fetchSingleUser,
+  ISessionCache,
 } from "@repo/shared";
 
 export type OnboardingStep =
@@ -64,7 +65,7 @@ export const syncOnboarding = async (
 
   // Refresh structural session state expiration parameters
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData = await getCache<Record<string, unknown>>(sessionKey);
+  const sessionData = await getCache<ISessionCache>(sessionKey);
 
   await setCache(
     sessionKey,

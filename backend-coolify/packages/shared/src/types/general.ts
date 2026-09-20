@@ -31,11 +31,8 @@ export type ModerationTaskMode =
   | "EXTRACT_TOPICS_ONLY";
 
 export type OtpIdentifierType = "EMAIL" | "PHONE_NUMBER";
-
 export type OtpMessageChannel = "EMAIL" | "SMS" | "WHATSAPP";
-
 export type InputCheckType = OtpIdentifierType | "USERNAME";
-
 export type Role = "USER" | "ADMIN" | "MODERATOR";
 
 export type OtpActionType =
@@ -62,6 +59,14 @@ export interface IJwtUser {
   permissions?: PermissionName[];
   subscriptionTier?: SubscriptionTier;
   subscriptionStatus?: SubscriptionStatus;
+}
+
+export interface ISessionCache {
+  deviceId: string;
+  userAgent: string;
+  ip?: string;
+  lastActive?: Date;
+  createdAt?: Date;
 }
 
 /**

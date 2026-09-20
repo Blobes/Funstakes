@@ -9,7 +9,6 @@ import { GistCard, useGists } from "@repo/features";
 import {
   useCachedData,
   useInfiniteScroll,
-  usePageCache,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import {

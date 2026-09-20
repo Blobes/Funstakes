@@ -7,7 +7,7 @@ interface SetPDeviceReq {
   sessionId: string;
 }
 interface SetPDeviceRes extends ISinglePayload<SetPDeviceReq> {
-  deviceId: ITrustedDevice;
+  device: ITrustedDevice;
 }
 
 export const SettingsService = () => {

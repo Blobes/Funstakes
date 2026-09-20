@@ -13,6 +13,7 @@ import {
   fetchSingleUser,
   validateAccountStatus,
   RestrictionStatus,
+  ISessionCache,
 } from "@repo/shared";
 import jwt from "jsonwebtoken";
 
@@ -50,7 +51,7 @@ export const executeSessionRefresh = async (
     ) as IJwtUser;
 
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionData = (await getCache(sessionKey)) as any;
+    const sessionData = await getCache<ISessionCache>(sessionKey);
 
     if (!sessionData || sessionData.deviceId !== payload.deviceId) {
       return {
@@ -79,8 +80,8 @@ export const executeSessionRefresh = async (
       return { status, transInfo };
     }
 
-    const device = await upsertDevice({ user, deviceToken, userAgent });
-    const deviceIdString = device._id.toString();
+    const deviceDoc = await upsertDevice({ user, deviceToken, userAgent });
+    const deviceIdString = deviceDoc._id.toString();
 
     if (deviceIdString !== payload.deviceId) {
       return {

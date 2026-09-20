@@ -129,8 +129,6 @@ export const authenticateUser = async (
     userAgent,
   });
 
-  const deviceIdString = device._id.toString();
-
   const primaryDeviceId = user.primaryDeviceId as
     | mongoose.Types.ObjectId
     | undefined;
@@ -140,6 +138,7 @@ export const authenticateUser = async (
     primaryDeviceId?.toString(),
   );
 
+  const deviceIdString = device._id.toString();
   const { isTrusted: isDeviceTrusted } = await validateHardwareTrust(
     userId,
     deviceToken,
