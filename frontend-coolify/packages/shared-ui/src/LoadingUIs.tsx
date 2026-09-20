@@ -17,7 +17,7 @@ import { AppLogo } from "./AppLogo";
 export interface BaseProgressProps {
   label?: React.ReactNode;
   value?: number;
-  style?: GenericStyle;
+  style?: { container?: GenericStyle; element?: GenericStyle };
 }
 export interface CircularProgressTypeProps extends BaseProgressProps {
   type?: "circular";
@@ -35,18 +35,18 @@ export interface SplashUIProps {
 /**
  * Renders a standardized circular or linear loading indicator with dynamic typography support.
  */
-export const ProgressIcon = (props: ProgressProps) => {
-  const { label, value, type = "circular", style } = props;
+export const ProgressUI = (props: ProgressProps) => {
+  const { label, value, type = "circular", style, options } = props;
   const theme = useTheme();
+  const variant = options?.variant ?? "indeterminate";
 
   const renderProgress = () => {
-    if (props.type === "linear") {
-      const { options } = props;
-      const linearVariant = options?.variant ?? "indeterminate";
+    if (type === "linear") {
+      //  const linearVariant = options?.variant ?? "indeterminate";
 
       return (
         <LinearProgress
-          variant={linearVariant}
+          variant={variant}
           value={value}
           sx={{
             width: "100%",
@@ -55,26 +55,25 @@ export const ProgressIcon = (props: ProgressProps) => {
             "& .MuiLinearProgress-bar": {
               backgroundColor: theme.fixedColors.primary,
             },
-            borderRadius: theme.radius.full,
-            ...style,
+            ...style?.element,
           }}
-          {...options}
+          {...(options as LinearProgressProps)}
           aria-label="Loading…"
         />
       );
     }
-    const { options } = props;
-    const circularVariant = options?.variant ?? "indeterminate";
+
+    //  const circularVariant = options?.variant ?? "indeterminate";
 
     return (
       <CircularProgress
         enableTrackSlot
-        variant={circularVariant}
+        variant={variant as "determinate" | "indeterminate"}
         value={value}
-        sx={{ color: theme.fixedColors.primary, ...style }}
-        {...options}
+        sx={{ color: theme.fixedColors.primary, ...style?.element }}
         thickness={2.5}
         aria-label="Loading…"
+        {...(options as CircularProgressProps)}
       />
     );
   };
@@ -85,7 +84,11 @@ export const ProgressIcon = (props: ProgressProps) => {
         flexDirection: "column",
         alignItems: "center",
         gap: theme.gap(6),
-        width: type === "linear" ? "100%" : "auto",
+        zIndex: 10,
+        background: theme.palette.gray.trans[1],
+        borderRadius: theme.radius.full,
+        overflow: "hidden",
+        ...style?.container,
       }}
     >
       {renderProgress()}
@@ -120,17 +123,18 @@ export const PageLoaderUI = () => {
       }}
     >
       <AppLogo size={44} />
-      <ProgressIcon
+      <ProgressUI
         type="linear"
         options={{
           variant: "indeterminate",
         }}
         style={{
-          width: 50,
-          height: 5,
+          container: {
+            width: 50,
+            height: 5,
+          },
         }}
       />
-      {/* <SVGWrapper src={asset.LoadingAnimation} size={46} preserveColor /> */}
     </RootUIContainer>
   );
 };
@@ -150,15 +154,16 @@ export const SplashUI = () => {
       }}
     >
       <AppLogo withName size={170} />
-      <ProgressIcon
+      <ProgressUI
         type="linear"
-        //  value={progress}
         options={{
           variant: "indeterminate",
         }}
         style={{
-          width: 170,
-          height: 3,
+          element: {
+            width: 170,
+            height: 3,
+          },
         }}
       />
     </RootUIContainer>

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Box, Stack } from "@mui/material";
-import { DisplayFeedbackUI, PostSkeleton, ProgressIcon } from "@repo/shared-ui";
+import { DisplayFeedbackUI, PostSkeleton, ProgressUI } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
 import { GistCard, useGists } from "@repo/features";
@@ -106,7 +106,7 @@ export const Gists = () => {
                 minHeight: "40px",
               }}
             >
-              {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
+              {isFetchingNextPage && <ProgressUI options={{ size: 24 }} />}
             </Box>
           )}
         </>

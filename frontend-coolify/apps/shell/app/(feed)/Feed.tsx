@@ -6,7 +6,7 @@ import { UpdatesCarousel } from "./vibezSlider/Slider";
 import {
   Feedback,
   PostSkeleton,
-  ProgressIcon,
+  ProgressUI,
   BoxSkeleton,
   TransText,
   DisplayFeedbackUI,
@@ -127,7 +127,7 @@ export const Feed = () => {
                 minHeight: "40px",
               }}
             >
-              {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
+              {isFetchingNextPage && <ProgressUI options={{ size: 24 }} />}
             </Box>
           )}
         </>

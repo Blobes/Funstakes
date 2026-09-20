@@ -219,6 +219,6 @@ export const validateDeviceTrust = async (
       }
       return { isTrusted: true };
     },
-    CACHE_EXPIRY.MIN_2,
+    CACHE_EXPIRY.MIN_5,
   );
 };

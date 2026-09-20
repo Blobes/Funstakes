@@ -18,120 +18,112 @@ import { CLIENT_ROUTES } from "../constants/routesConfig";
 import { AuthStatus } from "../types/auth";
 import { SNACKBAR_DURATION } from "../constants/others";
 
-/** * Defines the shape and actions of the global application store.
+/**
+ * Defines the shape and actions of the global application store.
  */
 interface GlobalState {
-  // Auth State
+  // --- Auth State & Setters ---
   authStatus: AuthStatus;
+  setAuthStatus: (status: AuthStatus) => void;
   authUser: IUser | null;
-  isAuthLoading: boolean;
-  accessToken: string | null; // Keep short-lived token in volatile memory only
+  setAuthUser: (user: IUser | null) => void;
+  accessToken: string | null;
+  setAccessToken: (token?: string | null) => void;
+  clearAuthUser: () => void;
 
-  // Language
+  // --- Language State & Setters ---
   i18nInstance: I18nInstance | null;
   setI18nInstance: (instance: I18nInstance) => void;
   currentLanguage: SupportedIsoCode;
   setCurrentLanguage: (lang: SupportedIsoCode) => void;
 
-  // User Account State
+  // --- User Account State & Setters ---
   accountStatus: AccountStatus;
+  setAccountStatus: (status: AccountStatus) => void;
 
-  // UI State
+  // --- UI State & Setters ---
   snackBarMsgs: ISnackBarMsgs;
+  setSnackBarMsg: (msg: IMessage, override?: boolean) => void;
+  removeSnackBarMsg: (id?: string, clearAll?: boolean) => void;
   inlineMsg: React.ReactNode | null;
-  isGlobalLoading: boolean;
+  setInlineMsg: (inlineMsg: React.ReactNode | null) => void;
+  isPageLoading: boolean;
+  setIsPageLoading: (loading: boolean) => void;
   lastPage: IPage;
+  setPage: (page: IPage) => void;
   drawerContent: DrawerProps | null;
+  setDrawerContent: (content: DrawerProps | null) => void;
   modalContent: ModalProps | null;
+  setModalContent: (content: ModalProps | null) => void;
   defaultHeader: boolean;
+  setDefaultHeader: (show: boolean) => void;
+  isNavigating: boolean;
+  setIsNavigating: (value: boolean) => void;
 
-  // System/Network State
+  // --- System/Network State & Setters ---
   networkStatus: NetworkStatus;
+  setNetworkStatus: (status: NetworkStatus) => void;
   checkingSignal: boolean;
+  setSignalCheck: (checking: boolean) => void;
   offlineMode: boolean;
+  setOfflineMode: (mode: boolean) => void;
   transitData: any | null;
+  setTransitData: <T>(data: T | null) => void;
 
-  // Time
+  // --- Time State & Setters ---
   now: number;
+  updateNow: () => void;
 
-  // Virtual Keyboard
+  // --- Virtual Keyboard State & Setters ---
   activeInputRef: React.RefObject<
     HTMLInputElement | HTMLTextAreaElement | null
   > | null;
   activeOnChange: ((event: any) => void) | null;
   activeFieldType: InputFieldType | null;
-  isKeyboardVisible: boolean;
   setActiveInput: (
     ref: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null> | null,
     onChange: ((event: any) => void) | null,
     fieldType?: InputFieldType | null,
   ) => void;
+  isKeyboardVisible: boolean;
   setKeyboardVisible: (visible: boolean) => void;
-
-  // Actions
-  setAuthStatus: (status: AuthStatus) => void;
-  setAuthUser: (user: IUser | null) => void;
-  setAccessToken: (token?: string | null) => void;
-  setAuthLoading: (loading: boolean) => void;
-  setAccountStatus: (status: AccountStatus) => void;
-  clearAuthUser: () => void;
-  setSnackBarMsg: (msg: IMessage, override: boolean) => void;
-  removeSnackBarMsg: (id?: string, clearAll?: boolean) => void;
-  setInlineMsg: (inlineMsg: React.ReactNode | null) => void;
-  setGlobalLoading: (loading: boolean) => void;
-  setPage: (page: IPage) => void;
-  setDrawerContent: (content: DrawerProps | null) => void;
-  setModalContent: (content: ModalProps | null) => void;
-  setNetworkStatus: (status: NetworkStatus) => void;
-  setSignalCheck: (checking: boolean) => void;
-  setOfflineMode: (mode: boolean) => void;
-  setDefaultHeader: (show: boolean) => void;
-  updateNow: () => void;
-  setTransitData: <T>(data: T | null) => void;
 }
 
-/** * Hook for accessing the global store.
+/**
+ * Hook for accessing the global store.
  * Using a single store for global UI states.
  */
 export const useGlobalStore = create<GlobalState>((set) => ({
-  // Initial States
+  // --- Auth State & Setters ---
   authStatus: "LOADING",
+  setAuthStatus: (authStatus) => set({ authStatus }),
+
   authUser: null,
-  isAuthLoading: false,
-  accountStatus: "PENDING",
+  setAuthUser: (authUser) => set({ authUser }),
+
   accessToken: null,
+  setAccessToken: (accessToken) => set({ accessToken }),
+
+  clearAuthUser: () =>
+    set({ authUser: null, accessToken: null, authStatus: "UNAUTHENTICATED" }),
+
+  // --- Language State & Setters ---
+  i18nInstance: null,
+  setI18nInstance: (instance) => set({ i18nInstance: instance }),
+
+  currentLanguage: "en",
+  setCurrentLanguage: (lang) => set({ currentLanguage: lang }),
+
+  // --- User Account State & Setters ---
+  accountStatus: "PENDING",
+  setAccountStatus: (accountStatus) => set({ accountStatus }),
+
+  // --- UI State & Setters ---
   snackBarMsgs: {
     messages: [],
     defaultDur: SNACKBAR_DURATION.SECS_6,
     dir: "up",
   },
-  inlineMsg: null,
-  isGlobalLoading: false,
-  lastPage: CLIENT_ROUTES.home,
-  drawerContent: null,
-  modalContent: null,
-  networkStatus: "UNKNOWN",
-  checkingSignal: false,
-  offlineMode: false,
-  defaultHeader: true,
-  now: Date.now(),
-  transitData: null,
-
-  // Action Implementations
-  setAuthStatus: (authStatus) => set({ authStatus }),
-  setAuthUser: (authUser) => set({ authUser }),
-  setAccountStatus: (accountStatus) => set({ accountStatus }),
-  setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
-  setAccessToken: (accessToken) => set({ accessToken }),
-  clearAuthUser: () =>
-    set({ authUser: null, accessToken: null, authStatus: "UNAUTHENTICATED" }),
-
-  // Language
-  i18nInstance: null,
-  setI18nInstance: (instance) => set({ i18nInstance: instance }),
-  currentLanguage: "en",
-  setCurrentLanguage: (lang) => set({ currentLanguage: lang }),
-
   setSnackBarMsg: (newMsg, override = false) =>
     set((state) => ({
       snackBarMsgs: {
@@ -151,10 +143,16 @@ export const useGlobalStore = create<GlobalState>((set) => ({
       },
     })),
 
+  inlineMsg: null,
   setInlineMsg: (inlineMsg) => set({ inlineMsg }),
-  setGlobalLoading: (isGlobalLoading) => set({ isGlobalLoading }),
+
+  isPageLoading: false,
+  setIsPageLoading: (isPageLoading) => set({ isPageLoading }),
+
+  lastPage: CLIENT_ROUTES.home,
   setPage: (lastPage) => set({ lastPage }),
 
+  drawerContent: null,
   setDrawerContent: (update) =>
     set((state) => {
       if (!state.drawerContent && !update) return state;
@@ -162,30 +160,48 @@ export const useGlobalStore = create<GlobalState>((set) => ({
       return { drawerContent: update };
     }),
 
+  modalContent: null,
   setModalContent: (update) =>
     set((state) => {
       if (!state.modalContent && !update) return state;
       if (state.modalContent === update) return state;
       return { modalContent: update };
     }),
-  setNetworkStatus: (networkStatus) => set({ networkStatus }),
-  setSignalCheck: (checkingSignal) => set({ checkingSignal }),
-  setOfflineMode: (offlineMode) => set({ offlineMode }),
-  setDefaultHeader: (defaultHeader) => set({ defaultHeader }),
-  updateNow: () => set({ now: Date.now() }),
 
+  defaultHeader: true,
+  setDefaultHeader: (defaultHeader) => set({ defaultHeader }),
+
+  isNavigating: false,
+  setIsNavigating: (isNavigating) => set({ isNavigating }),
+
+  // --- System/Network State & Setters ---
+  networkStatus: "UNKNOWN",
+  setNetworkStatus: (networkStatus) => set({ networkStatus }),
+
+  checkingSignal: false,
+  setSignalCheck: (checkingSignal) => set({ checkingSignal }),
+
+  offlineMode: false,
+  setOfflineMode: (offlineMode) => set({ offlineMode }),
+
+  transitData: null,
   setTransitData: (data) => set({ transitData: data }),
 
-  // Virtual Keyboard
+  // --- Time State & Setters ---
+  now: Date.now(),
+  updateNow: () => set({ now: Date.now() }),
+
+  // --- Virtual Keyboard State & Setters ---
   activeInputRef: null,
   activeOnChange: null,
   activeFieldType: null,
-  isKeyboardVisible: false,
   setActiveInput: (ref, onChange, fieldType) =>
     set({
       activeInputRef: ref,
       activeOnChange: onChange,
       activeFieldType: fieldType,
     }),
+
+  isKeyboardVisible: false,
   setKeyboardVisible: (visible) => set({ isKeyboardVisible: visible }),
 }));

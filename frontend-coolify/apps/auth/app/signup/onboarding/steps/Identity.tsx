@@ -5,7 +5,7 @@ import { IconButton, Stack, Typography } from "@mui/material";
 import {
   AppButton,
   DynamicInput,
-  ProgressIcon,
+  ProgressUI,
   TransText,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
@@ -63,7 +63,8 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
         onSubmit={(e) => {
           e.preventDefault();
           submitIdentity();
-        }}>
+        }}
+      >
         <DynamicInput
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.enter_first_name,
@@ -105,7 +106,8 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
                   ...theme.typography.text5,
                   cursor: "pointer",
                   color: theme.palette.primary.main,
-                }}>
+                }}
+              >
                 {sug}
               </TransText>
             ))}
@@ -139,9 +141,10 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
               width: "100%",
             }}
             submit
-            options={{ disabled: !isFormValid || isPending }}>
+            options={{ disabled: !isFormValid || isPending }}
+          >
             {isPending ? (
-              <ProgressIcon options={{ size: 24 }} />
+              <ProgressUI options={{ size: 24 }} />
             ) : (
               <TransText {...AUTH_BUTTON_LABELS.proceed} noComponent />
             )}

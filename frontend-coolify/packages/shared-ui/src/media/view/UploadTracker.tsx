@@ -2,7 +2,7 @@
 
 import { Stack } from "@mui/material";
 import { COMMON_MEDIA, MediaProcessingProgress } from "@repo/core";
-import { ProgressIcon } from "../../LoadingUIs";
+import { ProgressUI } from "../../LoadingUIs";
 import { TransText } from "../../Text";
 import { useTheme } from "@mui/material/styles";
 
@@ -29,7 +29,8 @@ export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
               alignItems: "center",
               justifyContent: "space-between",
               gap: "12px",
-            }}>
+            }}
+          >
             <TransText
               {...(status === "UPLOADING"
                 ? COMMON_MEDIA.uploading(state.fileName)
@@ -41,13 +42,13 @@ export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
                     ))}
               sx={{ ...theme.typography.text4, color: "inherit" }}
             />
-            <ProgressIcon
+            <ProgressUI
               value={state.progress}
               options={{
                 variant: "determinate",
                 size: 24,
               }}
-              style={{ flexShrink: 0 }}
+              style={{ container: { flexShrink: 0 } }}
             />
           </Stack>
         );

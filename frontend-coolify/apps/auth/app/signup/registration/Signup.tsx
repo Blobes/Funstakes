@@ -17,7 +17,7 @@ import {
   DynamicInput,
   PasswordInput,
   InlineMsgUI,
-  ProgressIcon,
+  ProgressUI,
   SVGWrapper,
   AnchorLink,
   UIGuide,
@@ -251,7 +251,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           options={{ disabled: isSubmitDisabled }}
         >
           {isSubmitLoading ? (
-            <ProgressIcon options={{ size: 25 }} />
+            <ProgressUI options={{ size: 25 }} />
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
           )}

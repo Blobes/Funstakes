@@ -20,7 +20,6 @@ interface UseSignupFeedbackProps {
  * Handles post-registration state logic, global store state allocation, and navigation routing.
  */
 export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
@@ -33,7 +32,6 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const handleSuccess = useCallback(
     (res: SignupResponse) => {
       if (res.httpStatus !== 200) return;
-      setGlobalLoading(true);
 
       const user = res.payload as IUser;
       if (res.status === "SUCCESS" && user) {

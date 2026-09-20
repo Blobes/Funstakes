@@ -7,7 +7,7 @@ import {
   PasswordInput,
   InlineMsgUI,
   BasicTooltip,
-  ProgressIcon,
+  ProgressUI,
   TransText,
   AnchorLink,
   DisplayFeedbackUI,
@@ -195,7 +195,7 @@ export const PasswordStep: React.FC<LoginProps> = ({
             }}
           >
             {isAuthLoading ? (
-              <ProgressIcon options={{ size: 25 }} />
+              <ProgressUI options={{ size: 25 }} />
             ) : (
               <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
             )}

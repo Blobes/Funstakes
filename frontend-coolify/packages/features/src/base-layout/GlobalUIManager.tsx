@@ -10,6 +10,7 @@ import {
   NetworkGlitchUI,
   VirtualKeyboard,
   SplashUI,
+  ProgressUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
 import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
@@ -37,20 +38,21 @@ export const GlobalUIManager = ({
   includesOfflineUI = true,
   includesNetworkErrorUI = true,
 }: UIManagerProps) => {
-  // Destructuring state and actions from the Zustand store
   const snackBarMsg = useGlobalStore((state) => state.snackBarMsgs);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const modalContent = useGlobalStore((state) => state.modalContent);
-  const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading);
+  const isPageLoading = useGlobalStore((state) => state.isPageLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
   const networkStatus = useGlobalStore((state) => state.networkStatus);
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const offlineMode = useGlobalStore((state) => state.offlineMode);
   const checkingSignal = useGlobalStore((state) => state.checkingSignal);
   const accountStatus = useGlobalStore((state) => state.accountStatus);
+  const isNavigating = useGlobalStore((state) => state.isNavigating);
+
+  const setIsNavigating = useGlobalStore((state) => state.setIsNavigating);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
-  const { handlePageChange, isNavigating } = usePage();
+  const { handlePageChange } = usePage();
   const pathname = usePathname();
   const { verifyAuth } = useAuthVerification();
   const { setSBTimer, removeSBMessages } = useSnackbar();
@@ -61,7 +63,6 @@ export const GlobalUIManager = ({
 
   // Tracks whether a browser reload occurred.
   const [isReload, setIsReload] = useState(false);
-  //Tracks completion of minimum splash duration.
   const [isSplashTimerDone, setIsSplashTimerDone] = useState(false);
   const SPLASH_DURATION = 4000;
 
@@ -71,7 +72,6 @@ export const GlobalUIManager = ({
   // Detects browser refresh and controls splash visibility duration.
   useEffect(() => {
     let isMounted = true;
-
     const handleSplashDelay = async () => {
       const navEntries = performance.getEntriesByType(
         "navigation",
@@ -96,15 +96,9 @@ export const GlobalUIManager = ({
   // Handles the application initialization sequence.
   useEffect(() => {
     const init = async () => {
-      try {
-        setGlobalLoading(true);
-        registerSW();
-        await verifySignal();
-        await verifyAuth();
-      } finally {
-        await delay();
-        setGlobalLoading(false);
-      }
+      registerSW();
+      await verifySignal();
+      await verifyAuth();
     };
     init();
   }, [verifyAuth, verifySignal]);
@@ -117,13 +111,12 @@ export const GlobalUIManager = ({
     return () => clearInterval(heartbeat);
   }, []);
 
-  // Syncs the local refs for Drawer overlays with the global Zustand state.
+  // Syncs the local refs for Drawer & Modal overlays with the global Zustand state.
   useEffect(() => {
     if (drawerContent) {
       drawerRef.current?.openOverlay();
     }
   }, [drawerContent]);
-  // Syncs the local refs for  Modal overlays with the global Zustand state.
   useEffect(() => {
     if (modalContent) {
       modalRef.current?.openOverlay();
@@ -137,23 +130,17 @@ export const GlobalUIManager = ({
 
   // Clear global loader only after the URL actually changed
   useEffect(() => {
-    setGlobalLoading(false);
-  }, [pathname, setGlobalLoading]);
+    setIsNavigating(false);
+  }, [pathname, setIsNavigating]);
 
   // Determines if splash should remain active on reload until auth/boot finishes.
   const isAuthInitializing = authStatus === "LOADING";
   const showSplashUI = isReload && (!isSplashTimerDone || isAuthInitializing);
-
-  if (showSplashUI) {
-    return <SplashUI />;
-  }
+  if (showSplashUI) return <SplashUI />;
 
   // Determining if the app is still in its initial boot state
   const showLoaderUI =
-    authStatus === "LOADING" ||
-    networkStatus === "UNKNOWN" ||
-    isNavigating ||
-    isGlobalLoading;
+    isNavigating || isAuthInitializing || networkStatus === "UNKNOWN";
   if (showLoaderUI) return <PageLoaderUI />;
 
   const savedLoginStatus = getFromLocalStorage<AuthStatus>({
@@ -188,6 +175,24 @@ export const GlobalUIManager = ({
   // Main UI rendering with portal-like overlays
   return (
     <>
+      {isPageLoading && (
+        <ProgressUI
+          type="linear"
+          style={{
+            container: {
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: 4,
+              borderRadius: 0,
+            },
+            element: {
+              height: "100%",
+            },
+          }}
+        />
+      )}
       {children}
       {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
         <SnackBars

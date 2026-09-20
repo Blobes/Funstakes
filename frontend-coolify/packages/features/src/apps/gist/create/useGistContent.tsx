@@ -24,8 +24,9 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { GistService } from "../gistService";
 import { useTopics } from "../../post/hooks/useTopics";
-import { MediaUploadTracker, ProgressIcon } from "@repo/shared-ui";
+import { MediaUploadTracker, ProgressUI } from "@repo/shared-ui";
 import { useSocketListener } from "@repo/shared-hooks";
+import { Box } from "@mui/material";
 
 export interface Content extends StepperProps<PostStepName> {
   caption: string;
@@ -214,10 +215,17 @@ export const useGistContent = ({
         headline: translateTxtString(COMMON_MEDIA.verifying_content_safeties),
         behavior: "FIXED",
         customContent: (
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <ProgressIcon options={{ size: 24 }} />
-            <span>Analyzing text and attachments against system rules...</span>
-          </div>
+          <ProgressUI
+            options={{ size: 24 }}
+            label={"Analyzing content against system rules..."}
+            style={{
+              container: {
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              },
+            }}
+          />
         ),
         duration: SNACKBAR_DURATION.SECS_6,
       },

@@ -4,7 +4,7 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { FollowerCard } from "./FollowerCard";
-import { ProgressIcon, DisplayFeedbackUI } from "@repo/shared-ui";
+import { ProgressUI, DisplayFeedbackUI } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
 import { useUser } from "@repo/features";
 import { COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
@@ -29,7 +29,7 @@ export const Followers = () => {
             alignItems: "center",
           }}
         >
-          <ProgressIcon options={{ size: 30 }} />
+          <ProgressUI options={{ size: 30 }} />
         </Stack>
       ) : authUser && followers && followers.length < 1 ? (
         <DisplayFeedbackUI

@@ -20,7 +20,7 @@ import {
 } from "@repo/core";
 import {
   DisplayFeedbackUI,
-  ProgressIcon,
+  ProgressUI,
   Stepper,
   BotVerification,
   AppLogo,
@@ -93,7 +93,7 @@ export default function VerificationPage() {
           justifyContent: "center",
         }}
       >
-        <ProgressIcon options={{ size: 32 }} />
+        <ProgressUI options={{ size: 32 }} />
       </Stack>
     );
   }

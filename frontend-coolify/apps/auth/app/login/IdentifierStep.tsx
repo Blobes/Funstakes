@@ -6,7 +6,7 @@ import {
   AppButton,
   DynamicInput,
   InlineMsgUI,
-  ProgressIcon,
+  ProgressUI,
   DisplayList as CountryList,
   UIGuide as CredentialGuide,
   SVGWrapper,
@@ -228,7 +228,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           options={{ disabled: isSubmitDisabled }}
         >
           {isAuthLoading ? (
-            <ProgressIcon options={{ size: 25 }} />
+            <ProgressUI options={{ size: 25 }} />
           ) : (
             <TransText {...COMMON_BUTTON_LABELS.continue} noComponent />
           )}

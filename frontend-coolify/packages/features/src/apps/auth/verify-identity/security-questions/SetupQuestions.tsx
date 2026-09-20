@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
   InlineMsgUI,
-  ProgressIcon,
+  ProgressUI,
   TransText,
   SingleSelectInput,
   DynamicInput,
@@ -137,7 +137,7 @@ export const SetupSecurityQuestions = <P extends TransitPurpose>(
           options={{ disabled: !isSetupFormValid || isSettingUp }}
         >
           {isSettingUp ? (
-            <ProgressIcon options={{ size: 24 }} />
+            <ProgressUI options={{ size: 24 }} />
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.activate_mfa} noComponent />
           )}

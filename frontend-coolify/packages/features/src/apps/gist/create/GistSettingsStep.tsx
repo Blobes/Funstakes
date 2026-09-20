@@ -3,12 +3,7 @@
 import React from "react";
 import { Box, Checkbox, FormControlLabel, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import {
-  AppButton,
-  InlineMsgUI,
-  ProgressIcon,
-  TransText,
-} from "@repo/shared-ui";
+import { AppButton, InlineMsgUI, ProgressUI, TransText } from "@repo/shared-ui";
 import {
   POST_BUTTON_LABELS,
   POST_FEEDBACK,
@@ -47,7 +42,8 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
         display: "flex",
         flexDirection: "column",
         gap: theme.gap(7.5),
-      }}>
+      }}
+    >
       <Stack sx={{ gap: theme.gap(2) }}>
         <TransText
           {...POST_FEEDBACK.post_settings}
@@ -85,7 +81,8 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           variant="outlined"
           onClick={() => setStep?.("CONTENT")}
           options={{ disabled: isProcessing }}
-          style={{ flex: 1 }}>
+          style={{ flex: 1 }}
+        >
           <TransText {...POST_BUTTON_LABELS.post_back} noComponent />
         </AppButton>
 
@@ -97,10 +94,11 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           }}
           style={{
             flex: 2,
-          }}>
+          }}
+        >
           {isProcessing ? (
             <>
-              <ProgressIcon options={{ size: 20 }} />
+              <ProgressUI options={{ size: 20 }} />
               <TransText {...POST_BUTTON_LABELS.syncing_post} noComponent />
             </>
           ) : (

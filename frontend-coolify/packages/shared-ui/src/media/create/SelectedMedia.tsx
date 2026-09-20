@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { X, SlidersHorizontal } from "lucide-react";
 import { applyBGEffects } from "@repo/helpers";
 import { MediaProps, MediaProcessingProgress, COMMON_MEDIA } from "@repo/core";
-import { ProgressIcon } from "../../LoadingUIs";
+import { ProgressUI } from "../../LoadingUIs";
 import { TransText } from "../../Text";
 import { Media } from "../view/Media";
 import { MediaGrid, MediaScroll } from "../view/MediaGallery";
@@ -111,14 +111,15 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
           backgroundColor: theme.palette.gray.trans.overlay(0.75),
           backdropFilter: "blur(6px)",
           borderRadius: "inherit",
-        }}>
-        <ProgressIcon
+        }}
+      >
+        <ProgressUI
           value={isIdle ? undefined : currentProgress}
           options={{
             variant: isIdle ? "indeterminate" : "determinate",
             size: 24,
           }}
-          style={{ flexShrink: 0 }}
+          style={{ container: { flexShrink: 0 } }}
         />
         <TransText
           {...COMMON_MEDIA.track_upload_progress(currentProgress)}
@@ -147,7 +148,8 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
           height: "100%",
           borderRadius: theme.radius[3],
           overflow: "hidden",
-        }}>
+        }}
+      >
         {node}
         {renderCompressionOverlay(file)}
 
@@ -165,7 +167,8 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
                 ...actionButtonStyle["&:hover"],
                 color: theme.palette.primary.main,
               },
-            }}>
+            }}
+          >
             <SlidersHorizontal size={16} />
           </IconButton>
         )}
@@ -183,7 +186,8 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
               ...actionButtonStyle["&:hover"],
               color: theme.palette.error.main,
             },
-          }}>
+          }}
+        >
           <X size={16} />
         </IconButton>
       </Box>

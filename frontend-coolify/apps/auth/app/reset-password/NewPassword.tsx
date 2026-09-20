@@ -6,7 +6,7 @@ import {
   AppButton,
   PasswordInput,
   InlineMsgUI,
-  ProgressIcon,
+  ProgressUI,
   TransText,
   UIGuide,
 } from "@repo/shared-ui";
@@ -168,7 +168,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           }}
         >
           {isNewPasswordLoading ? (
-            <ProgressIcon options={{ size: 25 }} />
+            <ProgressUI options={{ size: 25 }} />
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.reset_password} noComponent />
           )}

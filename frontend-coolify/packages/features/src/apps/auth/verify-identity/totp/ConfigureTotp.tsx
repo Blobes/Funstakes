@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
   DisplayFeedbackUI,
-  ProgressIcon,
+  ProgressUI,
   TransText,
 } from "@repo/shared-ui";
 import {
@@ -90,7 +90,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
       >
         {isLoadingSetup ? (
           <Box sx={{ padding: theme.boxSpacing(12) }}>
-            <ProgressIcon
+            <ProgressUI
               options={{ size: 24 }}
               label={translateTxtString(AUTH_FEEDBACK.loading_auth_data)}
             />

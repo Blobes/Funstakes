@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useTheme } from "@mui/material";
 import { DisplayFeedbackUI } from "./Feedback";
-import { ProgressIcon } from "./LoadingUIs";
+import { ProgressUI } from "./LoadingUIs";
 import { RootUIContainer } from "./Containers";
 import { COMMON_FEEDBACK } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
@@ -43,7 +43,7 @@ export const NetworkGlitchUI = ({
       }}
     >
       {isUnstableNetwork && checkingSignal ? (
-        <ProgressIcon
+        <ProgressUI
           label={translateTxtString(COMMON_FEEDBACK.retrieving_connection)}
           options={{ size: 30 }}
         />

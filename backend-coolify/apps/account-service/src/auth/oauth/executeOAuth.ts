@@ -241,7 +241,7 @@ export const authenticateWithOAuth = async (
     authTokens,
   });
 
-  INVALIDATE_CACHE.forUser({
+  await INVALIDATE_CACHE.forUser({
     userId: user._id.toString(),
     deviceToken,
     eventType: "DEVICE_TRUST_UPDATE",

@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
   InlineMsgUI,
-  ProgressIcon,
+  ProgressUI,
   TransText,
   DynamicInput,
 } from "@repo/shared-ui";
@@ -89,7 +89,7 @@ export const VerifySecurityQuestions = <P extends TransitPurpose>(
         )}
 
         {isFetchingQuestions ? (
-          <ProgressIcon options={{ size: 32 }} />
+          <ProgressUI options={{ size: 32 }} />
         ) : (
           verifyAnswers.map((item, index) => (
             <DynamicInput
@@ -117,7 +117,7 @@ export const VerifySecurityQuestions = <P extends TransitPurpose>(
           }}
         >
           {isVerifying ? (
-            <ProgressIcon options={{ size: 24 }} />
+            <ProgressUI options={{ size: 24 }} />
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
           )}

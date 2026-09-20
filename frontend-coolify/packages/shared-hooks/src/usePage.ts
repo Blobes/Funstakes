@@ -25,11 +25,13 @@ import { REDIRECT_MAP, useRouteGuards } from "./useRouteGuards";
  * Manages page transitions, routing logic, and navigation state.
  */
 export const usePage = () => {
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
+  const setIsPageLoading = useGlobalStore((state) => state.setIsPageLoading);
+  const setIsNavigating = useGlobalStore((state) => state.setIsNavigating);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const modalContent = useGlobalStore((state) => state.modalContent);
   const setPage = useGlobalStore((state) => state.setPage);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+
   const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   const { closeDrawer, closeModal } = useMisc();
@@ -93,31 +95,30 @@ export const usePage = () => {
         event,
       } = options;
       const isCrossZone = crossZoneCheck(page.path);
-      setPendingPath(page.path);
 
-      if (event) event.preventDefault();
+      try {
+        if (event) event.preventDefault();
 
-      if (loadPage || isCrossZone) setGlobalLoading(true);
+        if (!isCrossZone) setIsPageLoading(true);
 
-      // UI Cleanup
-      if (drawerContent) closeDrawer();
-      if (modalContent) closeModal();
+        if (drawerContent) closeDrawer();
+        if (modalContent) closeModal();
 
-      if (savePage && !isOnDoNotSave(page.path)) setLastPage(page);
+        if (savePage && !isOnDoNotSave(page.path)) setLastPage(page);
 
-      // EXTERNAL: Cross-zone or Root dynamic navigation
-      if (isCrossZone) {
-        window.location.assign(page.path);
-        return;
+        if (isCrossZone) {
+          window.location.assign(page.path);
+          return;
+        }
+
+        if (type === "push") router.push(page.path);
+        if (type === "replace") router.replace(page.path);
+
+        if (loadPage) await delay(400);
+      } finally {
+        setIsNavigating(false);
+        setIsPageLoading(false);
       }
-
-      // INTERNAL: Standard Next.js SPA navigation
-      if (type === "push") router.push(page.path);
-      if (type === "replace") router.replace(page.path);
-
-      // Ensure loading is reset after navigation triggers
-      if (loadPage) await delay(400);
-      setPendingPath(null);
     },
     [
       drawerContent,
@@ -125,8 +126,8 @@ export const usePage = () => {
       closeDrawer,
       closeModal,
       setLastPage,
-      setGlobalLoading,
-      setPendingPath,
+      setIsPageLoading,
+      setIsNavigating,
       router,
     ],
   );
@@ -134,7 +135,7 @@ export const usePage = () => {
   /**
    * Synchronizes route change and enforces access control.
    */
-  const handlePageChange = useCallback(() => {
+  const handlePageChange = useCallback(async () => {
     const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION);
     const tempSessionValid =
       temporarySession && parseInt(temporarySession, 10) > Date.now();
@@ -144,12 +145,15 @@ export const usePage = () => {
       if (tempSessionValid) return; // Disabled auto redirect if there is an available temporary session
 
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
-      if (redirect)
-        navigateTo(redirect.target, {
+      if (redirect) {
+        setPendingPath(redirect.target.path);
+        await navigateTo(redirect.target, {
           loadPage: true,
           savePage: isOnDoNotSave(redirect.target.path) ? false : true,
         });
-      return;
+        setIsNavigating(pendingPath !== null);
+        return;
+      }
     }
 
     if (isDoNotSaveRoute) return;
@@ -167,9 +171,12 @@ export const usePage = () => {
     setInlineMsg,
     navigateTo,
     isDoNotSaveRoute,
+    setPendingPath,
+    setIsNavigating,
   ]);
 
   return {
+    ...routeGuards,
     setLastPage,
     isOnWeb,
     isOnAuth,
@@ -178,6 +185,5 @@ export const usePage = () => {
     isOnDoNotSave,
     navigateTo,
     handlePageChange,
-    ...routeGuards,
   };
 };

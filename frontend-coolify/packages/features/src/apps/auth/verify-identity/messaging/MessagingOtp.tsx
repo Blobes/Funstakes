@@ -7,7 +7,7 @@ import {
   AppButton,
   InlineMsgUI,
   OtpInput,
-  ProgressIcon,
+  ProgressUI,
   SVGWrapper,
   TransText,
 } from "@repo/shared-ui";
@@ -157,7 +157,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
           options={{ disabled: code.length < 6 || isVerifying || isBusy }}
         >
           {isVerifying ? (
-            <ProgressIcon options={{ size: 24 }} />
+            <ProgressUI options={{ size: 24 }} />
           ) : (
             <TransText
               {...(isMfaActivationPurpose
@@ -204,7 +204,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
             options={{ disabled: timer > 0 || isBusy }}
           >
             {isSending ? (
-              <ProgressIcon options={{ size: 14 }} />
+              <ProgressUI options={{ size: 14 }} />
             ) : (
               <TransText
                 {...(timer > 0
@@ -248,7 +248,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
                   style={{ color: theme.palette.primary.dark }}
                 >
                   {isBusy ? (
-                    <ProgressIcon options={{ size: 14 }} />
+                    <ProgressUI options={{ size: 14 }} />
                   ) : (
                     <TransText
                       {...AUTH_BUTTON_LABELS.otp_switch_channel(

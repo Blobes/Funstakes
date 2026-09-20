@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, BoxProps } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ProgressIcon } from "./LoadingUIs";
+import { ProgressUI } from "./LoadingUIs";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFramerVariants } from "@repo/helpers";
@@ -89,6 +89,7 @@ export const SVGWrapper = ({
     justifyContent: "center",
     color: color || "inherit",
     flexShrink: 0,
+
     "& svg": {
       width: "100%",
       height: "100%",
@@ -113,8 +114,9 @@ export const SVGWrapper = ({
             backgroundColor: theme.palette.gray.trans[1],
             borderRadius: theme.radius.full,
             ...boxStyles,
-          }}>
-          <ProgressIcon />
+          }}
+        >
+          <ProgressUI />
         </Box>
       );
     }
@@ -138,7 +140,9 @@ export const SVGWrapper = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-          }}>
+            alignSelf: "center",
+          }}
+        >
           {renderDefaultLoader()}
         </motion.div>
       ) : (
@@ -153,7 +157,8 @@ export const SVGWrapper = ({
             height: size,
             ...boxStyles,
             ...sx,
-          }}>
+          }}
+        >
           {isLottie ? (
             isAnimationSettled ? (
               <DotLottieReact

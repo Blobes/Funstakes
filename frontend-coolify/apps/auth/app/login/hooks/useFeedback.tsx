@@ -45,7 +45,6 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
   const { handleVerificationNavigation, checkTotpConfiguration } =
     useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
@@ -58,12 +57,8 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
     async (feedbackProps: UseFeedbackProps) => {
       const { loginResponse, identifierType } = feedbackProps;
 
-      if (loginResponse?.httpStatus !== 200) {
-        setGlobalLoading(false);
-        return;
-      }
+      if (loginResponse?.httpStatus !== 200) return;
 
-      setGlobalLoading(true);
       clearLoginLock();
 
       const user = loginResponse.payload as IUser;
@@ -97,7 +92,6 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
         if (user.accountStatus === "DEACTIVATED") {
           setAccountStatus("DEACTIVATED");
           if (setStep) setStep("RESTORE_ACCOUNT");
-          setGlobalLoading(false);
           return;
         }
 
@@ -118,7 +112,6 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       }
     },
     [
-      setGlobalLoading,
       setAccessToken,
       setAccountStatus,
       identifier,

@@ -7,7 +7,7 @@ import {
   AppButton,
   InlineMsgUI,
   OtpInput,
-  ProgressIcon,
+  ProgressUI,
   TransText,
 } from "@repo/shared-ui";
 import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, TransitPurpose } from "@repo/core";
@@ -96,7 +96,7 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
           options={{ disabled: code.length < 6 || isVerifying }}
         >
           {isVerifying ? (
-            <ProgressIcon options={{ size: 24 }} />
+            <ProgressUI options={{ size: 24 }} />
           ) : (
             <TransText
               {...(isMfaActivationPurpose

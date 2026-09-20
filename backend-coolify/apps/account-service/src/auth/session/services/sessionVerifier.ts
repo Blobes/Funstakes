@@ -13,6 +13,7 @@ import {
   CACHE_EXPIRY,
   fetchSingleUser,
   ISessionCache,
+  INVALIDATE_CACHE,
 } from "@repo/shared";
 
 interface IVerifySessionInput {
@@ -67,7 +68,6 @@ export const executeSessionVerification = async (
   );
 
   if (!isTrusted) {
-    //  await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
     return {
       status: "TRUST_EXPIRED",
       transInfo: MESSAGES_REGISTRY.AUTH.DEVICE_TRUST_EXPIRED,
@@ -138,6 +138,12 @@ export const executeSessionVerification = async (
   }
 
   user.save();
+
+  await INVALIDATE_CACHE.forUser({
+    userId: user._id.toString(),
+    deviceToken,
+    eventType: "DEVICE_TRUST_UPDATE",
+  });
 
   const safePayload = user.toObject();
   userSensitiveFields().forEach((field) => {

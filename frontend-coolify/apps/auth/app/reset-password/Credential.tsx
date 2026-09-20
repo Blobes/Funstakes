@@ -6,7 +6,7 @@ import {
   AppButton,
   DynamicInput,
   InlineMsgUI,
-  ProgressIcon,
+  ProgressUI,
   DisplayList as CountryList,
   UIGuide as CredentialGuide,
   TransText,
@@ -153,7 +153,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             options={{ disabled: isSubmitDisabled }}
           >
             {isStandardLoading ? (
-              <ProgressIcon options={{ size: 25 }} />
+              <ProgressUI options={{ size: 25 }} />
             ) : (
               <TransText {...COMMON_BUTTON_LABELS.continue} noComponent />
             )}

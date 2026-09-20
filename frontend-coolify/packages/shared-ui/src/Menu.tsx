@@ -14,7 +14,7 @@ import { MenuRef, GenericStyle, IMenuItem, ListType, LISTS } from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
 import { SearchBar } from "./inputs/Search";
 import { scrollBarStyle } from "@repo/helpers";
-import { ProgressIcon } from "./LoadingUIs";
+import { ProgressUI } from "./LoadingUIs";
 import { useStaticTranslation } from "@repo/shared-hooks";
 import { TransText } from "./Text";
 
@@ -331,7 +331,7 @@ export const DisplayList = <T extends IMenuItem>({
                 minHeight: "40px",
               }}
             >
-              {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
+              {isFetchingNextPage && <ProgressUI options={{ size: 24 }} />}
             </Box>
           ),
         ]

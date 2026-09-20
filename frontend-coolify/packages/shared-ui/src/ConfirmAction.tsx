@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { GenericStyle } from "@repo/core";
 import { TransText } from "./Text";
 import { AppButton } from "./Buttons";
-import { ProgressIcon } from "./LoadingUIs";
+import { ProgressUI } from "./LoadingUIs";
 
 export interface ActionConfirmationProps {
   icon?: ReactNode;
@@ -105,7 +105,7 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
           colorType={confirmBtnColorType}
           onClick={handleConfirmClick}
         >
-          {isLoading ? <ProgressIcon options={{ size: 25 }} /> : confirmLabel}
+          {isLoading ? <ProgressUI options={{ size: 25 }} /> : confirmLabel}
         </AppButton>
       </Stack>
     </Stack>

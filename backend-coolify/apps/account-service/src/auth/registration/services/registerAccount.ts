@@ -10,6 +10,7 @@ import {
   TransInfo,
   sanitizeUserResult,
   normalizeValue,
+  INVALIDATE_CACHE,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import mongoose from "mongoose";
@@ -146,6 +147,12 @@ export const registerUserAccount = async (
       userAgent,
       ipAddress,
       authTokens,
+    });
+
+    await INVALIDATE_CACHE.forUser({
+      userId: newUser._id.toString(),
+      deviceToken,
+      eventType: "DEVICE_TRUST_UPDATE",
     });
 
     const safeData = sanitizeUserResult(newUser, userSensitiveFields());

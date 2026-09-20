@@ -14,6 +14,7 @@ import {
   validateAccountStatus,
   RestrictionStatus,
   ISessionCache,
+  INVALIDATE_CACHE,
 } from "@repo/shared";
 import jwt from "jsonwebtoken";
 
@@ -108,6 +109,12 @@ export const executeSessionRefresh = async (
       authTokens,
       userAgent,
       ipAddress,
+    });
+
+    await INVALIDATE_CACHE.forUser({
+      userId: user._id.toString(),
+      deviceToken,
+      eventType: "DEVICE_TRUST_UPDATE",
     });
 
     return {

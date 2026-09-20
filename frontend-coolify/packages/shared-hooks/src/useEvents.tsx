@@ -25,7 +25,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const { setSBMessage, removeSBMessages: removeSBMessages } = useSnackbar();
   const { translateTxtString } = useStaticTranslation();
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
+  const setIsNavigating = useGlobalStore((state) => state.setIsNavigating);
   const authStatus = useGlobalStore((state) => state.authStatus);
 
   const { switchToOnlineMode } = useOffline();
@@ -94,11 +94,9 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
    */
   const handlePageTransition = useCallback(
     (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        setGlobalLoading(false);
-      }
+      if (event.persisted) setIsNavigating(false);
     },
-    [setGlobalLoading],
+    [setIsNavigating],
   );
 
   /**
