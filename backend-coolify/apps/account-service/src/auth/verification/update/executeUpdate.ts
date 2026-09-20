@@ -4,6 +4,7 @@ import {
   cleanDeviceSessions,
   DeviceUsertOptions,
   fetchSingleUser,
+  INVALIDATE_CACHE,
   MESSAGES_REGISTRY,
   OtpActionType,
   OtpIdentifierType,
@@ -66,6 +67,7 @@ export const checkPendingIdentifier = (
   }
   return null;
 };
+
 export interface IDeviceTrustInput extends DeviceUsertOptions {
   action?: OtpActionType;
   byPassCheck?: boolean;
@@ -92,13 +94,21 @@ export const authorizeDeviceTrust = async (
   ];
 
   if ((action && targetActions.includes(action)) || byPassCheck) {
-    return await upsertDevice({
+    const device = await upsertDevice({
       user,
       deviceToken,
       targetDeviceId,
       userAgent: userAgent || "",
       markAsVerified: true,
     });
+
+    INVALIDATE_CACHE.forUser({
+      userId: user._id.toString(),
+      deviceToken,
+      eventType: "DEVICE_TRUST_UPDATE",
+    });
+
+    return device;
   }
   return null;
 };

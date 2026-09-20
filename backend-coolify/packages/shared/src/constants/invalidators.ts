@@ -26,6 +26,12 @@ export interface InvalidatePostOptions {
   invalidatePostLanguages?: boolean;
 }
 
+export interface InvalidateUserOptions {
+  userId: string;
+  eventType?: InvalidateEvent;
+  deviceToken?: string;
+}
+
 /**
  * Handles standardized cache invalidation routines across domain entities.
  */
@@ -46,10 +52,8 @@ export const INVALIDATE_CACHE = {
   /**
    * Invalidates target user identity, social graph, device, and setting caches safely.
    */
-  forUser: async (
-    userId: string,
-    eventType: InvalidateEvent,
-  ): Promise<void> => {
+  forUser: async (options: InvalidateUserOptions): Promise<void> => {
+    const { userId, deviceToken, eventType } = options;
     switch (eventType) {
       case "CRITICAL_UPDATE":
         await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
@@ -91,6 +95,10 @@ export const INVALIDATE_CACHE = {
           invalidateCache(CACHE_KEYS.USER_PRIMARY_DEVICE(userId)),
           invalidatePattern(CACHE_KEYS.WILDCARD_DEVICES(userId)),
         ]);
+        if (deviceToken)
+          await invalidateCache(
+            CACHE_KEYS.DEVICE_TRUST_STATUS(userId, deviceToken),
+          );
         break;
 
       case "SESSIONS_REVOKE_ALL":
@@ -142,7 +150,9 @@ export const INVALIDATE_CACHE = {
     }
 
     if (userId) {
-      tasks.push(INVALIDATE_CACHE.forUser(userId, "POST_UPDATE"));
+      tasks.push(
+        INVALIDATE_CACHE.forUser({ userId, eventType: "POST_UPDATE" }),
+      );
     }
 
     await Promise.all(tasks);
@@ -205,6 +215,6 @@ export const INVALIDATE_CACHE = {
       return;
     }
 
-    await INVALIDATE_CACHE.forUser(userId, eventType);
+    await INVALIDATE_CACHE.forUser({ userId, eventType });
   },
 };

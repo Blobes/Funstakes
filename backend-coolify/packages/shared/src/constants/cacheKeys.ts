@@ -10,8 +10,8 @@ export const CACHE_KEYS = {
   USER_SESSION: (userId: string, sessionId: string) =>
     `user:${userId}:session:${sessionId}`,
   USER_PRIMARY_DEVICE: (userId: string) => `user:${userId}:primary_device_id`,
-  DEVICE_TRUST_STATUS: (userId: string, deviceId: string) =>
-    `user:${userId}:trust_check:${deviceId}`,
+  DEVICE_TRUST_STATUS: (userId: string, deviceToken: string) =>
+    `user:${userId}:trust_check:${deviceToken}`,
 
   // --- Rate Limiting ---
   RATELIMIT: (cleanIdentifier: string, window: number) =>

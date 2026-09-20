@@ -74,12 +74,15 @@ export const setAuthCookies = (
   },
   authType: "ACCESS" | "REFRESH" | "BOTH" = "BOTH",
 ) => {
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieDomain = isProduction ? ".funstakes.net" : undefined;
+
   if (tokens.accessToken && (authType === "ACCESS" || authType === "BOTH")) {
     res.cookie("access_token", tokens.accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".funstakes.net",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      domain: cookieDomain,
       path: "/",
       maxAge: 30 * 60 * 1000, // 30 mins,
     });
@@ -88,9 +91,9 @@ export const setAuthCookies = (
   if (tokens.refreshToken && (authType === "REFRESH" || authType === "BOTH")) {
     res.cookie("refresh_token", tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".funstakes.net",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      domain: cookieDomain,
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days,
     });
@@ -98,17 +101,21 @@ export const setAuthCookies = (
 };
 
 export const clearAuthCookies = (res: Response) => {
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieDomain = isProduction ? ".funstakes.net" : undefined;
   res.clearCookie("access_token", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    domain: cookieDomain,
     path: "/",
   });
 
   res.clearCookie("refresh_token", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    domain: cookieDomain,
     path: "/",
   });
 };

@@ -11,16 +11,21 @@ import {
   IdentifierType,
   SMS_DISPATCH_COUNTRY_CODES,
   SNACKBAR_DURATION,
+  ISinglePayload,
 } from "@repo/core";
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import {
   extractCountryCode,
   extractPayloadKeys,
   getFromLocalStorage,
-  getOtpIdentifierType,
   saveToLocalStorage,
 } from "@repo/helpers";
-import { VerifyIdentityService, OtpRequest } from "../services";
+import {
+  VerifyIdentityService,
+  OtpRequest,
+  OtpResponse,
+  CommitUpdateResponse,
+} from "../services";
 import { useFeedback } from "../useFeedback";
 import {
   createVerificationStrategies,
@@ -373,13 +378,13 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
     mutationFn: async (params: {
       purpose?: TransitPurpose;
-      method: () => Promise<unknown>;
+      method: () => Promise<ISinglePayload<OtpResponse>>;
     }) => {
-      const response = await params.method();
+      const verifyRes = await params.method();
+      let updateRes;
 
       if (!isUpdatePurpose) {
-        const payloadData = (response as { payload?: Record<string, unknown> })
-          ?.payload;
+        const payloadData = verifyRes?.payload;
 
         const { identifier, verificationToken, otpIdentifierType } =
           extractPayloadKeys(payloadData, [
@@ -387,21 +392,26 @@ export const useMessagingOtp = <P extends TransitPurpose>(
             "verificationToken",
             "otpIdentifierType",
           ]);
-        await commitAccountUpdate({
+        updateRes = (await commitAccountUpdate({
           identifier: identifier as string | undefined,
           targetDeviceId: transitDeviceId,
           purpose: params.purpose,
           otpIdentifierType: otpIdentifierType as IdentifierType | undefined,
           verificationToken: verificationToken as string | undefined,
           verificationMethod: "MESSAGING",
-        });
+        })) as ISinglePayload<CommitUpdateResponse>;
       }
-      return response;
+      return { verifyResponse: verifyRes, updateRes };
     },
-    onSuccess: () => {
-      if (onSuccess) onSuccess();
+    onSuccess: ({ updateRes }) => {
+      onSuccess?.();
+      const accessToken = updateRes?.payload?.accessToken;
       if (activeTransit) {
-        executeVerificationStrategy(activeTransit, verificationStrategies);
+        executeVerificationStrategy(
+          activeTransit,
+          verificationStrategies,
+          accessToken,
+        );
       }
     },
     onError: (error: ApiError) => {

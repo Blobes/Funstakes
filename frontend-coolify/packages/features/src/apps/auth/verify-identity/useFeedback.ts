@@ -12,9 +12,23 @@ import {
 } from "@repo/core";
 import { purgeCache, queryClient } from "@repo/helpers";
 
+export interface FeedbackInput {
+  identifier?: string;
+  user?: IUser;
+  accessToken?: string;
+  onSuccessCallback?: () => void;
+}
+
 /**
  * Hook providing memoized handlers for authentication and account feedback operations.
  */
+export interface FeedbackInput {
+  identifier?: string;
+  user?: IUser;
+  accessToken?: string;
+  onSuccessCallback?: () => void;
+}
+
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
   const { navigateTo } = usePage();
@@ -22,14 +36,14 @@ export const useFeedback = () => {
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
+  const setAccessToken = useGlobalStore((state) => state.setAccessToken);
 
-  /**
-   * Processes authentication success and updates application global store.
-   */
   const handleAuthSuccess = useCallback(
-    async (user?: IUser, onSuccessCallback?: () => void) => {
+    async (input: FeedbackInput) => {
+      const { user, accessToken, onSuccessCallback } = input;
       setAccountStatus("ACTIVE");
       setAuthStatus("AUTHENTICATED");
+      if (accessToken) setAccessToken(accessToken);
 
       setSBMessage({
         msg: {
@@ -60,34 +74,36 @@ export const useFeedback = () => {
       translateTxtString,
       setAccountStatus,
       navigateTo,
+      setAccessToken,
     ],
   );
 
-  /**
-   * Processes settings or profile update verification.
-   */
-  const handleAccountUpdateSuccess = useCallback(() => {
-    purgeCache({
-      queryClient,
-      queryKeys: STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
-    });
+  const handleAccountUpdateSuccess = useCallback(
+    (input: FeedbackInput = {}) => {
+      const { accessToken } = input;
+      if (accessToken) setAccessToken(accessToken);
 
-    setSBMessage({
-      msg: {
-        tagline: translateTxtString(
-          AUTH_FEEDBACK.security_details_updated_tagline,
-        ),
-        msgStatus: "SUCCESS",
-      },
-    });
-    navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
-  }, [setSBMessage, translateTxtString, navigateTo]);
+      purgeCache({
+        queryClient,
+        queryKeys: STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
+      });
 
-  /**
-   * Processes password reset authorization step success.
-   */
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.security_details_updated_tagline,
+          ),
+          msgStatus: "SUCCESS",
+        },
+      });
+      navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
+    },
+    [setSBMessage, translateTxtString, navigateTo, setAccessToken],
+  );
+
   const handlePassResetSuccess = useCallback(
-    (identifier?: string) => {
+    (input: FeedbackInput) => {
+      const { identifier } = input;
       const transitData: TransitData<"PASSWORD_RESET"> = {
         transitId: "transit:otp-auth",
         purpose: "PASSWORD_RESET",
@@ -111,7 +127,6 @@ export const useFeedback = () => {
         queryClient,
         queryKeys: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
       });
-
       navigateTo(CLIENT_ROUTES.resetPassword, {
         loadPage: true,
         type: "replace",
@@ -120,11 +135,9 @@ export const useFeedback = () => {
     [setSBMessage, translateTxtString, navigateTo],
   );
 
-  /**
-   * Processes settings or profile update completion.
-   */
   const handleMfaActivationSuccess = useCallback(
-    async (onSuccessCallback?: () => void) => {
+    async (input: FeedbackInput = {}) => {
+      const { onSuccessCallback } = input;
       setSBMessage({
         msg: {
           tagline: translateTxtString(AUTH_FEEDBACK.mfa_activated),

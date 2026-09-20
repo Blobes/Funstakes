@@ -71,7 +71,7 @@ interface GlobalState {
   // Actions
   setAuthStatus: (status: AuthStatus) => void;
   setAuthUser: (user: IUser | null) => void;
-  setAccessToken: (token: string | null) => void;
+  setAccessToken: (token?: string | null) => void;
   setAuthLoading: (loading: boolean) => void;
   setAccountStatus: (status: AccountStatus) => void;
   clearAuthUser: () => void;

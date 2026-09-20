@@ -6,13 +6,18 @@ import {
   AUTH_FEEDBACK,
   ApiError,
   COMMON_FEEDBACK,
+  ISinglePayload,
   IUser,
   QUERY_KEYS,
   TransitPurpose,
   useGlobalStore,
 } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
-import { TotpActionType, VerifyIdentityService } from "../services";
+import {
+  CommitUpdateResponse,
+  TotpActionType,
+  VerifyIdentityService,
+} from "../services";
 import { useFeedback } from "../useFeedback";
 import {
   createVerificationStrategies,
@@ -170,27 +175,34 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
       const targetIdentifier =
         activeTransit?.identifier || authUser?.email || "";
 
-      const response = await verifyTotpCode({
+      const verifyRes = await verifyTotpCode({
         actionType,
         token,
         identifier: targetIdentifier,
       });
 
+      let updateRes;
+
       if (activeTransit?.purpose) {
-        await commitAccountUpdate({
+        updateRes = (await commitAccountUpdate({
           identifier: targetIdentifier,
           targetDeviceId: transitDeviceId,
           purpose: activeTransit.purpose,
           verificationMethod: "TOTP",
-        });
+        })) as ISinglePayload<CommitUpdateResponse>;
       }
 
-      return response;
+      return { verifyRes, updateRes };
     },
-    onSuccess: () => {
+    onSuccess: ({ updateRes }) => {
       if (onSuccess) onSuccess();
+      const accessToken = updateRes?.payload?.accessToken;
       if (activeTransit) {
-        executeVerificationStrategy(activeTransit, verificationStrategies);
+        executeVerificationStrategy(
+          activeTransit,
+          verificationStrategies,
+          accessToken,
+        );
       }
     },
     onError: (error: ApiError) => {

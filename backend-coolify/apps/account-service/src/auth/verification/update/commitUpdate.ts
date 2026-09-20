@@ -6,7 +6,7 @@ import {
   getOrSetDeviceToken,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
-import { clearAuthCookies } from "@repo/security";
+import { clearAuthCookies, setAuthCookies } from "@repo/security";
 import {
   executeAccountUpdate,
   ICommitAccountUpdateInput,
@@ -67,6 +67,16 @@ export const commitAccountUpdate = async (
     if (serviceResult.payload?.clearLocalCookies) {
       clearAuthCookies(res);
       delete serviceResult.payload.clearLocalCookies;
+    }
+
+    if (
+      serviceResult.payload?.accessToken &&
+      serviceResult.payload?.refreshToken
+    ) {
+      setAuthCookies(res, {
+        accessToken: serviceResult.payload.accessToken,
+        refreshToken: serviceResult.payload.refreshToken,
+      });
     }
 
     res.status(200).json({

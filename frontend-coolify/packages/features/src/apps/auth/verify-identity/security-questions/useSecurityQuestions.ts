@@ -11,10 +11,11 @@ import {
   AUTH_SECURITY_QUESTIONS,
   QUERY_KEYS,
   SNACKBAR_DURATION,
+  ISinglePayload,
 } from "@repo/core";
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import { MultipleSelectOption } from "@repo/shared-ui";
-import { VerifyIdentityService } from "../services";
+import { CommitUpdateResponse, VerifyIdentityService } from "../services";
 import { useFeedback } from "../useFeedback";
 import {
   createVerificationStrategies,
@@ -332,22 +333,28 @@ export const useSecurityQuestions = <P extends TransitPurpose>(
         })),
       };
 
-      const response = await verifySecurityQuestions(payload);
+      const verifyRes = await verifySecurityQuestions(payload);
+      let updateRes;
 
       if (activeTransit?.purpose) {
-        await commitAccountUpdate({
+        updateRes = (await commitAccountUpdate({
           identifier: targetIdentifier,
           targetDeviceId: transitDeviceId,
           purpose: activeTransit.purpose,
-        });
+        })) as ISinglePayload<CommitUpdateResponse>;
       }
 
-      return response;
+      return { verifyRes, updateRes };
     },
-    onSuccess: () => {
+    onSuccess: ({ updateRes }) => {
       if (onSuccess) onSuccess();
+      const accessToken = updateRes?.payload?.accessToken;
       if (activeTransit) {
-        executeVerificationStrategy(activeTransit, verificationStrategies);
+        executeVerificationStrategy(
+          activeTransit,
+          verificationStrategies,
+          accessToken,
+        );
       }
     },
     onError: (error: ApiError) => {

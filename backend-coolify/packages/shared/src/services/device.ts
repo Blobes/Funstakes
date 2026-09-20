@@ -7,25 +7,25 @@ import { deleteCache, getOrSetCache } from "./redis/cache/helpers";
 
 const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-/**
- * Determines if a device is known and within the trust window.
- */
-export async function evaluateDeviceTrust(
-  device: IDeviceDocument | null,
-): Promise<{
-  trusted: boolean;
-  reason?: "NEW_DEVICE" | "STALE_DEVICE";
-}> {
-  if (!device || !device.isVerified) {
-    return { trusted: false, reason: "NEW_DEVICE" };
-  }
-  const isStale =
-    Date.now() - new Date(device.lastSeenAt).getTime() > TRUST_WINDOW;
-  if (isStale) {
-    return { trusted: false, reason: "STALE_DEVICE" };
-  }
-  return { trusted: true };
-}
+// /**
+//  * Determines if a device is known and within the trust window.
+//  */
+// export async function evaluateDeviceTrust(
+//   device: IDeviceDocument | null,
+// ): Promise<{
+//   trusted: boolean;
+//   reason?: "NEW_DEVICE" | "STALE_DEVICE";
+// }> {
+//   if (!device || !device.isVerified) {
+//     return { trusted: false, reason: "NEW_DEVICE" };
+//   }
+//   const isStale =
+//     Date.now() - new Date(device.lastSeenAt).getTime() > TRUST_WINDOW;
+//   if (isStale) {
+//     return { trusted: false, reason: "STALE_DEVICE" };
+//   }
+//   return { trusted: true };
+// }
 
 export interface DeviceUsertOptions {
   user: IUserDocument;
@@ -178,20 +178,24 @@ export async function ensurePrimaryDevice(
   }
 }
 
+interface ValidateDeviceResult {
+  isTrusted: boolean;
+  reason?: "NEW_DEVICE" | "STALE_DEVICE";
+}
 /**
  * Checks the Device Registry (via cache) to see if the device trust is still valid.
  */
-export const validateHardwareTrust = async (
+export const validateDeviceTrust = async (
   userId: string,
   deviceToken: string | undefined,
   jwtDeviceId: string,
-): Promise<{ isTrusted: boolean }> => {
+): Promise<ValidateDeviceResult> => {
   const cacheKey = CACHE_KEYS.DEVICE_TRUST_STATUS(
     userId,
     deviceToken || "none",
   );
 
-  return await getOrSetCache<{ isTrusted: boolean }>(
+  return await getOrSetCache<ValidateDeviceResult>(
     cacheKey,
     async () => {
       if (!deviceToken) return { isTrusted: false };
@@ -204,9 +208,16 @@ export const validateHardwareTrust = async (
         return { isTrusted: false };
       }
 
-      const trust = await evaluateDeviceTrust(device);
+      if (!device.isVerified) {
+        return { isTrusted: false, reason: "NEW_DEVICE" };
+      }
 
-      return { isTrusted: trust.trusted };
+      const isStale =
+        Date.now() - new Date(device.lastSeenAt).getTime() > TRUST_WINDOW;
+      if (isStale) {
+        return { isTrusted: false, reason: "STALE_DEVICE" };
+      }
+      return { isTrusted: true };
     },
     CACHE_EXPIRY.MIN_2,
   );

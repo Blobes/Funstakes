@@ -77,7 +77,10 @@ export const toggleUserFollow = async (
     session.endSession();
 
     // Evict cached data vectors across target user matching profile entities
-    await INVALIDATE_CACHE.forUser(targetUserId, "SOCIAL_RELATIONSHIP_UPDATE");
+    await INVALIDATE_CACHE.forUser({
+      userId: targetUserId,
+      eventType: "SOCIAL_RELATIONSHIP_UPDATE",
+    });
 
     // Pull refreshed records via normalized static lists aggregation pipelines
     const [rawCurrentUser, rawTargetUser] = await Promise.all([

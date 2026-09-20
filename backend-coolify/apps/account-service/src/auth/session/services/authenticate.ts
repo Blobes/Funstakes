@@ -12,7 +12,8 @@ import {
   fetchSingleUser,
   validateAccountStatus,
   RestrictionStatus,
-  validateHardwareTrust,
+  validateDeviceTrust,
+  INVALIDATE_CACHE,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../../check/service";
@@ -139,7 +140,7 @@ export const authenticateUser = async (
   );
 
   const deviceIdString = device._id.toString();
-  const { isTrusted: isDeviceTrusted } = await validateHardwareTrust(
+  const { isTrusted: isDeviceTrusted } = await validateDeviceTrust(
     userId,
     deviceToken,
     deviceIdString,
@@ -175,6 +176,12 @@ export const authenticateUser = async (
   }
 
   user.save();
+
+  INVALIDATE_CACHE.forUser({
+    userId: user._id.toString(),
+    deviceToken,
+    eventType: "DEVICE_TRUST_UPDATE",
+  });
 
   const safeData = sanitizeUserResult(user, userSensitiveFields());
 

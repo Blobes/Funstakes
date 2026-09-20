@@ -76,13 +76,11 @@ export const verifyMsgOtp = async (
     });
   } catch (error: unknown) {
     console.error(`[OTP_ERROR] ${purpose}:`, error);
-    // const errorObj = error as { statusCode?: number; status?: number };
-    // const statusCode = errorObj?.statusCode || errorObj?.status || 500;
+
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
-      //  statusCode,
     );
   }
 };

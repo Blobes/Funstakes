@@ -28,6 +28,11 @@ export interface OtpResponse {
 export interface CommitUpdateRequest extends OtpResponse {
   targetDeviceId?: string;
 }
+export interface CommitUpdateResponse {
+  channelVerified?: OtpMessageChannel;
+  refreshToken?: string;
+  accessToken?: string;
+}
 
 export type TotpActionType = "AUTHENTICATE" | "CONFIGURE";
 

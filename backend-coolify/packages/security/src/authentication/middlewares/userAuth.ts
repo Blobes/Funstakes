@@ -7,7 +7,7 @@ import {
   IAuthRequest,
   IJwtUser,
   MESSAGES_REGISTRY,
-  validateHardwareTrust,
+  validateDeviceTrust,
   getCache,
   ISessionCache,
 } from "@repo/shared";
@@ -39,7 +39,7 @@ export const verifyAuthTokens = (config: IAuthConfig): RequestHandler => {
       // ✅ Use injected secret
       const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET) as IJwtUser;
 
-      const { isTrusted } = await validateHardwareTrust(
+      const { isTrusted } = await validateDeviceTrust(
         payload.id,
         deviceToken,
         payload.deviceId,
@@ -101,7 +101,7 @@ export const verifyAuthOptionally = (config: IAuthConfig): RequestHandler => {
     try {
       const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET) as IJwtUser;
 
-      const { isTrusted } = await validateHardwareTrust(
+      const { isTrusted } = await validateDeviceTrust(
         payload.id,
         deviceToken,
         payload.deviceId,

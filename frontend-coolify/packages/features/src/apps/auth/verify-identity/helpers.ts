@@ -6,21 +6,39 @@ import {
   IdentifierType,
 } from "@repo/core";
 import { extractPayloadKeys, getOtpIdentifierType } from "@repo/helpers";
+import { FeedbackInput } from "./useFeedback";
 
-export type StrategyHandler<P extends TransitPurpose> = (
-  payload: TransitPayloadMap[P] | undefined,
+// export type VerificationHandlerFn = (
+//   payload: unknown,
+//   onSuccessCb?: () => void,
+//   accessToken?: string,
+// ) => void;
+
+// export type StrategyHandler<P extends TransitPurpose> = (
+//   payload: TransitPayloadMap[P] | undefined,
+//   onSuccessCb?: () => void,
+//   accessToken?: string,
+// ) => void;
+
+export type VerificationHandlerFn<TPayload = unknown> = (
+  payload: TPayload,
   onSuccessCb?: () => void,
+  accessToken?: string,
 ) => void;
+
+export type StrategyHandler<P extends TransitPurpose> = VerificationHandlerFn<
+  TransitPayloadMap[P] | undefined
+>;
 
 export type VerificationStrategyMap = {
   [P in TransitPurpose]: StrategyHandler<P>;
 };
 
 interface StrategyDependencies {
-  handleAuthSuccess: (user?: IUser, cb?: () => void) => void;
-  handleAccountUpdateSuccess: () => void;
-  handlePassResetSuccess: (recipient?: string) => void;
-  handleMfaActivationSuccess: (cb?: () => void) => void;
+  handleAuthSuccess: (input: FeedbackInput) => void | Promise<void>;
+  handleAccountUpdateSuccess: (input?: FeedbackInput) => void;
+  handlePassResetSuccess: (input: FeedbackInput) => void;
+  handleMfaActivationSuccess: (input?: FeedbackInput) => void | Promise<void>;
   recipient?: string;
 }
 
@@ -31,14 +49,23 @@ export function createVerificationStrategies(
   deps: StrategyDependencies,
 ): VerificationStrategyMap {
   return {
-    LOGIN_VERIFICATION: (payload, onSuccessCb) =>
-      deps.handleAuthSuccess(payload as IUser, onSuccessCb),
+    LOGIN_VERIFICATION: (payload, onSuccessCb, accessToken) =>
+      deps.handleAuthSuccess({
+        user: (payload as { user?: IUser })?.user,
+        accessToken,
+        onSuccessCallback: onSuccessCb,
+      }),
     SIGNUP_VERIFICATION: (payload, onSuccessCb) =>
-      deps.handleAuthSuccess(payload as IUser, onSuccessCb),
-    PASSWORD_RESET: () => deps.handlePassResetSuccess(deps.recipient),
+      deps.handleAuthSuccess({
+        user: (payload as { user?: IUser })?.user,
+        onSuccessCallback: onSuccessCb,
+      }),
+    PASSWORD_RESET: () =>
+      deps.handlePassResetSuccess({ identifier: deps.recipient }),
     ACCOUNT_UPDATE: () => deps.handleAccountUpdateSuccess(),
     IDENTIFIER_UPDATE: () => deps.handleAccountUpdateSuccess(),
-    MFA_ACTIVATION: () => deps.handleMfaActivationSuccess(),
+    MFA_ACTIVATION: (_, onSuccessCb) =>
+      deps.handleMfaActivationSuccess({ onSuccessCallback: onSuccessCb }),
   };
 }
 
@@ -48,14 +75,16 @@ export function createVerificationStrategies(
 export function executeVerificationStrategy<P extends TransitPurpose>(
   activeTransit: VerificationTransitData<P>,
   strategies: VerificationStrategyMap,
+  accessToken?: string,
 ): void {
-  const handler = strategies[activeTransit.purpose] as (
-    payload: unknown,
-    onSuccessCb?: () => void,
-  ) => void;
+  const handler = strategies[activeTransit.purpose] as VerificationHandlerFn;
 
   if (handler) {
-    handler(activeTransit.payload, activeTransit.onVerificationSuccess);
+    handler(
+      activeTransit.payload,
+      activeTransit.onVerificationSuccess,
+      accessToken,
+    );
   }
 }
 

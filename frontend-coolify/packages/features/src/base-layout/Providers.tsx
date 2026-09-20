@@ -17,20 +17,20 @@ import { queryClient } from "@repo/helpers";
 import { PageLoaderUI } from "@repo/shared-ui";
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
-  const token = useGlobalStore((state) => state.accessToken);
+  const accessToken = useGlobalStore((state) => state.accessToken);
   const initializeSocket = useSocketStore((state) => state.initializeSocket);
   const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
 
   useEffect(() => {
-    if (token) {
-      initializeSocket(token);
+    if (accessToken) {
+      initializeSocket(accessToken);
     } else {
       disconnectSocket();
     }
     return () => {
       disconnectSocket();
     };
-  }, [token, initializeSocket, disconnectSocket]);
+  }, [accessToken, initializeSocket, disconnectSocket]);
   return <>{children}</>;
 }
 

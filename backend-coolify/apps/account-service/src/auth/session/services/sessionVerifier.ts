@@ -1,7 +1,7 @@
 import { IDeviceDocument, ILocation } from "@repo/database";
 import {
   CACHE_KEYS,
-  validateHardwareTrust,
+  validateDeviceTrust,
   upsertDevice,
   userSensitiveFields,
   MESSAGES_REGISTRY,
@@ -39,7 +39,7 @@ interface IVerifySessionResult {
 
 const LOCATION_REFRESH_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
 
-const shouldRefreshLocation = (lastVerifiedAt?: Date | null): boolean => {
+const shouldUpdateLocation = (lastVerifiedAt?: Date | null): boolean => {
   if (!lastVerifiedAt) return true;
   return Date.now() - new Date(lastVerifiedAt).getTime() > LOCATION_REFRESH_MS;
 };
@@ -60,7 +60,7 @@ export const executeSessionVerification = async (
     };
   }
 
-  const { isTrusted } = await validateHardwareTrust(
+  const { isTrusted } = await validateDeviceTrust(
     userId,
     deviceToken,
     jwtDeviceId,
@@ -129,7 +129,7 @@ export const executeSessionVerification = async (
   user.lastActiveAt = new Date();
 
   // Update user location
-  if (location && shouldRefreshLocation(user.location?.lastVerifiedAt)) {
+  if (location && shouldUpdateLocation(user.location?.lastVerifiedAt)) {
     const newLocation: ILocation = {
       ...location,
       lastVerifiedAt: location.lastVerifiedAt,

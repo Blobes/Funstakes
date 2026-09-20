@@ -57,18 +57,10 @@ router.post(
 );
 
 // --- OAUTH ---
-router.post(
-  "/oauth-exchange",
-  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
-  oauthExchange,
-);
+router.post("/oauth-exchange", oauthExchange);
 
 // --- SESSION MANAGEMENT ---
-router.post(
-  "/session/login",
-  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
-  loginUser,
-);
+router.post("/session/login", loginUser);
 router.post("/session/refresh", refreshSession);
 router.get(
   "/session/verify",
@@ -87,7 +79,11 @@ router.post(
 router.post("/otp/send", sendMsgCode);
 router.post("/otp/verify", verifyMsgOtp);
 router.post("/otp/reset", resetMessagingOtp);
-router.patch("/otp/update-account", commitAccountUpdate);
+router.patch(
+  "/otp/update-account",
+  //  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  commitAccountUpdate,
+);
 router.get("/totp", authenticate, checkAccountRestriction, fetchTotpSetup);
 router.post("/totp/verify", optionallyAuthenticate, verifyTotpCode);
 router.post(
@@ -115,7 +111,6 @@ router.get(
  * Deletes a registered user device.
  * Requires DEVICE.DELETE permission + ReBAC ownership/admin check.
  */
-
 router.delete(
   "/devices/:id",
   authenticate,

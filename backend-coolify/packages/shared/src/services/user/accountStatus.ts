@@ -106,7 +106,10 @@ export const switchAccountStatus = async (
     await Promise.all([
       cleanDeviceSessions(targetUserId, undefined, { clearAll: true }),
     ]);
-    await INVALIDATE_CACHE.forUser(targetUserId, "CRITICAL_UPDATE");
+    await INVALIDATE_CACHE.forUser({
+      userId: targetUserId,
+      eventType: "CRITICAL_UPDATE",
+    });
   }
 
   return {

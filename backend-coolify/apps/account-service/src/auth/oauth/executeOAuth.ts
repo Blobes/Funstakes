@@ -9,6 +9,7 @@ import {
   upsertDevice,
   userSensitiveFields,
   validateAccountStatus,
+  INVALIDATE_CACHE,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../check/service";
@@ -238,6 +239,12 @@ export const authenticateWithOAuth = async (
     userAgent,
     ipAddress,
     authTokens,
+  });
+
+  INVALIDATE_CACHE.forUser({
+    userId: user._id.toString(),
+    deviceToken,
+    eventType: "DEVICE_TRUST_UPDATE",
   });
 
   const safeData = sanitizeUserResult(user, userSensitiveFields());
