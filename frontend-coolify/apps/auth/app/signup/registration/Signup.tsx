@@ -95,7 +95,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         },
       }}
     >
-      <AppLogo size={50} />
+      <AppLogo color={theme.palette.gray[300]} sx={{ alignSelf: "center" }} />
       <Stack
         gap={theme.gap(4)}
         sx={{
