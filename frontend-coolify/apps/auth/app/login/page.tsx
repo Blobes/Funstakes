@@ -21,15 +21,11 @@ export default function LoginPage() {
   const { openPopup } = usePopup();
   const { translateTxtString } = useStaticTranslation();
 
-  // const showLoginForm =
-  //   (authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY") &&
-  //   (!isSpaLoading || !isCrossZoneLoading);
-
+  const isTransitioning = isSpaLoading || isCrossZoneLoading;
   const showLoginForm =
-    authStatus !== "AUTHENTICATED" && (isSpaLoading || isCrossZoneLoading);
-
-  // const showRestrictionUi =
-  //   authStatus === "AUTHENTICATED" && (!isSpaLoading || !isCrossZoneLoading);
+    authStatus === "UNAUTHENTICATED" ||
+    authStatus === "TEMPORARY" ||
+    isTransitioning;
 
   return (
     <Stack
