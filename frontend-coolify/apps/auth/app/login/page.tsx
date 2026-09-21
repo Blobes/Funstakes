@@ -15,18 +15,18 @@ export default function LoginPage() {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
   const isSpaLoading = useGlobalStore((state) => state.setIsSpaLoading);
-  const isCrosszZoneLoading = useGlobalStore(
+  const isCrossZoneLoading = useGlobalStore(
     (state) => state.setIsCrossZoneLoading,
   );
   const { openPopup } = usePopup();
   const { translateTxtString } = useStaticTranslation();
 
-  const showLoginForm =
-    (authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY") &&
-    (!isSpaLoading || !isCrosszZoneLoading);
+  // const showLoginForm =
+  //   (authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY") &&
+  //   (isSpaLoading || !isCrossZoneLoading);
 
-  // const showAlreadyLoggedIn =
-  //   authStatus === "AUTHENTICATED" && (!isSpaLoading || !isCrosszZoneLoading);
+  const showAlreadyLoggedIn =
+    authStatus === "AUTHENTICATED" && (!isSpaLoading || !isCrossZoneLoading);
 
   return (
     <Stack
@@ -44,7 +44,7 @@ export default function LoginPage() {
         },
       }}
     >
-      {showLoginForm ? (
+      {!showAlreadyLoggedIn ? (
         <Stack
           sx={{
             width: "75%",
