@@ -14,8 +14,19 @@ import { useStaticTranslation } from "../../../../packages/shared-hooks";
 export default function LoginPage() {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
+  const isSpaLoading = useGlobalStore((state) => state.setIsSpaLoading);
+  const isCrosszZoneLoading = useGlobalStore(
+    (state) => state.setIsCrossZoneLoading,
+  );
   const { openPopup } = usePopup();
   const { translateTxtString } = useStaticTranslation();
+
+  const showLoginForm =
+    (authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY") &&
+    (!isSpaLoading || !isCrosszZoneLoading);
+
+  // const showAlreadyLoggedIn =
+  //   authStatus === "AUTHENTICATED" && (!isSpaLoading || !isCrosszZoneLoading);
 
   return (
     <Stack
@@ -33,7 +44,7 @@ export default function LoginPage() {
         },
       }}
     >
-      {authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY" ? (
+      {showLoginForm ? (
         <Stack
           sx={{
             width: "75%",
