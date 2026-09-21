@@ -25,8 +25,11 @@ export default function LoginPage() {
   //   (authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY") &&
   //   (!isSpaLoading || !isCrossZoneLoading);
 
-  const showRestrictionUi =
-    authStatus === "AUTHENTICATED" && (!isSpaLoading || !isCrossZoneLoading);
+  const showLoginForm =
+    authStatus !== "AUTHENTICATED" && (isSpaLoading || isCrossZoneLoading);
+
+  // const showRestrictionUi =
+  //   authStatus === "AUTHENTICATED" && (!isSpaLoading || !isCrossZoneLoading);
 
   return (
     <Stack
@@ -44,7 +47,7 @@ export default function LoginPage() {
         },
       }}
     >
-      {!showRestrictionUi ? (
+      {showLoginForm ? (
         <Stack
           sx={{
             width: "75%",
