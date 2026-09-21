@@ -2,12 +2,13 @@
 
 import { useQueryClient, QueryKey, useMutation } from "@tanstack/react-query";
 import { useRef, useEffect, useCallback } from "react";
-import { CACHE_KEYS, PostType } from "@repo/core";
+import { CACHE_KEYS, IPost } from "@repo/core";
 import { useIntersectionObserver } from "@repo/shared-hooks";
 import { PostService } from "../postService";
 import { updateCacheItem } from "@repo/helpers";
 
-const MAX_PERSISTED_POSTS = 200;
+const MAX_PERSISTED_POSTS = 100;
+const DELAY_MS = 30 * 1000; // 30 seconds
 
 const enforcePersistCap = (queryClient: ReturnType<typeof useQueryClient>) => {
   const seenEntries = queryClient
@@ -40,18 +41,19 @@ const enforcePersistCap = (queryClient: ReturnType<typeof useQueryClient>) => {
 
 /**
  * Marks a post as viewed after a deliberate dwell time and updates multiple cache keys.
- * @param postId - The ID of the post.
- * @param postType - GIST or STAKE.
+ * @param post - The post object.
  * @param affectedQueryKeys - Array of QueryKeys that should reflect the updated viewCount.
  */
 export const usePostSeen = (
-  postId: string,
-  postType: PostType,
+  post: IPost,
   affectedQueryKeys: QueryKey[] = [[CACHE_KEYS.POST.FEED]],
 ) => {
   const queryClient = useQueryClient();
   const { markAsSeen } = PostService();
   const viewTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const postId = post._id;
+  const postType = post.postType;
 
   const hasBeenSeen = !!queryClient.getQueryData([
     CACHE_KEYS.POST.SEEN,
@@ -62,6 +64,14 @@ export const usePostSeen = (
     mutationFn: async () => {
       // Prevent further triggers in this session immediately
       queryClient.setQueryData([CACHE_KEYS.POST.SEEN, postId], new Date());
+
+      const baseKey =
+        postType === "STAKE" ? CACHE_KEYS.POST.STAKES : CACHE_KEYS.POST.GISTS;
+
+      if (!queryClient.getQueryData([baseKey, postId])) {
+        queryClient.setQueryData([baseKey, postId], post);
+      }
+
       enforcePersistCap(queryClient);
       return await markAsSeen(postId, postType);
     },
@@ -100,7 +110,7 @@ export const usePostSeen = (
     // Trigger update after 30 seconds of continuous visibility
     viewTimerRef.current = setTimeout(() => {
       mutate();
-    }, 30000);
+    }, DELAY_MS);
   }, [hasBeenSeen, mutate]);
 
   const handleLeave = useCallback(() => {

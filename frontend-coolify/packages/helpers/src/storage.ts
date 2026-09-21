@@ -2,6 +2,7 @@
 
 import { del, get, set } from "idb-keyval";
 import { IIdbData, STORAGE_KEYS } from "@repo/core";
+import { QueryClient, QueryKey } from "@tanstack/react-query";
 
 /**
  * Safe wrapper for indexedDB operations to prevent SSR crashes.
@@ -153,3 +154,28 @@ export const clearLocalStorage = (): void => {
     console.error("Error clearing localStorage:", error);
   }
 };
+
+interface CacheEntityInput<T extends { _id: string }> {
+  queryClient: QueryClient;
+  entityId: string;
+  granularKeys: QueryKey[];
+  listKeys: QueryKey[];
+  extractList: (data: unknown) => T[] | undefined;
+}
+
+export function getEntityFromCache<T extends { _id: string }>(
+  input: CacheEntityInput<T>,
+): T | undefined {
+  const { queryClient, entityId, granularKeys, listKeys, extractList } = input;
+  for (const key of granularKeys) {
+    const direct = queryClient.getQueryData<T>(key);
+    if (direct) return direct;
+  }
+  for (const key of listKeys) {
+    const listData = queryClient.getQueryData(key);
+    const list = extractList(listData);
+    const match = list?.find((item) => item._id === entityId);
+    if (match) return match;
+  }
+  return undefined;
+}

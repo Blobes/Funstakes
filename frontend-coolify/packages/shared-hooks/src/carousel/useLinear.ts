@@ -19,7 +19,7 @@ export const useLinearCarousel = (
 
   const [currentIndex, setLocalIndex] = useState(safeInitialIndex);
   const [isPaused, setIsPaused] = useState(false);
-  const isNavigating = useRef(false);
+  const isCrossZoneLoading = useRef(false);
 
   /**
    * Helper function to extract the true step interval (item width + layout gap).
@@ -39,7 +39,7 @@ export const useLinearCarousel = (
    */
   const handleScroll = useCallback(() => {
     const el = viewportRef.current;
-    if (!el || isNavigating.current) return;
+    if (!el || isCrossZoneLoading.current) return;
 
     const step = getScrollStep(el);
     if (step <= 0) return;
@@ -65,7 +65,7 @@ export const useLinearCarousel = (
 
       const step = getScrollStep(el);
 
-      isNavigating.current = true;
+      isCrossZoneLoading.current = true;
       setLocalIndex(targetIndex);
       setCurrentIndex?.(targetIndex);
 
@@ -75,7 +75,7 @@ export const useLinearCarousel = (
       });
 
       setTimeout(() => {
-        isNavigating.current = false;
+        isCrossZoneLoading.current = false;
       }, 400);
     },
     [length, setCurrentIndex, getScrollStep],

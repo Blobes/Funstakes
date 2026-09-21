@@ -119,6 +119,17 @@ export const ROUTES_REGISTRY = {
   doNotSave: DO_NOT_SAVE_ROUTES,
 };
 
+export const isInRouteRegistry = (path: string): boolean => {
+  const allKnownPaths = [
+    ...ROUTES_REGISTRY.auth,
+    ...ROUTES_REGISTRY.web,
+    ...ROUTES_REGISTRY.shell,
+    ...ROUTES_REGISTRY.post,
+    ...ROUTES_REGISTRY.offline,
+  ];
+  return allKnownPaths.includes(path);
+};
+
 // Server Api base routes
 export const API_BASE = {
   auth: "/auth",

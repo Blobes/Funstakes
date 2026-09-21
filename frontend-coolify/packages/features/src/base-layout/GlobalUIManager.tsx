@@ -41,14 +41,19 @@ export const GlobalUIManager = ({
   const snackBarMsg = useGlobalStore((state) => state.snackBarMsgs);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const modalContent = useGlobalStore((state) => state.modalContent);
-  const isPageLoading = useGlobalStore((state) => state.isPageLoading);
+  const isSpaLoading = useGlobalStore((state) => state.isSpaLoading);
+  const setIsSpaLoading = useGlobalStore((state) => state.setIsSpaLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
   const networkStatus = useGlobalStore((state) => state.networkStatus);
   const offlineMode = useGlobalStore((state) => state.offlineMode);
   const checkingSignal = useGlobalStore((state) => state.checkingSignal);
   const accountStatus = useGlobalStore((state) => state.accountStatus);
-  const isNavigating = useGlobalStore((state) => state.isNavigating);
-  const setIsNavigating = useGlobalStore((state) => state.setIsNavigating);
+  const isCrossZoneLoading = useGlobalStore(
+    (state) => state.isCrossZoneLoading,
+  );
+  const setIsCrossZoneLoading = useGlobalStore(
+    (state) => state.setIsCrossZoneLoading,
+  );
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
   const { handlePageChange } = usePage();
@@ -122,15 +127,16 @@ export const GlobalUIManager = ({
     }
   }, [modalContent]);
 
-  // Responds to route changes to update internal page tracking and act as route guard.
+  // Responds to route changes, tracking and act as route guard.
   useEffect(() => {
     handlePageChange();
   }, [pathname, authStatus, accountStatus]);
 
-  // Clear global loader only after the URL actually changed
+  // Clear pending loading pages only after the URL actually changed
   useEffect(() => {
-    setIsNavigating(false);
-  }, [pathname, setIsNavigating]);
+    setIsCrossZoneLoading(false);
+    setIsSpaLoading(false);
+  }, [pathname, setIsCrossZoneLoading, setIsSpaLoading]);
 
   // Determines if splash should remain active on reload until auth/boot finishes.
   const showSplashUI = isReload && !isSplashTimerDone;
@@ -139,7 +145,7 @@ export const GlobalUIManager = ({
   // Determining if the app is still in its initial boot state
   const isAuthInitializing = isVerifyingAuth || authStatus === "LOADING";
   const showLoaderUI =
-    isNavigating || isAuthInitializing || networkStatus === "UNKNOWN";
+    isCrossZoneLoading || isAuthInitializing || networkStatus === "UNKNOWN";
   if (showLoaderUI) return <PageLoaderUI />;
 
   const savedLoginStatus = getFromLocalStorage<AuthStatus>({
@@ -174,7 +180,7 @@ export const GlobalUIManager = ({
   // Main UI rendering with portal-like overlays
   return (
     <>
-      {isPageLoading && (
+      {isSpaLoading && (
         <ProgressUI
           type="linear"
           style={{
@@ -185,9 +191,6 @@ export const GlobalUIManager = ({
               width: "100%",
               height: 4,
               borderRadius: 0,
-            },
-            element: {
-              height: "100%",
             },
           }}
         />

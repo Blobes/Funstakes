@@ -47,8 +47,6 @@ interface GlobalState {
   removeSnackBarMsg: (id?: string, clearAll?: boolean) => void;
   inlineMsg: React.ReactNode | null;
   setInlineMsg: (inlineMsg: React.ReactNode | null) => void;
-  isPageLoading: boolean;
-  setIsPageLoading: (loading: boolean) => void;
   lastPage: IPage;
   setPage: (page: IPage) => void;
   drawerContent: DrawerProps | null;
@@ -57,8 +55,10 @@ interface GlobalState {
   setModalContent: (content: ModalProps | null) => void;
   defaultHeader: boolean;
   setDefaultHeader: (show: boolean) => void;
-  isNavigating: boolean;
-  setIsNavigating: (value: boolean) => void;
+  isSpaLoading: boolean;
+  setIsSpaLoading: (loading: boolean) => void;
+  isCrossZoneLoading: boolean;
+  setIsCrossZoneLoading: (value: boolean) => void;
 
   // --- System/Network State & Setters ---
   networkStatus: NetworkStatus;
@@ -146,9 +146,6 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   inlineMsg: null,
   setInlineMsg: (inlineMsg) => set({ inlineMsg }),
 
-  isPageLoading: false,
-  setIsPageLoading: (isPageLoading) => set({ isPageLoading }),
-
   lastPage: CLIENT_ROUTES.home,
   setPage: (lastPage) => set({ lastPage }),
 
@@ -171,8 +168,11 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   defaultHeader: true,
   setDefaultHeader: (defaultHeader) => set({ defaultHeader }),
 
-  isNavigating: false,
-  setIsNavigating: (isNavigating) => set({ isNavigating }),
+  isSpaLoading: false,
+  setIsSpaLoading: (isSpaLoading) => set({ isSpaLoading }),
+
+  isCrossZoneLoading: false,
+  setIsCrossZoneLoading: (isCrossZoneLoading) => set({ isCrossZoneLoading }),
 
   // --- System/Network State & Setters ---
   networkStatus: "UNKNOWN",

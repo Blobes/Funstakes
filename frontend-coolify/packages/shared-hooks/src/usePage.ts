@@ -4,6 +4,7 @@ import { useCallback, useRef } from "react";
 import {
   DISALLOWED_ROUTES,
   IPage,
+  isInRouteRegistry,
   NavigateOptions,
   ROUTES_REGISTRY,
   STORAGE_KEYS,
@@ -15,6 +16,7 @@ import {
   saveToLocalStorage,
   delay,
   getCookie,
+  crossZoneCheck,
 } from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
@@ -24,8 +26,10 @@ import { REDIRECT_MAP, useRouteGuards } from "./useRouteGuards";
  * Manages page transitions, routing logic, and navigation state.
  */
 export const usePage = () => {
-  const setIsPageLoading = useGlobalStore((state) => state.setIsPageLoading);
-  const setIsNavigating = useGlobalStore((state) => state.setIsNavigating);
+  const setIsSpaLoading = useGlobalStore((state) => state.setIsSpaLoading);
+  const setIsCrossZoneLoading = useGlobalStore(
+    (state) => state.setIsCrossZoneLoading,
+  );
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const modalContent = useGlobalStore((state) => state.modalContent);
   const setPage = useGlobalStore((state) => state.setPage);
@@ -81,34 +85,38 @@ export const usePage = () => {
     [setPage],
   );
 
+  const MIN_LOADING_MS = 400;
   /**
    * Core navigation handler managing SPA transitions and cross-zone jumps.
    */
   const navigateTo = useCallback(
     async (page: IPage, options: NavigateOptions = {}) => {
       const { type = "push", savePage = true, event } = options;
-      // const isCrossZone = crossZoneCheck(page.path);
+      const isCrossZone = crossZoneCheck(page.path);
+      const isExternalRoute = !isInRouteRegistry(page.path);
 
-      try {
-        if (event) event.preventDefault();
-        setIsPageLoading(true);
+      if (event) event.preventDefault();
 
-        if (drawerContent) closeDrawer();
-        if (modalContent) closeModal();
+      if (isExternalRoute) {
+        window.open(page.path, "_blank", "noopener,noreferrer");
+        return;
+      }
 
-        if (savePage && !isOnDoNotSave(page.path)) setLastPage(page);
+      if (drawerContent) closeDrawer();
+      if (modalContent) closeModal();
+      if (savePage && !isOnDoNotSave(page.path)) setLastPage(page);
 
-        // if (isCrossZone) {
-        //   window.location.assign(page.path);
-        //   return;
-        // }
+      const startedAt = Date.now();
 
-        if (type === "push") router.push(page.path);
-        if (type === "replace") router.replace(page.path);
+      if (isCrossZone) setIsCrossZoneLoading(true);
+      else setIsSpaLoading(true);
 
-        await delay(400);
-      } finally {
-        setIsPageLoading(false);
+      if (type === "push") router.push(page.path);
+      if (type === "replace") router.replace(page.path);
+
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < MIN_LOADING_MS) {
+        await delay(MIN_LOADING_MS - elapsed);
       }
     },
     [
@@ -117,7 +125,8 @@ export const usePage = () => {
       closeDrawer,
       closeModal,
       setLastPage,
-      setIsPageLoading,
+      setIsSpaLoading,
+      setIsCrossZoneLoading,
       router,
     ],
   );
@@ -139,7 +148,6 @@ export const usePage = () => {
       if (redirect) {
         if (redirect.target.path === pathname) return;
         isRedirectingRef.current = true;
-        setIsNavigating(true);
         try {
           await navigateTo(redirect.target);
         } finally {
@@ -164,7 +172,6 @@ export const usePage = () => {
     setInlineMsg,
     navigateTo,
     isDoNotSaveRoute,
-    setIsNavigating,
   ]);
 
   return {

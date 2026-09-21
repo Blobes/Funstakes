@@ -42,8 +42,13 @@ export * from "./src/apps/post/hooks/like/usePostLike";
 export * from "./src/apps/post/hooks/useFeed";
 export * from "./src/apps/post/hooks/useCreatePost";
 
+export * from "./src/apps/post/helpers";
+
 // Constant
 export * from "./src/apps/post/constants";
 
 // Hooks
 export * from "./src/popups/usePopup";
+
+// Peofile
+export * from "./src/apps/profile/helpers";

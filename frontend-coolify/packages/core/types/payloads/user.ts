@@ -44,7 +44,7 @@ export interface ITrustedDevice {
 
 export interface IUserPayload {
   // --- CORE IDENTITY ---
-  _id?: string;
+  _id: string;
   email?: string;
   username?: string;
   usernameCanonical?: string;

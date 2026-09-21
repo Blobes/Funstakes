@@ -98,7 +98,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
         // Handling users who haven't completed onboarding steps
         if (!user.isOnboarded) {
           setAccountStatus("NOT_ONBOARDED");
-          navigateTo(CLIENT_ROUTES.onboarding);
+          await navigateTo(CLIENT_ROUTES.onboarding);
           return;
         }
 
@@ -108,7 +108,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
           savedPage && !isOnWeb(savedPage.path)
             ? savedPage
             : CLIENT_ROUTES.home;
-        navigateTo(destination);
+        await navigateTo(destination);
       }
     },
     [

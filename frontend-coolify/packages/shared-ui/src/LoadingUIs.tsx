@@ -50,6 +50,7 @@ export const ProgressUI = (props: ProgressProps) => {
           value={value}
           sx={{
             width: "100%",
+            height: "100%",
             color: theme.fixedColors.primary,
             backgroundColor: theme.palette.gray.trans[1],
             "& .MuiLinearProgress-bar": {
@@ -119,10 +120,10 @@ export const PageLoaderUI = () => {
       style={{
         alignItems: "center",
         justifyContent: "center",
-        gap: theme.gap(12),
+        gap: theme.gap(18),
       }}
     >
-      <AppLogo size={44} />
+      <AppLogo size={40} />
       <ProgressUI
         type="linear"
         options={{

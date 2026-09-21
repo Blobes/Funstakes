@@ -2,7 +2,7 @@
 
 import { IPost, IStake, CACHE_KEYS, IListPayload, ApiError } from "@repo/core";
 import { PostService } from "../postService";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useStake } from "../../stake/useStake";
 
 type FeedPage = IListPayload<IPost> & { next: number | undefined };
@@ -11,7 +11,7 @@ type FeedPage = IListPayload<IPost> & { next: number | undefined };
  * Manages the unified feed and dissolves bulk results into granular cache entries.
  */
 export const useFeed = () => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const { stakes } = useStake();
   const { fetchFeed } = PostService();
 
@@ -31,14 +31,14 @@ export const useFeed = () => {
 
       // Dissolve Strategy: Push each post into its own granular key.
       // This allows individual post updates to sync across the whole app.
-      remotePayload.forEach((post: IPost) => {
-        const baseKey =
-          post.postType === "STAKE"
-            ? CACHE_KEYS.POST.STAKES
-            : CACHE_KEYS.POST.GISTS;
+      // remotePayload.forEach((post: IPost) => {
+      //   const baseKey =
+      //     post.postType === "STAKE"
+      //       ? CACHE_KEYS.POST.STAKES
+      //       : CACHE_KEYS.POST.GISTS;
 
-        queryClient.setQueryData([baseKey, post._id], post);
-      });
+      //   queryClient.setQueryData([baseKey, post._id], post);
+      // });
 
       return {
         ...res,

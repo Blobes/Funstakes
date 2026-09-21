@@ -91,7 +91,7 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
   const { latestCaption, media, author, createdAt, viewCount, commentCount } =
     gistData;
 
-  const { elementRef } = usePostSeen(gist._id, "GIST", [
+  const { elementRef } = usePostSeen({ ...gist, postType: "GIST" }, [
     [CACHE_KEYS.POST.FEED],
     [CACHE_KEYS.POST.GISTS],
   ]);
@@ -123,7 +123,8 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         flexShrink: "0",
         borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
         ...style,
-      }}>
+      }}
+    >
       <PostHeader
         authorProps={{
           author,

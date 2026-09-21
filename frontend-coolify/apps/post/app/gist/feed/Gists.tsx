@@ -9,6 +9,7 @@ import { GistCard, useGists } from "@repo/features";
 import {
   useCachedData,
   useInfiniteScroll,
+  useLoadingFallback,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import {
@@ -26,7 +27,6 @@ export const Gists = () => {
   const theme = useTheme();
   const {
     gists: onlineGists,
-    rawData,
     message,
     isLoading,
     handleRefresh,
@@ -37,6 +37,7 @@ export const Gists = () => {
 
   const { translateTxtString } = useStaticTranslation();
   const cachedGists = useCachedData<IGist>([CACHE_KEYS.POST.GISTS]);
+  const canFallbackToCache = useLoadingFallback(isLoading);
 
   const { sentinelRef } = useInfiniteScroll({
     hasNextPage,
@@ -44,7 +45,16 @@ export const Gists = () => {
     fetchNextPage,
   });
 
-  const gists = onlineGists.length > 0 ? onlineGists : cachedGists || [];
+  // Live data wins once it exists. While still loading, only use cache
+  // once the delay grace period has elapsed.
+  const gists =
+    onlineGists.length > 0
+      ? onlineGists
+      : canFallbackToCache
+        ? cachedGists || []
+        : [];
+
+  const showSkeleton = isLoading && gists.length === 0;
 
   const finalMsg = POST_FEEDBACK.no_post_found_tagline("gist");
 
@@ -71,7 +81,7 @@ export const Gists = () => {
     <Stack sx={containerStyle}>
       <CreateGist />
 
-      {isLoading ? (
+      {showSkeleton ? (
         <PostSkeleton />
       ) : gists.length < 1 ? (
         <DisplayFeedbackUI

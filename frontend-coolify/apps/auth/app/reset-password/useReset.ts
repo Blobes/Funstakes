@@ -40,7 +40,6 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
-  const authStatus = useGlobalStore((state) => state.authStatus);
   const { navigateTo } = usePage();
   const { checkEmail, checkPhone } = LoginService();
 
@@ -173,7 +172,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
           ? await checkEmail(checkReq)
           : await checkPhone(checkReq);
 
-        const isTotpConfigured = checkTotpConfiguration(userData);
+        const isTotpConfigured = checkTotpConfiguration(userData.payload);
 
         let initResetRes = null;
         const res = await initiateReset({

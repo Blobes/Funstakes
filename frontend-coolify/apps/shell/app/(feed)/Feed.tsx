@@ -17,6 +17,7 @@ import { autoScroll } from "@repo/helpers";
 import {
   useCachedData,
   useInfiniteScroll,
+  useLoadingFallback,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import {
@@ -37,6 +38,7 @@ export const Feed = () => {
     isFetchingNextPage,
     fetchNextPage,
   } = useFeed();
+  const canFallbackToCache = useLoadingFallback(isLoading);
 
   const cachedPosts = useCachedData<IPost>([
     [CACHE_KEYS.POST.GISTS],
@@ -50,8 +52,14 @@ export const Feed = () => {
     fetchNextPage,
   });
 
-  // Determine which data to display. Priority: Online data > Cached data.
-  const feed = onlinePosts.length > 0 ? onlinePosts : cachedPosts;
+  const feed =
+    onlinePosts.length > 0
+      ? onlinePosts
+      : canFallbackToCache
+        ? cachedPosts || []
+        : [];
+
+  const showSkeleton = isLoading && feed.length === 0;
 
   const containerStyle = useMemo(
     () => ({
@@ -75,7 +83,7 @@ export const Feed = () => {
     <Stack sx={containerStyle}>
       <UpdatesCarousel />
 
-      {isLoading ? (
+      {showSkeleton ? (
         <>
           <PostSkeleton />
           <BoxSkeleton />

@@ -16,7 +16,7 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
   const theme = useTheme();
   const { content, media } = stake;
 
-  const { elementRef } = usePostSeen(stake._id, "STAKE");
+  const { elementRef } = usePostSeen({ ...stake, postType: "STAKE" });
 
   return (
     <Stack
@@ -30,7 +30,8 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
                 ${theme.palette.gray.trans.overlay()}`,
         borderRadius: theme.radius[3],
         ...style,
-      }}>
+      }}
+    >
       {/* Post content */}
       <TransText
         sx={{
@@ -40,7 +41,8 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(6),
           },
-        }}>
+        }}
+      >
         {content}
       </TransText>
     </Stack>
