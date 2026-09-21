@@ -229,7 +229,7 @@ export const useVerificationNavigation = () => {
       );
 
       setTimeLeft(sessionDurationMins * 60);
-      navigateTo(CLIENT_ROUTES.verifyIdentity, { loadPage: true });
+      navigateTo(CLIENT_ROUTES.verifyIdentity);
     },
     [navigateTo, checkTotpConfiguration, clearTemporarySession],
   );

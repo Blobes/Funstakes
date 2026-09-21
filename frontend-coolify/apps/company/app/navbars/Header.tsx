@@ -66,7 +66,7 @@ export const Header: React.FC = () => {
       {/* Logo */}
       <AnchorLink
         href={CLIENT_ROUTES.about.path}
-        onClick={() => navigateTo(CLIENT_ROUTES.about, { loadPage: true })}
+        onClick={() => navigateTo(CLIENT_ROUTES.about)}
       >
         <Image
           src={asset.appLogoSymbol}
@@ -94,9 +94,7 @@ export const Header: React.FC = () => {
               variant="outlined"
               size="small"
               href={CLIENT_ROUTES.home.path}
-              onClick={() =>
-                navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
-              }
+              onClick={() => navigateTo(CLIENT_ROUTES.home)}
             >
               <TransText
                 {...COMMON_BUTTON_LABELS.go_to_funstakes}
@@ -111,13 +109,7 @@ export const Header: React.FC = () => {
                 variant="contained"
                 size="small"
                 href={CLIENT_ROUTES.signup.path}
-                onClick={() =>
-                  navigateTo(CLIENT_ROUTES.signup, {
-                    type: "push",
-                    savePage: false,
-                    loadPage: true,
-                  })
-                }
+                onClick={() => navigateTo(CLIENT_ROUTES.signup)}
               >
                 <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
               </AppButton>
@@ -125,13 +117,7 @@ export const Header: React.FC = () => {
                 variant="outlined"
                 size="small"
                 href={CLIENT_ROUTES.login.path}
-                onClick={() =>
-                  navigateTo(CLIENT_ROUTES.login, {
-                    type: "push",
-                    savePage: false,
-                    loadPage: true,
-                  })
-                }
+                onClick={() => navigateTo(CLIENT_ROUTES.login)}
               >
                 <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
               </AppButton>

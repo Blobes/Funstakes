@@ -20,11 +20,7 @@ export const useOffline = () => {
   const switchToOfflineMode = useCallback(() => {
     setOfflineMode(true);
 
-    navigateTo(CLIENT_ROUTES.offline, {
-      type: "push",
-      savePage: false,
-      loadPage: true,
-    });
+    navigateTo(CLIENT_ROUTES.offline);
   }, [setOfflineMode, navigateTo]);
 
   /**
@@ -35,11 +31,7 @@ export const useOffline = () => {
 
     // Retrieve the last known location or fallback to home
     const savedPage = getFromLocalStorage<IPage>() || CLIENT_ROUTES.home;
-
-    navigateTo(savedPage, {
-      type: "replace",
-      loadPage: true,
-    });
+    navigateTo(savedPage, { type: "replace" });
   }, [setOfflineMode, navigateTo]);
 
   return {

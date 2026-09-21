@@ -5,9 +5,6 @@ import { PostService } from "../postService";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useStake } from "../../stake/useStake";
 
-/**
- * Type for the unified feed page.
- */
 type FeedPage = IListPayload<IPost> & { next: number | undefined };
 
 /**
@@ -32,10 +29,8 @@ export const useFeed = () => {
       const res = await fetchFeed(pageParam as number, 20);
       const remotePayload = res.payload || [];
 
-      /**
-       * Dissolve Strategy: Push each post into its own granular key.
-       * This allows individual post updates to sync across the whole app.
-       */
+      // Dissolve Strategy: Push each post into its own granular key.
+      // This allows individual post updates to sync across the whole app.
       remotePayload.forEach((post: IPost) => {
         const baseKey =
           post.postType === "STAKE"
@@ -57,9 +52,7 @@ export const useFeed = () => {
     refetchOnMount: false,
   });
 
-  /**
-   * Combines remote paginated feed and local stakes into a single unified list.
-   */
+  //  Combines remote paginated feed and local stakes into a single unified list.
   const remotePosts = data?.pages.flatMap((page) => page.payload || []) || [];
 
   const feed = [
@@ -76,7 +69,6 @@ export const useFeed = () => {
   return {
     feed,
     rawData: data,
-    // Extract localized feedback safely, falling back to message context on structural omissions
     message: error ? error.localizedErrMsg || error.message : null,
     isLoading,
     handleRefresh: refetch,

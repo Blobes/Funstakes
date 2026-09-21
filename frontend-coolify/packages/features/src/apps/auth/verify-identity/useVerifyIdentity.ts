@@ -73,8 +73,9 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
    */
   useEffect(() => {
     const hasValidSession = Boolean(activeTransit || hasUserCtx);
-    if (hasValidSession) setShouldRestrict?.(!Boolean(targetIdentifier));
-  }, [activeTransit, hasUserCtx, setShouldRestrict]);
+    if (hasValidSession && targetIdentifier) setShouldRestrict?.(false);
+    else setShouldRestrict?.(true);
+  }, [activeTransit, hasUserCtx, setShouldRestrict, targetIdentifier]);
 
   const purpose = activeTransit?.purpose;
 

@@ -84,12 +84,7 @@ export const CachedFeed = () => {
             type: "BUTTON",
             variant: "outlined",
             label: translateTxtString(COMMON_BUTTON_LABELS.explore_funstakes),
-            action: () =>
-              navigateTo(CLIENT_ROUTES.about, {
-                type: "push",
-                savePage: false,
-                loadPage: true,
-              }),
+            action: () => navigateTo(CLIENT_ROUTES.about),
           }}
         />
       ) : (

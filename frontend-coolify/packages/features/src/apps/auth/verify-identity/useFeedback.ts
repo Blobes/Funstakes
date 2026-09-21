@@ -59,12 +59,12 @@ export const useFeedback = () => {
         setAuthUser(userClone);
         if (!userClone.isOnboarded) {
           setAccountStatus("NOT_ONBOARDED");
-          await navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
+          await navigateTo(CLIENT_ROUTES.onboarding);
           onSuccessCallback?.();
           return;
         }
       }
-      await navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
+      await navigateTo(CLIENT_ROUTES.home, { type: "replace" });
       onSuccessCallback?.();
     },
     [
@@ -96,7 +96,7 @@ export const useFeedback = () => {
           msgStatus: "SUCCESS",
         },
       });
-      navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
+      navigateTo(CLIENT_ROUTES.settings);
     },
     [setSBMessage, translateTxtString, navigateTo, setAccessToken],
   );
@@ -127,10 +127,7 @@ export const useFeedback = () => {
         queryClient,
         queryKeys: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
       });
-      navigateTo(CLIENT_ROUTES.resetPassword, {
-        loadPage: true,
-        type: "replace",
-      });
+      navigateTo(CLIENT_ROUTES.resetPassword, { type: "replace" });
     },
     [setSBMessage, translateTxtString, navigateTo],
   );
@@ -145,7 +142,7 @@ export const useFeedback = () => {
         },
       });
 
-      await navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
+      await navigateTo(CLIENT_ROUTES.home, { type: "replace" });
       onSuccessCallback?.();
     },
     [setSBMessage, translateTxtString, navigateTo],

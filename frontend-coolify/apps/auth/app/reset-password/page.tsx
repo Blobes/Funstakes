@@ -31,7 +31,8 @@ export default function ResetPage() {
         justifyContent: "center",
         padding: theme.boxSpacing(10),
         minHeight: "fit-content",
-      }}>
+      }}
+    >
       {authStatus === "TEMPORARY" || authStatus === "UNAUTHENTICATED" ? (
         <Reset />
       ) : (
@@ -49,7 +50,7 @@ export default function ResetPage() {
           }}
           secondaryCta={{
             label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
-            action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
+            action: () => navigateTo(CLIENT_ROUTES.home),
           }}
         />
       )}

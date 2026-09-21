@@ -28,7 +28,8 @@ export const Welcome = () => {
           width: "100%",
           minHeight: "fit-content",
           padding: theme.boxSpacing(12),
-        }}>
+        }}
+      >
         <TransText
           {...COMMON_FEEDBACK.join_funstakes_headline}
           component="h5"
@@ -37,7 +38,8 @@ export const Welcome = () => {
         <AppButton
           variant="contained"
           href={CLIENT_ROUTES.signup.path}
-          onClick={() => navigateTo(CLIENT_ROUTES.signup, { savePage: false })}>
+          onClick={() => navigateTo(CLIENT_ROUTES.signup)}
+        >
           <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />
         </AppButton>
       </Stack>

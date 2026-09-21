@@ -315,11 +315,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const handleBack = useCallback(
     (e: React.MouseEvent) => {
       setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.login, {
-        event: e,
-        loadPage: true,
-        savePage: false,
-      });
+      navigateTo(CLIENT_ROUTES.login, { event: e });
     },
     [navigateTo],
   );

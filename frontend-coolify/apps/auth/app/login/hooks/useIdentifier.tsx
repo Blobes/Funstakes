@@ -49,11 +49,7 @@ export const useIdentifier = ({
   const handleSignupClick = useCallback(
     (e: React.MouseEvent) => {
       setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.signup, {
-        event: e,
-        loadPage: true,
-        savePage: false,
-      });
+      navigateTo(CLIENT_ROUTES.signup, { event: e });
     },
     [navigateTo],
   );

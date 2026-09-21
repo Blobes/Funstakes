@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
 import {
   DISALLOWED_ROUTES,
   IPage,
@@ -12,7 +12,6 @@ import {
 import {
   extractPageTitle,
   getFromLocalStorage,
-  crossZoneCheck,
   saveToLocalStorage,
   delay,
   getCookie,
@@ -31,8 +30,7 @@ export const usePage = () => {
   const modalContent = useGlobalStore((state) => state.modalContent);
   const setPage = useGlobalStore((state) => state.setPage);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-
-  const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const isRedirectingRef = useRef(false);
 
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
@@ -69,7 +67,7 @@ export const usePage = () => {
   const isAuthRoute = isOnAuth(pathname);
   const isOfflineRoute = isOnOffline(pathname);
   const isDoNotSaveRoute = isOnDoNotSave(pathname);
-  const routeGuards = useRouteGuards(pathname, pendingPath);
+  const routeGuards = useRouteGuards(pathname);
 
   /**
    * Persists the last visited page to state and local storage.
@@ -88,35 +86,28 @@ export const usePage = () => {
    */
   const navigateTo = useCallback(
     async (page: IPage, options: NavigateOptions = {}) => {
-      const {
-        type = "push",
-        savePage = true,
-        loadPage = false,
-        event,
-      } = options;
-      const isCrossZone = crossZoneCheck(page.path);
+      const { type = "push", savePage = true, event } = options;
+      // const isCrossZone = crossZoneCheck(page.path);
 
       try {
         if (event) event.preventDefault();
-
-        if (!isCrossZone) setIsPageLoading(true);
+        setIsPageLoading(true);
 
         if (drawerContent) closeDrawer();
         if (modalContent) closeModal();
 
         if (savePage && !isOnDoNotSave(page.path)) setLastPage(page);
 
-        if (isCrossZone) {
-          window.location.assign(page.path);
-          return;
-        }
+        // if (isCrossZone) {
+        //   window.location.assign(page.path);
+        //   return;
+        // }
 
         if (type === "push") router.push(page.path);
         if (type === "replace") router.replace(page.path);
 
-        if (loadPage) await delay(400);
+        await delay(400);
       } finally {
-        setIsNavigating(false);
         setIsPageLoading(false);
       }
     },
@@ -127,7 +118,6 @@ export const usePage = () => {
       closeModal,
       setLastPage,
       setIsPageLoading,
-      setIsNavigating,
       router,
     ],
   );
@@ -143,15 +133,18 @@ export const usePage = () => {
 
     if (routeGuards.isRedirecting) {
       if (tempSessionValid) return; // Disabled auto redirect if there is an available temporary session
+      if (isRedirectingRef.current) return;
 
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect) {
-        setPendingPath(redirect.target.path);
-        await navigateTo(redirect.target, {
-          loadPage: true,
-          savePage: isOnDoNotSave(redirect.target.path) ? false : true,
-        });
-        setIsNavigating(pendingPath !== null);
+        if (redirect.target.path === pathname) return;
+        isRedirectingRef.current = true;
+        setIsNavigating(true);
+        try {
+          await navigateTo(redirect.target);
+        } finally {
+          isRedirectingRef.current = false;
+        }
         return;
       }
     }
@@ -171,7 +164,6 @@ export const usePage = () => {
     setInlineMsg,
     navigateTo,
     isDoNotSaveRoute,
-    setPendingPath,
     setIsNavigating,
   ]);
 

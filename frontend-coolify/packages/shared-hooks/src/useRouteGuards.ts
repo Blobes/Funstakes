@@ -74,30 +74,25 @@ export const REDIRECT_MAP = [
 //   }, [pathname, authStatus, accountStatus, authUser, pendingPath]);
 // };
 
-export const useRouteGuards = (
-  pathname: string,
-  pendingPath: string | null,
-) => {
+export const useRouteGuards = (pathname: string) => {
   const authStatus = useGlobalStore((state) => state.authStatus);
   const accountStatus = useGlobalStore((state) => state.accountStatus);
   const authUser = useGlobalStore((state) => state.authUser);
 
   return useMemo(() => {
-    const isCurrentRoute = pathname === pendingPath;
-    const isUnprotectedRoute = ROUTES_REGISTRY.unprotected.includes(pathname);
-    const isProtectedRoute = !isCurrentRoute && !isUnprotectedRoute;
+    const isUnProtectedRoute = ROUTES_REGISTRY.unprotected.includes(pathname);
     const isOnDisallowedRoute = DISALLOWED_ROUTES.includes(pathname);
 
     const needsLogin =
       authStatus === "UNAUTHENTICATED" &&
-      isProtectedRoute &&
+      !isUnProtectedRoute &&
       pathname !== CLIENT_ROUTES.home.path;
 
     const needsOtpVerification =
       authStatus === "AUTHENTICATED" &&
       (accountStatus === "NOT_VERIFIED" ||
         (authUser && !authUser.isEmailVerified)) &&
-      isProtectedRoute &&
+      !isUnProtectedRoute &&
       pathname !== CLIENT_ROUTES.verifyIdentity.path;
 
     const needsOnboarding =
@@ -105,14 +100,14 @@ export const useRouteGuards = (
       !needsOtpVerification &&
       (accountStatus === "NOT_ONBOARDED" ||
         (authUser && !authUser.isOnboarded)) &&
-      isProtectedRoute &&
+      !isUnProtectedRoute &&
       pathname !== CLIENT_ROUTES.onboarding.path &&
       pathname !== CLIENT_ROUTES.verifyIdentity.path;
 
     const needsRestoreAccount =
       !needsLogin &&
       accountStatus === "DEACTIVATED" &&
-      isProtectedRoute &&
+      !isUnProtectedRoute &&
       pathname !== CLIENT_ROUTES.restoreAccount.path;
 
     return {
@@ -128,5 +123,5 @@ export const useRouteGuards = (
         needsRestoreAccount ||
         isOnDisallowedRoute,
     };
-  }, [pathname, authStatus, accountStatus, authUser, pendingPath]);
+  }, [pathname, authStatus, accountStatus, authUser]);
 };

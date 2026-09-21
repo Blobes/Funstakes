@@ -97,11 +97,7 @@ export const useSignup = () => {
   const handleLoginClick = useCallback(
     (e: React.MouseEvent) => {
       clearInlineMsg();
-      navigateTo(CLIENT_ROUTES.login, {
-        event: e,
-        loadPage: true,
-        savePage: false,
-      });
+      navigateTo(CLIENT_ROUTES.login, { event: e });
     },
     [navigateTo, clearInlineMsg],
   );

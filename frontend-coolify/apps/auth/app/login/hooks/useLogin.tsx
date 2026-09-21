@@ -88,10 +88,7 @@ export const useLogin = ({ identifier, setStep, inputType }: LoginProps) => {
   const handleResetPassClick = useCallback(
     (e: React.MouseEvent) => {
       setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.resetPassword, {
-        event: e,
-        loadPage: true,
-      });
+      navigateTo(CLIENT_ROUTES.resetPassword, { event: e });
     },
     [navigateTo, setInlineMsg],
   );

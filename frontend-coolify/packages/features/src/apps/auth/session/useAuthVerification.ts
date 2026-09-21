@@ -93,9 +93,9 @@ export const useAuthVerification = () => {
       }
     },
     enabled: !temporarySession,
-    retry: false,
+    retry: 3,
     refetchOnWindowFocus: true,
-    refetchInterval: 30 * 60 * 1000, // 30 mins
+    refetchInterval: 20 * 60 * 1000, // 20 mins
     refetchIntervalInBackground: false,
   });
 
@@ -113,6 +113,6 @@ export const useAuthVerification = () => {
 
   return {
     verifyAuth,
-    isVerifying: isFetching,
+    isVerifyingAuth: isFetching,
   };
 };

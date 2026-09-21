@@ -73,11 +73,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
           ? {
               cta: {
                 label: "Go Offline",
-                action: () =>
-                  navigateTo(CLIENT_ROUTES.offline, {
-                    savePage: false,
-                    loadPage: true,
-                  }),
+                action: () => navigateTo(CLIENT_ROUTES.offline),
               },
             }
           : {}),

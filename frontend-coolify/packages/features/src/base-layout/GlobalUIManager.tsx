@@ -48,13 +48,12 @@ export const GlobalUIManager = ({
   const checkingSignal = useGlobalStore((state) => state.checkingSignal);
   const accountStatus = useGlobalStore((state) => state.accountStatus);
   const isNavigating = useGlobalStore((state) => state.isNavigating);
-
   const setIsNavigating = useGlobalStore((state) => state.setIsNavigating);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
   const { handlePageChange } = usePage();
   const pathname = usePathname();
-  const { verifyAuth } = useAuthVerification();
+  const { verifyAuth, isVerifyingAuth } = useAuthVerification();
   const { setSBTimer, removeSBMessages } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
 
@@ -101,7 +100,7 @@ export const GlobalUIManager = ({
       await verifyAuth();
     };
     init();
-  }, [verifyAuth, verifySignal]);
+  }, []); // verifyAuth, verifySignal
 
   // Runs heart-beat update for time-dependent state.
   useEffect(() => {
@@ -134,11 +133,11 @@ export const GlobalUIManager = ({
   }, [pathname, setIsNavigating]);
 
   // Determines if splash should remain active on reload until auth/boot finishes.
-  const isAuthInitializing = authStatus === "LOADING";
-  const showSplashUI = isReload && (!isSplashTimerDone || isAuthInitializing);
+  const showSplashUI = isReload && !isSplashTimerDone;
   if (showSplashUI) return <SplashUI />;
 
   // Determining if the app is still in its initial boot state
+  const isAuthInitializing = isVerifyingAuth || authStatus === "LOADING";
   const showLoaderUI =
     isNavigating || isAuthInitializing || networkStatus === "UNKNOWN";
   if (showLoaderUI) return <PageLoaderUI />;

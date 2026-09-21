@@ -18,7 +18,7 @@ interface footerProps {
  */
 export const Footer = ({ navList }: footerProps) => {
   const theme = useTheme();
-  const { isOnDoNotSave, navigateTo } = usePage();
+  const { navigateTo } = usePage();
 
   return (
     <Stack
@@ -30,7 +30,8 @@ export const Footer = ({ navList }: footerProps) => {
         gap: theme.gap(2),
         width: "100%",
         padding: theme.boxSpacing(6, 12),
-      }}>
+      }}
+    >
       {navList.map((item, index) => (
         <Fragment key={index}>
           <AnchorLink
@@ -38,18 +39,13 @@ export const Footer = ({ navList }: footerProps) => {
             href={item.url ?? "#"}
             onClick={() => {
               if (item.title && item.url)
-                navigateTo(
-                  { title: item.title, path: item.url },
-                  {
-                    loadPage: true,
-                    savePage: isOnDoNotSave(item.url) ? false : true,
-                  },
-                );
+                navigateTo({ title: item.title, path: item.url });
             }}
             style={{
               color: theme.palette.gray[200],
               "&:hover": { color: theme.palette.gray[300] },
-            }}>
+            }}
+          >
             {item.title}
           </AnchorLink>
 

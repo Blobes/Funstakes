@@ -44,8 +44,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <ShieldCheck />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
-        action: () =>
-          navigateTo(CLIENT_ROUTES.home, { type: "replace", loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.home, { type: "replace" }),
         href: CLIENT_ROUTES.home.path,
       },
     },
@@ -59,8 +58,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <ShieldCheck />,
       primaryCta: {
         label: AUTH_BUTTON_LABELS.login.tValue,
-        action: () =>
-          navigateTo(CLIENT_ROUTES.login, { loadPage: true, savePage: false }),
+        action: () => navigateTo(CLIENT_ROUTES.login),
       },
     },
     UNAUTHORIZED: {
@@ -69,7 +67,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <LucideShieldOff />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
-        action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.home),
       },
     },
     NETWORK_GLITCH: {
@@ -135,7 +133,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <Construction />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
-        action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.home),
       },
     },
     BANNED: {
@@ -144,7 +142,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <Ban />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.view_terms),
-        action: () => navigateTo(CLIENT_ROUTES.terms, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.terms),
       },
     },
     NEEDS_LOGIN: {
@@ -153,12 +151,11 @@ export const useDisplayFBConfig = (): Record<
       icon: <Lock />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.login_now),
-        action: () =>
-          navigateTo(CLIENT_ROUTES.login, { loadPage: true, savePage: false }),
+        action: () => navigateTo(CLIENT_ROUTES.login),
       },
       secondaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.proceed),
-        action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.home),
       },
     },
     NEEDS_OTP_VERIFICATION: {
@@ -167,8 +164,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <UserPlus />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.otp_verify_code),
-        action: () =>
-          navigateTo(CLIENT_ROUTES.verifyIdentity, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.verifyIdentity),
       },
     },
     NEEDS_ONBOARDING: {
@@ -177,7 +173,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <UserPlus />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.resume),
-        action: () => navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.onboarding),
       },
     },
     NEEDS_RESTORE: {
@@ -188,8 +184,7 @@ export const useDisplayFBConfig = (): Record<
       icon: <RefreshCw />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.restore_account),
-        action: () =>
-          navigateTo(CLIENT_ROUTES.restoreAccount, { loadPage: true }),
+        action: () => navigateTo(CLIENT_ROUTES.restoreAccount),
       },
     },
   };

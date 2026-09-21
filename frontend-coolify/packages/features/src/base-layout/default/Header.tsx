@@ -62,12 +62,14 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             scrollDir === "down" ? "translateY(-100%)" : "translateY(0)",
           transition: "transform 0.3s ease-in-out",
         }),
-      }}>
+      }}
+    >
       {/* Logo */}
       <AnchorLink
         href={CLIENT_ROUTES.home.path}
         onClick={handleLogo}
-        style={{ display: "inline-flex" }}>
+        style={{ display: "inline-flex" }}
+      >
         <AppLogo size={isDesktop ? 40 : 34} />
       </AnchorLink>
 
@@ -87,7 +89,8 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
                 height: 36,
                 padding: theme.boxSpacing(4),
                 border: `1px solid ${theme.palette.gray.trans[1]}`,
-              }}>
+              }}
+            >
               <Bell
                 style={{ width: "100%", stroke: theme.palette.gray[200] }}
               />
@@ -132,7 +135,8 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             <AppButton
               variant="outlined"
               size="small"
-              onClick={handleCreatePost}>
+              onClick={handleCreatePost}
+            >
               <TransText {...POST_BUTTON_LABELS.create_post} noComponent />
             </AppButton>
           </>
@@ -144,12 +148,8 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             variant="outlined"
             size="small"
             href={CLIENT_ROUTES.login.path}
-            onClick={() =>
-              navigateTo(CLIENT_ROUTES.login, {
-                loadPage: true,
-                savePage: false,
-              })
-            }>
+            onClick={() => navigateTo(CLIENT_ROUTES.login)}
+          >
             <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
           </AppButton>
         )}

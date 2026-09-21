@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 import { Box, Stack } from "@mui/material";
 import { UpdatesCarousel } from "./vibezSlider/Slider";
 import {
-  Feedback,
   PostSkeleton,
   ProgressUI,
   BoxSkeleton,
@@ -34,7 +33,6 @@ export const Feed = () => {
     message,
     isLoading,
     handleRefresh,
-    rawData,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -44,8 +42,6 @@ export const Feed = () => {
     [CACHE_KEYS.POST.GISTS],
     [CACHE_KEYS.POST.STAKES],
   ]);
-
-  // usePageCache(rawData, CACHE_KEYS.POST.FEED);
 
   const { translateTxtString } = useStaticTranslation();
   const { sentinelRef } = useInfiniteScroll({

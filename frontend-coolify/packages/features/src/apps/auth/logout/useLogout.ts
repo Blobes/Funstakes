@@ -41,9 +41,7 @@ export const useLogout = () => {
 
       // Handle navigation logic
       if (pathname !== CLIENT_ROUTES.home.path) {
-        navigateTo(CLIENT_ROUTES.home, {
-          loadPage: true,
-        });
+        navigateTo(CLIENT_ROUTES.home);
       } else {
         router.refresh();
       }

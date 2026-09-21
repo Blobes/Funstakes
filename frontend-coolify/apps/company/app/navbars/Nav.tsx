@@ -73,9 +73,8 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
           variant="outlined"
           size="small"
           href={CLIENT_ROUTES.home.path}
-          onClick={() =>
-            navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
-          }>
+          onClick={() => navigateTo(CLIENT_ROUTES.home)}
+        >
           <TransText {...COMMON_BUTTON_LABELS.go_to_funstakes} noComponent />
         </AppButton>
       )}
@@ -86,13 +85,8 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             variant="contained"
             size="small"
             href={CLIENT_ROUTES.signup.path}
-            onClick={() =>
-              navigateTo(CLIENT_ROUTES.signup, {
-                type: "push",
-                savePage: false,
-                loadPage: true,
-              })
-            }>
+            onClick={() => navigateTo(CLIENT_ROUTES.signup)}
+          >
             <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
             Sign up
           </AppButton>
@@ -100,13 +94,8 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             variant="outlined"
             size="small"
             href={CLIENT_ROUTES.login.path}
-            onClick={() =>
-              navigateTo(CLIENT_ROUTES.login, {
-                type: "push",
-                savePage: false,
-                loadPage: true,
-              })
-            }>
+            onClick={() => navigateTo(CLIENT_ROUTES.login)}
+          >
             Login
           </AppButton>
         </>
