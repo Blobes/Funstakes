@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
@@ -30,6 +30,8 @@ import { LoginProps } from "../types";
 import { asset } from "@repo/assets";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useLogin } from "./hooks/useLogin";
+import { useOAuth } from "../oauth/useOauth";
+import { useSearchParams } from "next/navigation";
 
 export const IdentifierStep: React.FC<LoginProps> = ({
   setStep,
@@ -42,6 +44,16 @@ export const IdentifierStep: React.FC<LoginProps> = ({
   const { translateTxtString } = useStaticTranslation();
   const { INPUT_GUIDES } = useGuides();
   const { handleResetPassClick } = useLogin({});
+
+  const {
+    handleGoogleRedirectSignIn,
+    handleAppleSignIn,
+    //  handleOAuthRedirectError,
+    isOAuthLoading,
+  } = useOAuth({
+    purpose: "LOGIN",
+    autoPromptGoogle: true,
+  });
 
   const inlineTxtStyle = useMemo(
     () => ({
@@ -75,6 +87,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
     inlineTxtStyle,
     handleResetPassClick,
   });
+
+  const isGlobalLoading = isAuthLoading || isOAuthLoading;
 
   return (
     <Stack gap={theme.gap(8)}>
@@ -122,11 +136,12 @@ export const IdentifierStep: React.FC<LoginProps> = ({
       <Stack direction="row">
         <AppButton
           variant="outlined"
+          onClick={handleGoogleRedirectSignIn}
           style={{
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isAuthLoading }}
+          options={{ disabled: isGlobalLoading }}
         >
           <SVGWrapper
             src={asset.googleLogo}
@@ -137,11 +152,12 @@ export const IdentifierStep: React.FC<LoginProps> = ({
         </AppButton>
         <AppButton
           variant="outlined"
+          onClick={handleAppleSignIn}
           style={{
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isAuthLoading }}
+          options={{ disabled: isGlobalLoading }}
         >
           <SVGWrapper
             src={asset.appleLogo}
@@ -198,8 +214,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           list={COUNTRY_LIST}
           listName={ListType.COUNTRY}
           showSearchBar
-          stickToScreen={false}
-          heightThreshold={65}
+          heightThreshold={64}
+          adaptToParentWidth
           style={{
             item: {
               padding: theme.boxSpacing(4, 8),
@@ -225,7 +241,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           style={{
             width: "100%",
           }}
-          options={{ disabled: isSubmitDisabled }}
+          options={{ disabled: isSubmitDisabled || isGlobalLoading }}
         >
           {isAuthLoading ? (
             <ProgressUI options={{ size: 25 }} />

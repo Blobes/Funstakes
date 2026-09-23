@@ -170,6 +170,7 @@ export const SERVER_API = {
   verifyBot: `${API_BASE.auth}/verify-bot`,
   checkWhatsappStatus: `${API_BASE.auth}/whatsapp-status`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
+  oauthPopup: `${API_BASE.auth}/oauth/popup`,
   // Device
   getDevices: `${API_BASE.auth}/devices/`,
   setPrimaryDevice: (userId: string) =>

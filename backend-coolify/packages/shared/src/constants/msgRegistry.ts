@@ -398,9 +398,9 @@ export const MESSAGES_REGISTRY = {
     },
     INVALID_OAUTH_TOKEN: {
       i18nKey: "auth.invalid_oauth_token",
-      message: "The provided identity token could not be verified.",
+      message: "OAuth code missing or invalid. Please try logging in again.",
     },
-    INVALID_TOKEN: {
+    INVALD_TOKEN: {
       i18nKey: "auth.invalid_token",
       message: "Invalid or expired token",
     },

@@ -124,8 +124,3 @@ declare module "@mui/material/Typography" {
     text6Caps: true;
   }
 }
-
-declare module "*.lottie" {
-  const src: string;
-  export default src;
-}

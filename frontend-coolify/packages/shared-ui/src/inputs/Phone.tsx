@@ -170,8 +170,8 @@ export const PhoneInput = ({
           list={COUNTRY_LIST}
           listName={ListType.COUNTRY}
           showSearchBar
-          stickToScreen={false}
-          heightThreshold={65}
+          heightThreshold={64}
+          adaptToParentWidth
           style={{
             item: {
               padding: theme.boxSpacing(4, 8),

@@ -12,11 +12,13 @@ import {
   MESSAGES_REGISTRY,
 } from "@repo/shared";
 import { setAuthCookies } from "@repo/security";
+import { getGoogleOAuthClient } from "./oAuthConfig";
+import { FRONTEND_URL, GATEWAY_URL } from "../../envVars";
 
 /**
  * Controller endpoint to exchange validated provider credentials for platform session JWTs.
  */
-export const oauthExchange = async (
+export const oauthSpa = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -70,25 +72,6 @@ export const oauthExchange = async (
     }
 
     if (
-      result.status === "EMAIL_NOT_FOUND" ||
-      result.status === "USER_NOT_FOUND"
-    ) {
-      return res.status(404).json({
-        status: "ERROR",
-        ...result.transInfo,
-        payload: null,
-      });
-    }
-
-    if (result.status === "CONFLICT_EMAIL_IN_USE") {
-      return res.status(409).json({
-        status: "ERROR",
-        ...result.transInfo,
-        payload: null,
-      });
-    }
-
-    if (
       result.status === "ACCOUNT_DEACTIVATED" ||
       result.status === "ACCOUNT_SUSPENDED" ||
       result.status === "ACCOUNT_BANNED"
@@ -120,10 +103,95 @@ export const oauthExchange = async (
       ...result.transInfo,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
+      isNewUser: result.isNewUser,
       payload: result.payload,
     });
   } catch (error: any) {
     console.error("OAuth Exchange Error:", error);
+    return forwardError(
+      next,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
+  }
+};
+
+/**
+ * Initiates full page Google OAuth flow by redirecting the browser directly to Google sign-in.
+ */
+export const initiateGoogleOAuth = (req: Request, res: Response): void => {
+  const redirectUri = `${GATEWAY_URL}/oauth/google/callback`;
+  const oauth2Client = getGoogleOAuthClient(redirectUri);
+
+  const authUrl = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email",
+    ],
+    prompt: "select_account",
+  });
+
+  res.redirect(authUrl);
+};
+
+/**
+ * Handles callback redirect from Google OAuth server after full page sign in.
+ */
+export const handleGoogleOAuthCallback = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
+  const { code } = req.query;
+  const frontendUrl = FRONTEND_URL || "http://localhost:3000";
+
+  if (!code || typeof code !== "string") {
+    return res.redirect(`${frontendUrl}/login?error=INVALID_OAUTH_CODE`);
+  }
+
+  try {
+    const redirectUri = `${GATEWAY_URL}/oauth/google/callback`;
+    const oauth2Client = getGoogleOAuthClient(redirectUri);
+
+    const { tokens } = await oauth2Client.getToken(code);
+
+    if (!tokens.id_token) {
+      return res.redirect(`${frontendUrl}/login?error=MISSING_ID_TOKEN`);
+    }
+
+    const deviceToken = getOrSetDeviceToken(req, res);
+    const userAgent = req.headers["user-agent"] || "";
+    const userIp = getClientIp(req);
+    const location = await buildLocationFromRequest(req, userIp);
+
+    const result = await authenticateWithOAuth({
+      provider: "GOOGLE",
+      idToken: tokens.id_token,
+      deviceToken,
+      userAgent,
+      ipAddress: userIp,
+      location,
+      purpose: "LOGIN",
+    });
+
+    if (
+      result.status !== "SUCCESS" ||
+      !result.accessToken ||
+      !result.refreshToken
+    ) {
+      return res.redirect(`${frontendUrl}/login?error=${result.status}`);
+    }
+
+    setAuthCookies(res, {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    });
+
+    const redirectPath = result.isNewUser ? "/onboarding" : "/";
+    return res.redirect(`${frontendUrl}${redirectPath}`);
+  } catch (error: any) {
+    console.error("Google OAuth Callback Error:", error);
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,

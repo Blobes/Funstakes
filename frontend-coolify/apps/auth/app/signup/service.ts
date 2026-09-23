@@ -11,7 +11,6 @@ interface SignupRequest {
 
 export interface SignupResponse extends ISinglePayload<IUser> {
   accessToken: string | null;
-  refreshToken: string | null;
 }
 
 /**

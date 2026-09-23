@@ -24,6 +24,7 @@ interface MenuProps {
   heightThreshold?: number;
   marginThreshold?: number;
   onMenuClose?: () => void;
+  adaptToParentWidth?: boolean;
   style?: GenericStyle;
 }
 
@@ -35,9 +36,10 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
     {
       children,
       stickToScreen = true,
-      heightThreshold,
-      marginThreshold = 16,
+      heightThreshold = 40,
+      marginThreshold = 20,
       onMenuClose,
+      adaptToParentWidth = false,
       style,
     },
     ref,
@@ -56,7 +58,16 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
     useImperativeHandle(ref, () => ({
       openMenu: (anchor: HTMLElement) => {
         if (anchor) {
-          setAnchorWidth(anchor.getBoundingClientRect().width);
+          const anchorWidth = anchor.getBoundingClientRect().width;
+          const parentElement = anchor.parentElement;
+
+          if (adaptToParentWidth && parentElement) {
+            const parentWidth = parentElement.getBoundingClientRect().width;
+            const isParentWider = parentWidth > anchorWidth;
+            setAnchorWidth(isParentWider ? parentWidth : anchorWidth);
+          } else {
+            setAnchorWidth(anchorWidth);
+          }
         }
         setAnchorEl(anchor);
       },
@@ -94,8 +105,11 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
               width: anchorWidth ? `${anchorWidth}px` : "fit-content",
               minWidth: 180,
               maxWidth: anchorWidth ? `${anchorWidth}px` : "unset",
-              maxHeight: `calc(100vh - ${heightThreshold ?? 20}%)`,
-              marginTop: theme.gap(4),
+              maxHeight: `calc(100vh - ${heightThreshold}%)`,
+              marginTop: theme.gap(6),
+              [theme.breakpoints.up("md")]: {
+                marginLeft: -1,
+              },
               overflow: "hidden",
               "& ul": {
                 display: "flex",
@@ -169,6 +183,7 @@ export const DisplayList = <T extends IMenuItem>({
   infiniteScrollHook,
   stickToScreen,
   heightThreshold,
+  adaptToParentWidth,
 }: MenuListProps<T> & MenuProps) => {
   const theme = useTheme();
   const { translateTxtString } = useStaticTranslation();
@@ -256,12 +271,13 @@ export const DisplayList = <T extends IMenuItem>({
       stickToScreen={stickToScreen}
       heightThreshold={heightThreshold}
       onMenuClose={onMenuClose}
+      adaptToParentWidth={adaptToParentWidth}
       style={{
         [theme.breakpoints.down("sm")]: {
           width: "100%",
           maxWidth: "unset",
         },
-        ...(style?.container as any),
+        ...(style?.container as GenericStyle),
       }}
     >
       {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (

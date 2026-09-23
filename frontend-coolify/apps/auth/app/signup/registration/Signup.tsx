@@ -27,6 +27,7 @@ import {
 } from "@repo/shared-ui";
 import { useSignup } from "./useSignup";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
+import { useOAuth } from "../../oauth/useOauth";
 
 interface SignupProps {
   style?: {
@@ -42,6 +43,12 @@ interface SignupProps {
 export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const theme = useTheme();
   const { INPUT_GUIDES } = useGuides();
+
+  const { handleGoogleRedirectSignIn, handleAppleSignIn, isOAuthLoading } =
+    useOAuth({
+      purpose: "REGISTRATION",
+      autoPromptGoogle: true,
+    });
 
   const {
     email,
@@ -63,6 +70,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     handleLoginClick,
     clearInlineMsg,
   } = useSignup();
+
+  const isGlobalLoading = isSubmitLoading || isOAuthLoading;
 
   const { translateTxtString } = useStaticTranslation();
 
@@ -142,11 +151,12 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
       <Stack direction="row" gap={theme.gap(4)} sx={{ width: "100%" }}>
         <AppButton
           variant="outlined"
+          onClick={handleGoogleRedirectSignIn}
           style={{
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isSubmitLoading }}
+          options={{ disabled: isGlobalLoading }}
         >
           <SVGWrapper
             src={asset.googleLogo}
@@ -157,11 +167,12 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         </AppButton>
         <AppButton
           variant="outlined"
+          onClick={handleAppleSignIn}
           style={{
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isSubmitLoading }}
+          options={{ disabled: isGlobalLoading }}
         >
           <SVGWrapper
             src={asset.appleLogo}
@@ -248,7 +259,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             width: "100%",
             marginTop: theme.gap(4),
           }}
-          options={{ disabled: isSubmitDisabled }}
+          options={{ disabled: isSubmitDisabled || isGlobalLoading }}
         >
           {isSubmitLoading ? (
             <ProgressUI options={{ size: 25 }} />

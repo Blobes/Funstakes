@@ -30,6 +30,12 @@ export const env = {
   get FUNSTAKES_REDIS_URL() {
     return getEnv("FUNSTAKES_REDIS_URL");
   },
+  get GATEWAY_URL() {
+    return getEnv("GATEWAY_URL");
+  },
+  get FRONTEND_URL() {
+    return getEnv("FRONTEND_URL");
+  },
 };
 
 /**
@@ -44,9 +50,12 @@ export const authTokens: IAuthConfig = {
   },
 };
 
-export const oAuthID = {
+export const oauthId = {
   get GOOGLE_CLIENT_ID() {
     return getEnv("GOOGLE_CLIENT_ID");
+  },
+  get GOOGLE_CLIENT_SECRET() {
+    return getEnv("GOOGLE_CLIENT_SECRET");
   },
   get APPLE_CLIENT_ID() {
     return getEnv("APPLE_CLIENT_ID");
@@ -149,3 +158,5 @@ export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.PORT;
 export const MONGO_URI = env.MONGO_URI;
 export const FUNSTAKES_REDIS_URL = env.FUNSTAKES_REDIS_URL;
+export const GATEWAY_URL = env.GATEWAY_URL;
+export const FRONTEND_URL = env.FRONTEND_URL;

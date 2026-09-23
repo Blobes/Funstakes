@@ -38,6 +38,7 @@ export interface UseFeedbackProps {
   resolvedType?: string;
   handleFailedAttempts?: () => void;
   setMsg?: React.Dispatch<React.SetStateAction<React.ReactNode | null>>;
+  loginMethod?: "INTERNAL" | "OAUTH";
 }
 
 export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
@@ -55,7 +56,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
    */
   const handleLoginSuccess = useCallback(
     async (feedbackProps: UseFeedbackProps) => {
-      const { loginResponse, identifierType } = feedbackProps;
+      const { loginResponse, identifierType, loginMethod } = feedbackProps;
 
       if (loginResponse?.httpStatus !== 200) return;
 
@@ -65,24 +66,26 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       if (loginResponse.status === "SUCCESS" && user) {
         setAccessToken(loginResponse.accessToken);
 
-        const hasTotp = checkTotpConfiguration(user);
-        const isEmail = identifierType === "EMAIL" && !hasTotp;
+        if (loginMethod === "INTERNAL") {
+          const hasTotp = checkTotpConfiguration(user);
+          const isEmail = identifierType === "EMAIL" && !hasTotp;
 
-        if (loginResponse.requireVerification) {
-          setAccountStatus("NOT_VERIFIED");
-          handleVerificationNavigation({
-            user,
-            deviceId: loginResponse.deviceId,
-            identifier: user.email || user.phoneNumber || identifier,
-            identifierType:
-              identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
-            purpose: "LOGIN_VERIFICATION",
-            otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
-            verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
-            reason: loginResponse.verificationReason,
-            text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
-          });
-          return;
+          if (loginResponse.requireVerification) {
+            setAccountStatus("NOT_VERIFIED");
+            handleVerificationNavigation({
+              user,
+              deviceId: loginResponse.deviceId,
+              identifier: user.email || user.phoneNumber || identifier,
+              identifierType:
+                identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+              purpose: "LOGIN_VERIFICATION",
+              otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
+              verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
+              reason: loginResponse.verificationReason,
+              text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
+            });
+            return;
+          }
         }
 
         setAuthUser(user);

@@ -75,7 +75,11 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
         },
       }}
     >
-      <AppLogo size={50} />
+      <AppLogo
+        size={50}
+        color={theme.palette.gray[300]}
+        sx={{ alignSelf: "center" }}
+      />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>
   );

@@ -14,7 +14,11 @@ import { getDevices } from "./device/getAllDevices";
 import { removeDevice } from "./device/removeDevice";
 import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
-import { oauthExchange } from "./oauth/oauthExchange";
+import {
+  handleGoogleOAuthCallback,
+  initiateGoogleOAuth,
+  oauthSpa,
+} from "./oauth/oauthSignin";
 import { verifyTotpCode } from "./verification/totp/controller/verify";
 import { fetchTotpSetup } from "./verification/totp/controller/fetch";
 import { autoInvalidateUserCache } from "@repo/shared";
@@ -57,7 +61,9 @@ router.post(
 );
 
 // --- OAUTH ---
-router.post("/oauth-exchange", oauthExchange);
+router.post("/oauth/popup", oauthSpa);
+router.get("/oauth/google", initiateGoogleOAuth);
+router.get("/oauth/google/callback", handleGoogleOAuthCallback);
 
 // --- SESSION MANAGEMENT ---
 router.post("/session/login", loginUser);
@@ -79,11 +85,7 @@ router.post(
 router.post("/otp/send", sendMsgCode);
 router.post("/otp/verify", verifyMsgOtp);
 router.post("/otp/reset", resetMessagingOtp);
-router.patch(
-  "/otp/update-account",
-  //  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
-  commitAccountUpdate,
-);
+router.patch("/otp/update-account", commitAccountUpdate);
 router.get("/totp", authenticate, checkAccountRestriction, fetchTotpSetup);
 router.post("/totp/verify", optionallyAuthenticate, verifyTotpCode);
 router.post(

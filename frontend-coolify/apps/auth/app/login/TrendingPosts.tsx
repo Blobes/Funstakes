@@ -45,7 +45,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         justifyContent: "flex-end",
         borderRadius: 0,
         background: data.bgColor,
-        ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
+        ...(!hasMedia &&
+          applyBGPattern({ url: asset.bgNoise, contain: true, opacity: 1 })),
         gap: theme.gap(18),
         padding: theme.boxSpacing(18),
         [theme.breakpoints.down("sm")]: {

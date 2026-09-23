@@ -17,7 +17,7 @@ import {
   IOAuthProfile,
   verifyAppleToken,
   verifyGoogleToken,
-} from "./oAuthClients";
+} from "./oAuthConfig";
 import { issueAuthTokens } from "@repo/security";
 import mongoose from "mongoose";
 import { syncDefaultRole } from "../helpers/syncRole";
@@ -32,7 +32,7 @@ interface IOAuthAuthInput {
   userAgent: string;
   ipAddress: string;
   location?: ILocation;
-  purpose: OAuthPurpose;
+  purpose?: OAuthPurpose;
   identityPayload?: {
     firstName?: string;
     lastName?: string;
@@ -44,19 +44,18 @@ interface IOAuthAuthResult {
     | RestrictionStatus
     | "SUCCESS"
     | "MERGE_RESTRICTION"
-    | "EMAIL_NOT_FOUND"
     | "USER_NOT_FOUND"
-    | "CONFLICT_EMAIL_IN_USE"
     | "UNSUPPORTED_OAUTH_PROVIDER"
     | "INVALID_OAUTH_TOKEN";
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
+  isNewUser?: boolean;
   payload?: any;
 }
 
 /**
- * Validates third-party provider ID tokens and routes requests via explicit purpose-driven registration or login pipelines.
+ * Validates third-party provider ID tokens and adaptively logs in existing users or provisions new accounts.
  */
 export const authenticateWithOAuth = async (
   input: IOAuthAuthInput,
@@ -74,7 +73,7 @@ export const authenticateWithOAuth = async (
 
   let profile: IOAuthProfile;
 
-  // Single unified try-catch block handling token verification for all supported providers
+  // Verify provider identity token
   try {
     if (provider === "GOOGLE") {
       profile = await verifyGoogleToken(idToken);
@@ -100,31 +99,15 @@ export const authenticateWithOAuth = async (
     throw error;
   }
 
-  // Routing identifier checking logic through primary check layer
+  // Check if an account already exists for the verified email
   const checkResult = await executeAccountCheck({
     identifierType: "EMAIL",
     identifier: profile.email,
     purpose,
   });
-  const accountStatus = checkResult.payload?.accountStatus;
 
-  // --- Registration purpose pipeline ---
-  if (purpose === "REGISTRATION") {
-    if (checkResult.isExisting) {
-      const { isRestricted, status, transInfo } = validateAccountStatus({
-        accountStatus: accountStatus,
-        mode: "RESTRICTED",
-      });
-      if (isRestricted) {
-        return { status, transInfo };
-      }
-
-      return {
-        status: "CONFLICT_EMAIL_IN_USE",
-        transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED,
-      };
-    }
-
+  // --- PATH A: Account Does NOT Exist (Automatic Registration) ---
+  if (!checkResult.isExisting || checkResult.status === "NOT_FOUND") {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -170,6 +153,7 @@ export const authenticateWithOAuth = async (
           MESSAGES_REGISTRY.AUTH.REGISTRATION_SUCCESSFUL_VIA_OAUTH(provider),
         accessToken,
         refreshToken,
+        isNewUser: true,
         payload: safeData,
       };
     } catch (error) {
@@ -180,16 +164,12 @@ export const authenticateWithOAuth = async (
     }
   }
 
-  // --- Login purpose pipeline ---
-  if (checkResult.status === "NOT_FOUND") {
-    return {
-      status: "EMAIL_NOT_FOUND",
-      transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND,
-    };
-  }
+  // --- PATH B: Account Exists (Automatic Login) ---
+  const accountStatus = checkResult.payload?.accountStatus;
 
+  // Enforce restriction status validation (bans, suspensions, deactivations)
   const { isRestricted, status, transInfo } = validateAccountStatus({
-    accountStatus: accountStatus,
+    accountStatus,
     mode: "RESTRICTED",
   });
   if (isRestricted) {
@@ -208,7 +188,7 @@ export const authenticateWithOAuth = async (
     };
   }
 
-  // Enforcing third-party mapping restriction checks based on registration origin
+  // Prevent conflicting OAuth provider mapping (e.g. Google user trying to sign in with Apple)
   if (
     user.signedUpWith &&
     user.signedUpWith !== "EMAIL" &&
@@ -220,14 +200,14 @@ export const authenticateWithOAuth = async (
     };
   }
 
-  // Binding the generic identity identifier if missing, leaving signedUpWith unaltered
+  // Bind OAuth provider ID if missing without altering original signedUpWith method
   if (!user.oAuthId) {
     user.oAuthId = profile.providerId;
     user.lastActiveAt = new Date();
     await user.save();
   }
 
-  // Idempotently guarantee baseline role and subscription for existing account login
+  // Idempotently guarantee baseline role and entitlements
   await syncDefaultRole(user._id);
 
   const device = await upsertDevice({ user, deviceToken, userAgent });
@@ -255,6 +235,7 @@ export const authenticateWithOAuth = async (
       MESSAGES_REGISTRY.AUTH.LOGGED_IN_SUCCESSFULLY_VIA_OAUTH(provider),
     accessToken,
     refreshToken,
+    isNewUser: false,
     payload: safeData,
   };
 };

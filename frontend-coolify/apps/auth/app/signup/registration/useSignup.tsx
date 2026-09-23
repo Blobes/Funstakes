@@ -53,7 +53,7 @@ export const useSignup = () => {
     onClearFeedback: clearInlineMsg,
   });
 
-  const { handleSuccess, handleError } = useSignupFeedback({ email });
+  const { handleSignupSuccess, handleSignupError } = useSignupFeedback();
 
   const {
     password,
@@ -76,11 +76,14 @@ export const useSignup = () => {
     },
     onSuccess: (res) => {
       setIsRedirecting(true);
-      handleSuccess(res);
+      handleSignupSuccess(res, {
+        email,
+        signupMethod: "INTERNAL",
+      });
     },
     onError: (err: ApiError) => {
       setIsRedirecting(false);
-      handleError(err, setInlineMsg);
+      handleSignupError(err, setInlineMsg);
     },
     onMutate: () => {
       clearInlineMsg();

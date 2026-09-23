@@ -22,7 +22,7 @@ export default function SignupPage() {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "fit-content",
-        ...applyBGPattern({ url: asset.zebraPattern, opacity: 0.04 }),
+        ...applyBGPattern({ url: asset.bgNoise, opacity: 0.6 }),
         [theme.breakpoints.down("md")]: {
           minHeight: "unset",
           padding: theme.boxSpacing(0),
@@ -71,6 +71,7 @@ export default function SignupPage() {
               padding: theme.boxSpacing(18, 20),
               mdScreen: {
                 height: "100svh",
+                width: "80%",
                 minHeight: "fit-content",
                 justifyContent: "center",
                 flex: "none",
@@ -93,6 +94,7 @@ export default function SignupPage() {
             container: {
               width: "50%",
               height: "100%",
+              borderRadius: 0,
               [theme.breakpoints.down("md")]: {
                 width: "100%",
                 height: "100svh",

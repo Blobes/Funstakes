@@ -159,8 +159,38 @@ export const auth = {
       tKey: "auth:feedback.account_suspended_tagline",
       tValue: "Your account has been suspended for violating our terms.",
     },
+    missing_oauth_id_token: {
+      tKey: "auth.feedback.invalid_oauth_token",
+      tValue: "Unable to retrieve token identity credentials. Please retry.",
+    },
+    invalid_oauth_token: {
+      tKey: "auth.feedback.invalid_oauth_token",
+      tValue:
+        "OAuth token/code missing or invalid. Please try logging in again.",
+    },
+
+    oauth_provider_conflict: {
+      tKey: "auth.feedback.oauth_provider_conflict",
+      mtValue:
+        "This account is already linked with an OAuth provider (Google or Apple). Please log in using that method.",
+    },
+    account_deactivated: {
+      tKey: "auth.feedback.account_deactivated",
+      tValue: "This account is deactivated. Please restore it to continue.",
+    },
+    account_suspended: {
+      tKey: "auth.feedback.account_suspended",
+      tValue:
+        "This account is suspended for violating our terms of use. If you are the owner you can appeal to restore it.",
+    },
+    account_banned: {
+      tKey: "auth.feedback.account_banned",
+      tValue:
+        "This account has been banned for severely violating our commnunity policies",
+    },
+
     authenticator_not_configured: {
-      tKey: "auth.authenticator_not_configured",
+      tKey: "auth.feedback.authenticator_not_configured",
       tValue: "Authenticator app is not configured for this account",
     },
     already_have_an_account: {
@@ -179,6 +209,7 @@ export const auth = {
       tKey: "auth:feedback.confirm_identity",
       tValue: "Confirm your identity",
     },
+
     enter_password_to_login: (
       attemptCount: number = 3,
       lockTime: number = 2,

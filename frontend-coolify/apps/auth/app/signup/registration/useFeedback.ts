@@ -1,9 +1,10 @@
 "use client";
 
-import { useStaticTranslation } from "@repo/shared-hooks";
+import { usePage, useStaticTranslation } from "@repo/shared-hooks";
 import {
   ApiError,
   AUTH_FEEDBACK,
+  CLIENT_ROUTES,
   IUser,
   STORAGE_KEYS,
   useGlobalStore,
@@ -14,42 +15,53 @@ import { useCallback } from "react";
 
 interface UseSignupFeedbackProps {
   email: string;
+  signupMethod?: "INTERNAL" | "OAUTH";
 }
 
 /**
  * Handles post-registration state logic, global store state allocation, and navigation routing.
  */
-export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
+export const useSignupFeedback = () => {
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const { handleVerificationNavigation } = useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
+  const { navigateTo } = usePage();
 
   /**
    * Caches credentials and routes user to validation views upon successful container generation.
    */
-  const handleSuccess = useCallback(
-    (res: SignupResponse) => {
+  const handleSignupSuccess = useCallback(
+    async (res: SignupResponse, options: UseSignupFeedbackProps) => {
+      const { email, signupMethod = "INTERNAL" } = options;
+
       if (res.httpStatus !== 200) return;
 
       const user = res.payload as IUser;
       if (res.status === "SUCCESS" && user) {
         setAccessToken(res.accessToken);
         setAuthStatus("AUTHENTICATED");
-        setAccountStatus("NOT_VERIFIED");
 
-        handleVerificationNavigation({
-          user,
-          identifier: user.email || email,
-          identifierType: "EMAIL",
-          otpMessageChannel: "EMAIL",
-          reason: "NEW_ACCOUNT",
-          purpose: "SIGNUP_VERIFICATION",
-          verificationMethod: "MESSAGING",
-          transitKey: STORAGE_KEYS.AUTH_TRANSIT,
-          dispatchOnload: false,
-        });
+        if (signupMethod === "OAUTH") {
+          setAuthUser(user);
+          setAccountStatus("NOT_ONBOARDED");
+          await navigateTo(CLIENT_ROUTES.onboarding);
+        } else {
+          setAccountStatus("NOT_VERIFIED");
+          handleVerificationNavigation({
+            user,
+            identifier: user.email || email,
+            identifierType: "EMAIL",
+            otpMessageChannel: "EMAIL",
+            reason: "NEW_ACCOUNT",
+            purpose: "SIGNUP_VERIFICATION",
+            verificationMethod: "MESSAGING",
+            transitKey: STORAGE_KEYS.AUTH_TRANSIT,
+            dispatchOnload: false,
+          });
+        }
         return;
       }
     },
@@ -64,7 +76,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   /**
    * Catches errors during registration and surfaces the rejection messages within the view container.
    */
-  const handleError = (
+  const handleSignupError = (
     error: ApiError,
     setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
   ) => {
@@ -74,5 +86,5 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
     );
   };
 
-  return { handleSuccess, handleError };
+  return { handleSignupSuccess, handleSignupError };
 };

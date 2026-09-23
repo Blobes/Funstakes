@@ -2,6 +2,7 @@
 
 import { Components, Theme } from "@mui/material/styles";
 import { CSS_VARS } from "../constants/cssVars";
+import { color } from "@mui/system";
 
 interface BaseStylesContainer {
   components: Components<Omit<Theme, "components">>;
@@ -553,34 +554,35 @@ const defaultUIStyles: BaseStylesContainer = {
             fontWeight: "500",
             color: CSS_VARS.color_gray200,
             pointerEvents: "none",
+
+            "&.Mui-focused, &.MuiInputLabel-shrink": {
+              position: "absolute",
+              color: CSS_VARS.color_gray200,
+              transform: "translate(16px, 7px) scale(0.83)",
+              borderRadius: theme.radius[1],
+              padding: 0,
+              "& .MuiInputLabel-asterisk": {
+                display: "none",
+              },
+            },
+
+            "&.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
+              {
+                color: CSS_VARS.color_error_dark,
+              },
+
+            "& .MuiInputLabel-asterisk": {
+              fontSize: 26,
+              fontWeight: 600,
+              color: CSS_VARS.color_error_main,
+              transform: "translateY(7px)",
+            },
           },
 
           "&:has(.MuiInputBase-adornedEnd .MuiInputAdornment-positionEnd) .MuiInputLabel-root":
             {
               maxWidth: "calc(100% - 60px)",
             },
-
-          "& label.Mui-focused, & label.MuiInputLabel-shrink": {
-            position: "absolute",
-            color: CSS_VARS.color_gray200,
-            transform: "translate(16px, 7px) scale(0.83)",
-            borderRadius: theme.radius[1],
-            padding: 0,
-            "& .MuiInputLabel-asterisk": {
-              display: "none",
-            },
-          },
-          "& label.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
-            {
-              color: CSS_VARS.color_error_main,
-            },
-
-          "& .MuiInputLabel-asterisk": {
-            fontSize: 26,
-            fontWeight: 600,
-            color: CSS_VARS.color_error_main,
-            transform: "translateY(6px)",
-          },
 
           "& .MuiFormHelperText-root": {
             fontSize: CSS_VARS.text_helper_fontsize,
@@ -589,9 +591,12 @@ const defaultUIStyles: BaseStylesContainer = {
             color: CSS_VARS.color_gray200,
             margin: theme.boxSpacing(4, 0, 0, 0),
             textAlign: CSS_VARS.text_align,
-          },
-          "& .MuiFormHelperText-root.Mui-focused": {
-            padding: 0,
+            "&.Muifocused": {
+              padding: 0,
+            },
+            "&.Mui-error": {
+              color: CSS_VARS.color_error_dark,
+            },
           },
         }),
       },
@@ -603,8 +608,8 @@ const defaultUIStyles: BaseStylesContainer = {
           maxWidth: "600px",
           minWidth: "150px",
           borderRadius: theme.radius[4],
-          border: `1px solid ${CSS_VARS.color_gray50}`,
-          backgroundColor: CSS_VARS.color_gray50,
+          border: `1px solid ${CSS_VARS.color_gray_trans_2}`,
+          backgroundColor: "transparent",
           padding: theme.boxSpacing(4.5, 5, 4.5, 0),
           transition: "all 0.2s ease-in-out",
           "&:hover": {
@@ -612,7 +617,6 @@ const defaultUIStyles: BaseStylesContainer = {
             borderColor: CSS_VARS.color_primary_main,
           },
           "&.Mui-focused": {
-            backgroundColor: "transparent",
             borderColor: CSS_VARS.color_primary_main,
             outline: `2px solid ${CSS_VARS.color_fixed_primary_trans}`,
             boxShadow: `0 0 0 4px ${CSS_VARS.color_fixed_primary_trans}`,
@@ -625,7 +629,7 @@ const defaultUIStyles: BaseStylesContainer = {
             opacity: 0.5,
           },
           "&.Mui-error, &.Mui-error:hover": {
-            borderColor: CSS_VARS.color_error_main,
+            borderColor: CSS_VARS.color_error_dark,
             backgroundColor: CSS_VARS.color_error_trans_1,
           },
           "&.Mui-error.Mui-focused": {

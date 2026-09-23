@@ -123,7 +123,11 @@ export const useLogin = ({ identifier, setStep, inputType }: LoginProps) => {
       if (res) {
         const identifierType: IdentifierType =
           inputType === "PHONE" ? "PHONE_NUMBER" : "EMAIL";
-        handleLoginSuccess({ loginResponse: res, identifierType });
+        handleLoginSuccess({
+          loginResponse: res,
+          identifierType,
+          loginMethod: "INTERNAL",
+        });
       }
     },
     onError: (err: ApiError) => {

@@ -138,14 +138,15 @@ export const GlobalUIManager = ({
     setIsSpaLoading(false);
   }, [pathname, setIsCrossZoneLoading, setIsSpaLoading]);
 
+  const isAuthInitializing =
+    isVerifyingAuth || authStatus === "LOADING" || networkStatus === "UNKNOWN";
+
   // Determines if splash should remain active on reload until auth/boot finishes.
-  const showSplashUI = isReload && !isSplashTimerDone;
+  const showSplashUI = isReload && (!isSplashTimerDone || isAuthInitializing);
   if (showSplashUI) return <SplashUI />;
 
   // Determining if the app is still in its initial boot state
-  const isAuthInitializing = isVerifyingAuth || authStatus === "LOADING";
-  const showLoaderUI =
-    isCrossZoneLoading || isAuthInitializing || networkStatus === "UNKNOWN";
+  const showLoaderUI = isCrossZoneLoading || isAuthInitializing;
   if (showLoaderUI) return <PageLoaderUI />;
 
   const savedLoginStatus = getFromLocalStorage<AuthStatus>({

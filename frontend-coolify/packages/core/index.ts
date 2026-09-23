@@ -1,4 +1,5 @@
 /// <reference path="./types/theme.d.ts" />
+/// <reference path="./types/global.d.ts" />
 
 // Theme
 export * from "./theme/ThemeProvider";

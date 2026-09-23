@@ -1,7 +1,7 @@
 import jwt, { JwtHeader, SigningKeyCallback } from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import jwksClient from "jwks-rsa";
-import { oAuthID } from "@/envVars";
+import { oauthId } from "@/envVars";
 
 export interface IOAuthProfile {
   email: string;
@@ -10,7 +10,19 @@ export interface IOAuthProfile {
   lastName?: string;
 }
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+export const googleClient = new OAuth2Client(oauthId.GOOGLE_CLIENT_ID);
+
+/**
+ * Returns a configured Google OAuth2 Client instance for server-side code exchange flows.
+ */
+export const getGoogleOAuthClient = (redirectUri?: string): OAuth2Client => {
+  return new OAuth2Client(
+    oauthId.GOOGLE_CLIENT_ID,
+    oauthId.GOOGLE_CLIENT_SECRET,
+    redirectUri,
+  );
+};
+
 /**
  * Parses and validates a Google ID token to extract profile metadata.
  */
@@ -19,7 +31,7 @@ export const verifyGoogleToken = async (
 ): Promise<IOAuthProfile> => {
   const ticket = await googleClient.verifyIdToken({
     idToken,
-    audience: oAuthID.GOOGLE_CLIENT_ID,
+    audience: oauthId.GOOGLE_CLIENT_ID,
   });
   const payload = ticket.getPayload();
   if (!payload || !payload.email) {
@@ -75,7 +87,7 @@ export const verifyAppleToken = async (
       getAppleSigningKey,
       {
         issuer: "https://appleid.apple.com",
-        audience: oAuthID.APPLE_CLIENT_ID, // Your Apple Service ID / Bundle ID
+        audience: oauthId.APPLE_CLIENT_ID, // Your Apple Service ID / Bundle ID
         algorithms: ["RS256"],
       },
       (err, decoded) => {
