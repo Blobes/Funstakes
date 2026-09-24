@@ -115,7 +115,7 @@ export const executeTotpVerification = async (
     if (!isValid) {
       return {
         status: "INVALID_TOKEN",
-        transInfo: MESSAGES_REGISTRY.AUTH.INVALID_TOKEN,
+        transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CODE,
         payload: null,
       };
     }
@@ -155,7 +155,7 @@ export const executeTotpVerification = async (
   if (!isValid) {
     return {
       status: "INVALID_TOKEN",
-      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_TOKEN,
+      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CODE,
       payload: null,
     };
   }

@@ -30,7 +30,7 @@ type TransitKeyType = readonly string[] | readonly (readonly string[])[];
 export interface VerificationNavigation extends BaseVerificationPayload {
   user?: IUser | null;
   identifierType?: IdentifierType;
-  reason: VerificationReason;
+  reason?: VerificationReason;
   purpose?: TransitPurpose;
   transitKey?: TransitKeyType;
   sessionDurationMins?: number;
@@ -180,6 +180,7 @@ export const useVerificationNavigation = () => {
         transitKey = STORAGE_KEYS.AUTH_TRANSIT,
         otpMessageChannel,
         verificationMethod,
+        authMethod = "INTERNAL",
         dispatchOnload,
         sessionDurationMins = DEFAULT_SESSION_DURATION_MINUTES,
         text,
@@ -203,6 +204,7 @@ export const useVerificationNavigation = () => {
         reason,
         verificationMethod:
           verificationMethod ?? (hasTotp ? "TOTP" : "MESSAGING"),
+        authMethod,
         dispatchOnload,
         text,
         onVerificationSuccess: () =>

@@ -30,7 +30,7 @@ export const changeAccountStatus = async (
     suspensionExpiresAt = null,
   } = req.body as IStatusChange;
   const authUserId = req.user?.id;
-  const userRole = req.user?.role;
+  const userRoles = req.user?.roles;
 
   if (!authUserId) {
     return res.status(401).json({
@@ -44,10 +44,11 @@ export const changeAccountStatus = async (
     const isTargetingSelf = !targetId || targetId === authUserId;
     const targetUserId = isTargetingSelf ? authUserId : (targetId as string);
 
-    const changedByType: ChangedByType =
-      userRole === "ADMIN" ? "ADMIN" : "OWNER";
+    const changedByType: ChangedByType = userRoles?.includes("ADMIN")
+      ? "ADMIN"
+      : "OWNER";
 
-    if (!isTargetingSelf && userRole !== "ADMIN") {
+    if (!isTargetingSelf && !userRoles?.includes("ADMIN")) {
       return res.status(403).json({
         status: "ERROR",
         ...MESSAGES_REGISTRY.AUTH.FORBIDDEN,

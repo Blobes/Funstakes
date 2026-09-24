@@ -5,6 +5,12 @@ import { POPUP_CONFIG, PopupName } from "./config";
 import { useCallback } from "react";
 import { useTheme } from "@mui/material/styles";
 
+interface UsePopupOptions {
+  name: PopupName;
+  content?: React.ReactNode;
+  header?: React.ReactNode;
+}
+
 /**
  * Handles presentation logic layer routing parameters across modalities like dialog modals or drawers.
  */
@@ -16,20 +22,18 @@ export const usePopup = () => {
    * Dispatches window visibility changes matching target configurations.
    */
   const openPopup = useCallback(
-    (
-      popupName: PopupName,
-      popupContent?: React.ReactNode,
-      popupHeader?: React.ReactNode,
-    ) => {
+    (options: UsePopupOptions) => {
+      const { name, content, header } = options;
+
       const activeConfig = POPUP_CONFIG({
-        content: popupContent,
-        header: popupHeader,
+        content,
+        header,
         closeModal,
         closeDrawer,
         theme,
       });
 
-      const config = activeConfig[popupName];
+      const config = activeConfig[name];
       if (!config) return;
 
       const isModalTarget =

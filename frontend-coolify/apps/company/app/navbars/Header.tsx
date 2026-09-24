@@ -28,14 +28,16 @@ export const Header: React.FC = () => {
   /* -------------------------------- handlers --------------------------------- */
   const openMobileWebNav = useCallback(
     () =>
-      openPopup(
-        "WEB_MOBILE_MENU",
-        <MobileNav
-          style={{
-            gap: theme.gap(4),
-          }}
-        />,
-      ),
+      openPopup({
+        name: "WEB_MOBILE_MENU",
+        content: (
+          <MobileNav
+            style={{
+              gap: theme.gap(4),
+            }}
+          />
+        ),
+      }),
     [openPopup],
   );
 

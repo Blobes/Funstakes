@@ -46,7 +46,7 @@ export default function ResetPage() {
           )}
           primaryCta={{
             label: translateTxtString(AUTH_BUTTON_LABELS.logout),
-            action: () => openPopup("CONFIRM_LOGOUT"),
+            action: () => openPopup({ name: "CONFIRM_LOGOUT" }),
           }}
           secondaryCta={{
             label: translateTxtString(COMMON_BUTTON_LABELS.go_home),

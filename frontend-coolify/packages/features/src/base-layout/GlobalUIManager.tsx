@@ -150,7 +150,7 @@ export const GlobalUIManager = ({
   if (showLoaderUI) return <PageLoaderUI />;
 
   const savedLoginStatus = getFromLocalStorage<AuthStatus>({
-    key: "last_auth_status",
+    key: "last_auth_stat us",
   });
   const wasLoggedIn = savedLoginStatus === "AUTHENTICATED";
   const showOffline =

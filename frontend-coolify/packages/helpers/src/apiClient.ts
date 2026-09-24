@@ -115,12 +115,18 @@ export const apiClient = async <T>(
 
       const error = new Error(rawServerMessage) as ApiError;
       error.httpStatus = response.status;
-      error.status = responseData?.status || "ERROR";
-      error.payload = responseData || null;
+      error.status =
+        responseData?.status || responseData?.error?.status || "ERROR";
+
+      // Directly assign inner payload, bypassing outer wrapper nesting
+      error.payload =
+        responseData?.payload ?? responseData?.error?.payload ?? null;
 
       // Preserve structured retryAfter from root or error property
       error.retryAfter =
         responseData?.retryAfter ?? responseData?.error?.retryAfter ?? null;
+      error.statusType =
+        responseData?.statusType ?? responseData?.error?.statusType ?? null;
 
       // Attach translated string exclusively to localizedErrMsg for UI consumers
       error.localizedErrMsg =

@@ -47,7 +47,7 @@ export type OtpMessageChannel = keyof typeof MESSAGING_CHANNELS;
 export type AllowedVerificationTypes =
   keyof typeof ALLOWED_VERIFICATION_METHODS;
 
-export type CheckPurpose =
+export type AuthPurposeType =
   | "REGISTRATION"
   | "LOGIN"
   | "PASSWORD_RESET"
@@ -79,6 +79,7 @@ export interface BaseVerificationPayload {
   deviceId?: string;
   otpMessageChannel?: OtpMessageChannel;
   verificationMethod?: VerifyIdentityMethod;
+  authMethod?: "INTERNAL" | "OAUTH";
   dispatchOnload?: boolean;
   reason?: VerificationReason;
   text?: TransData;

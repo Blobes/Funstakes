@@ -43,16 +43,6 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
 }) => {
   const theme = useTheme();
 
-  const handleCancelClick = () => {
-    if (onCancel) {
-      onCancel();
-      return;
-    }
-  };
-  const handleConfirmClick = async () => {
-    await onConfirm();
-  };
-
   return (
     <Stack
       spacing={2}
@@ -84,8 +74,10 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
           <TransText
             component="p"
             sx={{
-              ...theme.typography.body2,
+              ...theme.typography.text3,
               textAlign: "center",
+              color: theme.palette.gray[200],
+              wordBreak: "break-word",
               ...style?.tagline,
             }}
           >
@@ -96,14 +88,14 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
         ))}
 
       <Stack direction="row" sx={{ width: "100%", justifyContent: "center" }}>
-        <AppButton variant="outlined" onClick={handleCancelClick}>
+        <AppButton variant="outlined" onClick={onCancel}>
           {cancelLabel}
         </AppButton>
 
         <AppButton
           variant="contained"
           colorType={confirmBtnColorType}
-          onClick={handleConfirmClick}
+          onClick={onConfirm}
         >
           {isLoading ? <ProgressUI options={{ size: 25 }} /> : confirmLabel}
         </AppButton>

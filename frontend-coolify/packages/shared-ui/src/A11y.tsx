@@ -26,6 +26,7 @@ interface A11yProps {
   label?: string;
   onSwipeNext?: () => void;
   onSwipePrev?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   sx?: SxProps<Theme>;
 }
 
@@ -42,6 +43,7 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
       label,
       onSwipeNext,
       onSwipePrev,
+      onClick,
       sx,
     },
     forwardedRef, // The ref passed from the parent component
@@ -56,9 +58,8 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
         if (typeof forwardedRef === "function") {
           forwardedRef(node);
         } else if (forwardedRef) {
-          (
-            forwardedRef as React.MutableRefObject<HTMLDivElement | null>
-          ).current = node;
+          (forwardedRef as React.RefObject<HTMLDivElement | null>).current =
+            node;
         }
       },
       [forwardedRef],
@@ -91,7 +92,9 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
               role="dialog"
               aria-modal="true"
               aria-label={label}
-              sx={{ display: "flex", ...sx }}>
+              onClick={onClick}
+              sx={{ display: "flex", ...sx }}
+            >
               {children}
             </Box>
           </FocusScope>
@@ -103,7 +106,9 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
             ref={combinedRef}
             aria-live="polite"
             aria-atomic="true"
-            sx={{ display: "contents", ...sx }}>
+            onClick={onClick}
+            sx={{ display: "contents", ...sx }}
+          >
             {children}
           </Box>
         );
@@ -117,7 +122,9 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
             aria-roledescription="carousel"
             aria-label={label ?? "Slider track"}
             tabIndex={0}
-            sx={{ display: "contents", ...sx }}>
+            onClick={onClick}
+            sx={{ display: "contents", ...sx }}
+          >
             {children}
           </Box>
         );
@@ -127,6 +134,7 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
           <Box
             component="span"
             ref={combinedRef}
+            onClick={onClick}
             sx={{
               display: "contents",
               "& *:focus-visible": {
@@ -135,7 +143,8 @@ export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component wit
                 boxShadow: "0 0 0 4px var(--mui-fixedColors-pTrans) !important",
               },
               ...sx,
-            }}>
+            }}
+          >
             {children}
           </Box>
         );

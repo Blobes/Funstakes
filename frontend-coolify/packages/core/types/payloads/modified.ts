@@ -26,6 +26,7 @@ export interface ApiError extends Error {
   payload: any | null;
   localizedErrMsg?: string;
   retryAfter?: number | null;
+  statusType?: "ACCOUNT_NOT_FOUND" | "ACCOUNT_ALREADY_EXISTS";
 }
 
 export interface APITransMsg {

@@ -3,6 +3,7 @@ import {
   authenticateWithOAuth,
   OAuthPurpose,
   OAuthProvider,
+  IOauthInput,
 } from "./executeOAuth";
 import {
   buildLocationFromRequest,
@@ -28,12 +29,13 @@ export const oauthSpa = async (
     idToken,
     purpose = "LOGIN",
     identityPayload,
-  } = req.body as {
-    provider?: OAuthProvider;
-    idToken?: string;
-    purpose?: OAuthPurpose;
-    identityPayload?: { firstName?: string; lastName?: string };
-  };
+  } = req.body as IOauthInput;
+  //  {
+  //   provider?: OAuthProvider;
+  //   idToken?: string;
+  //   purpose?: OAuthPurpose;
+  //   identityPayload?: { firstName?: string; lastName?: string };
+  // };
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "";
 
@@ -60,13 +62,39 @@ export const oauthSpa = async (
       identityPayload,
     });
 
+    const {
+      transInfo,
+      verificationReason,
+      accessToken,
+      refreshToken,
+      ...restResult
+    } = result;
+
+    if (result.status === "USER_NOT_FOUND") {
+      return res.status(404).json({
+        status: "ERROR",
+        statusType: "ACCOUNT_NOT_FOUND",
+        ...transInfo,
+        payload: result.payload,
+      });
+    }
+
+    if (result.status === "ACCOUNT_ALREADY_EXISTS") {
+      return res.status(409).json({
+        status: "ERROR",
+        statusType: "ACCOUNT_ALREADY_EXISTS",
+        ...transInfo,
+        payload: result.payload,
+      });
+    }
+
     if (
       result.status === "UNSUPPORTED_OAUTH_PROVIDER" ||
       result.status === "INVALID_OAUTH_TOKEN"
     ) {
       return res.status(401).json({
         status: "ERROR",
-        ...result.transInfo,
+        ...transInfo,
         payload: null,
       });
     }
@@ -78,7 +106,7 @@ export const oauthSpa = async (
     ) {
       return res.status(403).json({
         status: "ERROR",
-        ...result.transInfo,
+        ...transInfo,
         payload: null,
       });
     }
@@ -86,25 +114,21 @@ export const oauthSpa = async (
     if (result.status === "MERGE_RESTRICTION") {
       return res.status(400).json({
         status: "ERROR",
-        ...result.transInfo,
+        ...transInfo,
         payload: null,
       });
     }
 
-    if (result.accessToken && result.refreshToken) {
-      setAuthCookies(res, {
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      });
+    if (accessToken && refreshToken) {
+      setAuthCookies(res, { accessToken, refreshToken });
     }
 
     return res.status(200).json({
       status: "SUCCESS",
-      ...result.transInfo,
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      isNewUser: result.isNewUser,
-      payload: result.payload,
+      accessToken,
+      ...transInfo,
+      ...restResult,
+      otpReason: verificationReason,
     });
   } catch (error: any) {
     console.error("OAuth Exchange Error:", error);
@@ -120,7 +144,7 @@ export const oauthSpa = async (
  * Initiates full page Google OAuth flow by redirecting the browser directly to Google sign-in.
  */
 export const initiateGoogleOAuth = (req: Request, res: Response): void => {
-  const redirectUri = `${GATEWAY_URL}/oauth/google/callback`;
+  const redirectUri = `${GATEWAY_URL}/auth/oauth/google/callback`;
   const oauth2Client = getGoogleOAuthClient(redirectUri);
 
   const authUrl = oauth2Client.generateAuthUrl({
@@ -151,7 +175,7 @@ export const handleGoogleOAuthCallback = async (
   }
 
   try {
-    const redirectUri = `${GATEWAY_URL}/oauth/google/callback`;
+    const redirectUri = `${GATEWAY_URL}/auth/oauth/google/callback`;
     const oauth2Client = getGoogleOAuthClient(redirectUri);
 
     const { tokens } = await oauth2Client.getToken(code);

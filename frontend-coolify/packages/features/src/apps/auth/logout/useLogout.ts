@@ -18,7 +18,7 @@ export const useLogout = () => {
   const clearAuthUser = useGlobalStore((state) => state.clearAuthUser);
 
   const { navigateTo } = usePage();
-  const { setSBMessage, removeSBMessages } = useSnackbar();
+  const { setSBMessage } = useSnackbar();
   const { closeModal } = useMisc();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -29,7 +29,7 @@ export const useLogout = () => {
     mutationFn: async () => {
       return await apiClient(SERVER_API.logout, { method: "POST" });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       purgeCache({
         queryClient,
         queryKeys: STORAGE_KEYS.AUTH_TRANSIT,
@@ -37,14 +37,11 @@ export const useLogout = () => {
       queryClient.clear();
 
       clearAuthUser();
-      closeModal();
 
       // Handle navigation logic
-      if (pathname !== CLIENT_ROUTES.home.path) {
-        navigateTo(CLIENT_ROUTES.home);
-      } else {
-        router.refresh();
-      }
+      if (pathname !== CLIENT_ROUTES.home.path)
+        await navigateTo(CLIENT_ROUTES.home);
+      else router.refresh();
     },
     onError: (error: ApiError) => {
       setSBMessage({
@@ -52,7 +49,7 @@ export const useLogout = () => {
       });
       console.error("Logout failed:", error);
     },
-    onSettled: () => removeSBMessages(),
+    onSettled: () => closeModal(),
   });
 
   /** * Memoized logout handler to be used in UI components. */

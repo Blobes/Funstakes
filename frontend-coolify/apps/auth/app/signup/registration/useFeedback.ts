@@ -41,14 +41,11 @@ export const useSignupFeedback = () => {
 
       const user = res.payload as IUser;
       if (res.status === "SUCCESS" && user) {
+        setAuthUser(user);
         setAccessToken(res.accessToken);
         setAuthStatus("AUTHENTICATED");
 
-        if (signupMethod === "OAUTH") {
-          setAuthUser(user);
-          setAccountStatus("NOT_ONBOARDED");
-          await navigateTo(CLIENT_ROUTES.onboarding);
-        } else {
+        if (res.requireVerification) {
           setAccountStatus("NOT_VERIFIED");
           handleVerificationNavigation({
             user,
@@ -58,10 +55,15 @@ export const useSignupFeedback = () => {
             reason: "NEW_ACCOUNT",
             purpose: "SIGNUP_VERIFICATION",
             verificationMethod: "MESSAGING",
+            authMethod: signupMethod,
             transitKey: STORAGE_KEYS.AUTH_TRANSIT,
             dispatchOnload: false,
           });
         }
+
+        setAccountStatus("NOT_ONBOARDED");
+        await navigateTo(CLIENT_ROUTES.onboarding);
+
         return;
       }
     },
@@ -76,15 +78,17 @@ export const useSignupFeedback = () => {
   /**
    * Catches errors during registration and surfaces the rejection messages within the view container.
    */
-  const handleSignupError = (
-    error: ApiError,
-    setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
-  ) => {
-    setMsg(
-      error.localizedErrMsg ||
-        translateTxtString(AUTH_FEEDBACK.registration_failed),
-    );
-  };
-
+  const handleSignupError = useCallback(
+    (
+      error: ApiError,
+      setMsg?: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
+    ) => {
+      setMsg?.(
+        error.localizedErrMsg ||
+          translateTxtString(AUTH_FEEDBACK.registration_failed),
+      );
+    },
+    [translateTxtString],
+  );
   return { handleSignupSuccess, handleSignupError };
 };

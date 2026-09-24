@@ -83,16 +83,19 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
             padding: theme.boxSpacing(4, 2),
             ...style?.smallScreen?.overlay,
           },
-        }}>
+        }}
+      >
         <Transition
           show={isOpen}
           timeout={200}
           type={transType}
           direction={transDir}
-          onExited={handleExited}>
+          onExited={handleExited}
+        >
           <A11y
             useCase="dialog"
             isOpen={isOpen}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
             onClose={() => {
               handleClose({} as React.MouseEvent);
             }}
@@ -120,7 +123,8 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
                 maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
                 ...style?.smallScreen?.content,
               },
-            }}>
+            }}
+          >
             {/* Header */}
             {showHeader && (header || canBeClosed) && (
               <Stack
@@ -135,7 +139,8 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
                   padding: theme.boxSpacing(2),
                   ...style?.header,
                   borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                }}>
+                }}
+              >
                 {header && header}
                 {canBeClosed && (
                   <IconButton
@@ -143,7 +148,8 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
                     aria-controls="close-modal"
                     aria-haspopup="true"
                     ref={closeRef}
-                    onClick={handleClose}>
+                    onClick={handleClose}
+                  >
                     <X size={22} />
                   </IconButton>
                 )}
@@ -161,7 +167,8 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
                 },
                 gap: theme.gap(8),
                 ...(scrollBarStyle(theme) as any),
-              }}>
+              }}
+            >
               {content}
             </Stack>
           </A11y>

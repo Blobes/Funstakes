@@ -127,7 +127,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
       onSuccess: (res) => {
         if (res.status === "SUCCESS") {
           clearResetSession();
-          openPopup("RESET_PASSWORD_SUCCESS");
+          openPopup({ name: "RESET_PASSWORD_SUCCESS" });
         }
       },
       onError: (error: ApiError) => {

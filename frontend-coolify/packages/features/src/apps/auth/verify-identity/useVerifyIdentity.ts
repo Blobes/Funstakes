@@ -61,21 +61,7 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
 
   const targetUser = authUser || payloadUser;
   const userHasTotp = checkTotpConfiguration(targetUser);
-
-  const targetIdentifier =
-    activeTransit?.identifier || targetUser?.email || targetUser?.phoneNumber;
-
-  const hasUserCtx =
-    authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
-
-  /**
-   * Evaluates active transit session validity to update restrict state.
-   */
-  useEffect(() => {
-    const hasValidSession = Boolean(activeTransit || hasUserCtx);
-    if (hasValidSession && targetIdentifier) setShouldRestrict?.(false);
-    else setShouldRestrict?.(true);
-  }, [activeTransit, hasUserCtx, setShouldRestrict, targetIdentifier]);
+  const targetAuthMethod = activeTransit?.authMethod;
 
   const purpose = activeTransit?.purpose;
 
@@ -94,13 +80,11 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
       return methods;
     }
 
-    const methods: VerifyIdentityMethod[] = ["MESSAGING"];
-    if (userHasTotp) {
-      methods.unshift("TOTP");
-    }
-    if (hasSecurityQuestions) {
-      methods.push("SECURITY_QUESTIONS");
-    }
+    const methods: VerifyIdentityMethod[] = [];
+    if (targetAuthMethod === "INTERNAL") methods.push("MESSAGING");
+    if (userHasTotp) methods.unshift("TOTP");
+    if (hasSecurityQuestions) methods.push("SECURITY_QUESTIONS");
+
     return methods;
   }, [
     purpose,
@@ -116,7 +100,7 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     if (activeTransit?.verificationMethod === "TOTP" && userHasTotp) {
       return "TOTP";
     }
-    return availableMethods[0] || "MESSAGING";
+    return availableMethods[0]; // || "MESSAGING";
   }, [
     initialMethod,
     availableMethods,
@@ -145,6 +129,28 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
   const alternativeMethods = useMemo(() => {
     return availableMethods.filter((m) => m !== activeMethod);
   }, [availableMethods, activeMethod]);
+
+  const targetIdentifier =
+    activeTransit?.identifier || targetUser?.email || targetUser?.phoneNumber;
+  const hasUserCtx =
+    authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
+  /**
+   * Evaluates active transit session validity to update restrict state.
+   */
+  useEffect(() => {
+    const hasValidSession = Boolean(activeTransit || hasUserCtx);
+    const hasMethod = Boolean(activeMethod) || alternativeMethods.length > 0;
+    if (hasValidSession && hasMethod && targetIdentifier)
+      setShouldRestrict?.(false);
+    else setShouldRestrict?.(true);
+  }, [
+    activeTransit,
+    hasUserCtx,
+    setShouldRestrict,
+    targetIdentifier,
+    activeMethod,
+    alternativeMethods,
+  ]);
 
   /**
    * Returns corresponding button labels for a given method type.

@@ -40,6 +40,7 @@ interface IRegistrationResult {
   safeData?: any;
   accessToken?: string;
   refreshToken?: string;
+  requireVerification?: boolean;
 }
 
 /**
@@ -163,6 +164,7 @@ export const registerUserAccount = async (
       safeData,
       accessToken,
       refreshToken,
+      requireVerification: true,
     };
   } catch (error) {
     await session.abortTransaction();

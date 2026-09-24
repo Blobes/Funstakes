@@ -14,18 +14,13 @@ export const ComfirmLogout = () => {
   const { handleLogout, isLoggingOut } = useLogout();
   const { translateTxtString } = useStaticTranslation();
 
-  const confirmLogout = () => {
-    handleLogout();
-    closeModal();
-  };
-
   return (
     <ConfirmAction
       icon={<LogOutIcon size={32} />}
       headline={translateTxtString(AUTH_FEEDBACK.logout_confirmation)}
       cancelLabel={translateTxtString(AUTH_BUTTON_LABELS.not_yet)}
       confirmLabel={translateTxtString(AUTH_BUTTON_LABELS.sure_i_do)}
-      onConfirm={confirmLogout}
+      onConfirm={handleLogout}
       onCancel={closeModal}
       isLoading={isLoggingOut}
     />
@@ -49,7 +44,7 @@ export const Logout = ({
   return (
     <AppButton
       variant="text"
-      onClick={() => openPopup("CONFIRM_LOGOUT")}
+      onClick={() => openPopup({ name: "CONFIRM_LOGOUT" })}
       style={{
         width: "100%",
         gap: theme.gap(10),

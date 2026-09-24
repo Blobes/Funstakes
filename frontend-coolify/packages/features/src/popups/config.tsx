@@ -9,6 +9,7 @@ import { ConfirmSessionTermination } from "../apps/auth/verify-identity/Session"
 
 export type PopupName =
   | "CONFIRM_LOGOUT"
+  | "CONFIRM_LOGIN_OR_SIGNUP"
   | "GIST_MEDIA_VIEW"
   | "CREATE_POST"
   | "WEB_MOBILE_MENU"
@@ -45,6 +46,11 @@ export const POPUP_CONFIG = ({
     CONFIRM_LOGOUT: {
       type: { baseScreen: "MODAL" },
       modal: { content: <ComfirmLogout />, onClose: closeModal },
+    },
+
+    CONFIRM_LOGIN_OR_SIGNUP: {
+      type: { baseScreen: "MODAL" },
+      modal: { content, onClose: closeModal },
     },
 
     CONFIRM_SESSION_TERMINATION: {

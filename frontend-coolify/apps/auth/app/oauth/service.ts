@@ -1,24 +1,22 @@
 "use client";
 
-import { SERVER_API } from "@repo/core";
+import { AuthPurposeType, SERVER_API } from "@repo/core";
 import { apiClient } from "@repo//helpers";
-import { SignupResponse } from "../signup/service";
 import { LoginResponse } from "../login/service";
 
 export type OAuthProvider = "GOOGLE" | "APPLE";
-export type OAuthPurpose = "REGISTRATION" | "LOGIN";
 
 export interface OAuthExchangeRequest {
   provider: OAuthProvider;
   idToken: string;
-  purpose?: OAuthPurpose;
+  purpose?: AuthPurposeType;
   identityPayload?: {
     firstName?: string;
     lastName?: string;
   };
 }
 
-export interface OAuthExchangeResponse extends SignupResponse, LoginResponse {
+export interface OAuthExchangeResponse extends LoginResponse {
   isNewUser?: boolean;
 }
 

@@ -8,6 +8,7 @@ export interface IOAuthProfile {
   providerId: string;
   firstName?: string;
   lastName?: string;
+  emailVerified?: boolean;
 }
 
 export const googleClient = new OAuth2Client(oauthId.GOOGLE_CLIENT_ID);
@@ -42,6 +43,7 @@ export const verifyGoogleToken = async (
     providerId: payload.sub,
     firstName: payload.given_name || "",
     lastName: payload.family_name || "",
+    emailVerified: Boolean(payload.email_verified),
   };
 };
 
@@ -52,7 +54,7 @@ const appleJwksClient = jwksClient({
   jwksUri: "https://appleid.apple.com/auth/keys",
   cache: true,
   cacheMaxEntries: 5,
-  cacheMaxAge: 10 * 60 * 1000, // Cache public keys for 10 minutes
+  cacheMaxAge: 10 * 60 * 1000,
 });
 
 /**
@@ -81,13 +83,12 @@ export const verifyAppleToken = async (
   idToken: string,
 ): Promise<IOAuthProfile> => {
   return new Promise((resolve, reject) => {
-    // Decode and verify signature, issuer, and target client application audience constraints
     jwt.verify(
       idToken,
       getAppleSigningKey,
       {
         issuer: "https://appleid.apple.com",
-        audience: oauthId.APPLE_CLIENT_ID, // Your Apple Service ID / Bundle ID
+        audience: oauthId.APPLE_CLIENT_ID,
         algorithms: ["RS256"],
       },
       (err, decoded) => {
@@ -103,7 +104,10 @@ export const verifyAppleToken = async (
 
         resolve({
           email: jwtClaims.email.toLowerCase().trim(),
-          providerId: jwtClaims.sub!, // The permanent unique user identifier from Apple
+          providerId: jwtClaims.sub!,
+          emailVerified:
+            jwtClaims.email_verified === true ||
+            jwtClaims.email_verified === "true",
         });
       },
     );

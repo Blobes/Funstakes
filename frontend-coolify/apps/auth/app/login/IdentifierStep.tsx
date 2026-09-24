@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
@@ -31,7 +31,6 @@ import { asset } from "@repo/assets";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useLogin } from "./hooks/useLogin";
 import { useOAuth } from "../oauth/useOauth";
-import { useSearchParams } from "next/navigation";
 
 export const IdentifierStep: React.FC<LoginProps> = ({
   setStep,
@@ -45,15 +44,11 @@ export const IdentifierStep: React.FC<LoginProps> = ({
   const { INPUT_GUIDES } = useGuides();
   const { handleResetPassClick } = useLogin({});
 
-  const {
-    handleGoogleRedirectSignIn,
-    handleAppleSignIn,
-    //  handleOAuthRedirectError,
-    isOAuthLoading,
-  } = useOAuth({
-    purpose: "LOGIN",
-    autoPromptGoogle: true,
-  });
+  const { handleGoogleRedirectSignIn, handleAppleSignIn, isOAuthLoading } =
+    useOAuth({
+      purpose: "LOGIN",
+      autoPromptGoogle: true,
+    });
 
   const inlineTxtStyle = useMemo(
     () => ({

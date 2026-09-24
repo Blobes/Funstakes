@@ -53,16 +53,18 @@ export const GistMedia = ({
   const handleMedia = useCallback(
     (index?: number) => {
       if (index === undefined || index === null) return;
-      openPopup(
-        "GIST_MEDIA_VIEW",
-        <GistMediaView
-          gist={gist}
-          mediaList={mediaList}
-          likeState={likeState}
-          initialIndex={index}
-          mode={mode}
-        />,
-      );
+      openPopup({
+        name: "GIST_MEDIA_VIEW",
+        content: (
+          <GistMediaView
+            gist={gist}
+            mediaList={mediaList}
+            likeState={likeState}
+            initialIndex={index}
+            mode={mode}
+          />
+        ),
+      });
     },
     [openPopup, gist, mediaList, likeState, mode],
   );

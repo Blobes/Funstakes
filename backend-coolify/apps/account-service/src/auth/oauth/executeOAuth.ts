@@ -10,6 +10,8 @@ import {
   userSensitiveFields,
   validateAccountStatus,
   INVALIDATE_CACHE,
+  validateDeviceTrust,
+  VerificationMethod,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../check/service";
@@ -25,7 +27,9 @@ import { syncDefaultRole } from "../helpers/syncRole";
 export type OAuthProvider = "GOOGLE" | "APPLE";
 export type OAuthPurpose = "REGISTRATION" | "LOGIN";
 
-interface IOAuthAuthInput {
+const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+export interface IOauthInput {
   provider: OAuthProvider;
   idToken: string;
   deviceToken: string;
@@ -39,18 +43,23 @@ interface IOAuthAuthInput {
   };
 }
 
-interface IOAuthAuthResult {
+interface IoAuthResult {
   status?:
     | RestrictionStatus
     | "SUCCESS"
     | "MERGE_RESTRICTION"
     | "USER_NOT_FOUND"
     | "UNSUPPORTED_OAUTH_PROVIDER"
+    | "ACCOUNT_ALREADY_EXISTS"
     | "INVALID_OAUTH_TOKEN";
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
+  deviceId?: string;
   isNewUser?: boolean;
+  requireVerification?: boolean;
+  verificationMethods?: VerificationMethod[];
+  verificationReason?: "UNVERIFIED_ACCOUNT" | "UNTRUSTED_DEVICE";
   payload?: any;
 }
 
@@ -58,8 +67,8 @@ interface IOAuthAuthResult {
  * Validates third-party provider ID tokens and adaptively logs in existing users or provisions new accounts.
  */
 export const authenticateWithOAuth = async (
-  input: IOAuthAuthInput,
-): Promise<IOAuthAuthResult> => {
+  input: IOauthInput,
+): Promise<IoAuthResult> => {
   const {
     provider,
     idToken,
@@ -99,6 +108,8 @@ export const authenticateWithOAuth = async (
     throw error;
   }
 
+  const isProviderEmailVerified = Boolean(profile.emailVerified);
+
   // Check if an account already exists for the verified email
   const checkResult = await executeAccountCheck({
     identifierType: "EMAIL",
@@ -108,6 +119,18 @@ export const authenticateWithOAuth = async (
 
   // --- PATH A: Account Does NOT Exist (Automatic Registration) ---
   if (!checkResult.isExisting || checkResult.status === "NOT_FOUND") {
+    if (purpose === "LOGIN") {
+      return {
+        status: "USER_NOT_FOUND",
+        transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
+        payload: {
+          email: profile.email,
+          provider,
+          idToken,
+        },
+      };
+    }
+
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -118,7 +141,7 @@ export const authenticateWithOAuth = async (
         signedUpWith: provider,
         firstName: profile.firstName || "",
         lastName: profile.lastName || "",
-        isEmailVerified: true,
+        isEmailVerified: isProviderEmailVerified,
         location,
         lastActiveAt: new Date(),
       });
@@ -132,13 +155,16 @@ export const authenticateWithOAuth = async (
         deviceToken,
         userAgent,
         session,
+        markAsVerified: isProviderEmailVerified ? true : false,
       });
 
       await session.commitTransaction();
 
+      const deviceIdString = device._id.toString();
+
       const { accessToken, refreshToken } = await issueAuthTokens({
         user: newUser,
-        deviceId: device._id.toString(),
+        deviceId: deviceIdString,
         sessionId: uuidv4(),
         userAgent,
         ipAddress,
@@ -153,7 +179,9 @@ export const authenticateWithOAuth = async (
           MESSAGES_REGISTRY.AUTH.REGISTRATION_SUCCESSFUL_VIA_OAUTH(provider),
         accessToken,
         refreshToken,
+        deviceId: deviceIdString,
         isNewUser: true,
+        requireVerification: !isProviderEmailVerified,
         payload: safeData,
       };
     } catch (error) {
@@ -165,6 +193,19 @@ export const authenticateWithOAuth = async (
   }
 
   // --- PATH B: Account Exists (Automatic Login) ---
+  // Intercept registration intent when email already exists
+  if (purpose === "REGISTRATION") {
+    return {
+      status: "ACCOUNT_ALREADY_EXISTS",
+      transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED,
+      payload: {
+        email: profile.email,
+        provider,
+        idToken,
+      },
+    };
+  }
+
   const accountStatus = checkResult.payload?.accountStatus;
 
   // Enforce restriction status validation (bans, suspensions, deactivations)
@@ -178,7 +219,11 @@ export const authenticateWithOAuth = async (
 
   const user = await fetchSingleUser({
     identifier: checkResult.payload?.userId,
-    flags: { lean: false, skipFilter: true },
+    flags: {
+      lean: false,
+      skipFilter: true,
+      includeSensitiveFields: true,
+    },
   });
 
   if (!user) {
@@ -188,7 +233,19 @@ export const authenticateWithOAuth = async (
     };
   }
 
-  // Prevent conflicting OAuth provider mapping (e.g. Google user trying to sign in with Apple)
+  // Prevent account hijacking if traditional account email is still unverified
+  if (
+    user.signedUpWith === "EMAIL" &&
+    !user.isEmailVerified &&
+    !isProviderEmailVerified
+  ) {
+    return {
+      status: "MERGE_RESTRICTION",
+      transInfo: MESSAGES_REGISTRY.AUTH.OAUTH_ACCOUNT_CONFLICT(provider),
+    };
+  }
+
+  // Prevent conflicting OAuth provider mapping
   if (
     user.signedUpWith &&
     user.signedUpWith !== "EMAIL" &&
@@ -200,29 +257,80 @@ export const authenticateWithOAuth = async (
     };
   }
 
+  const userId = user._id.toString();
+
+  // Mark email as verified if provider confirms ownership and local status is false
+  if (!user.isEmailVerified && isProviderEmailVerified) {
+    user.isEmailVerified = true;
+  }
+
   // Bind OAuth provider ID if missing without altering original signedUpWith method
   if (!user.oAuthId) {
     user.oAuthId = profile.providerId;
-    user.lastActiveAt = new Date();
-    await user.save();
   }
 
   // Idempotently guarantee baseline role and entitlements
   await syncDefaultRole(user._id);
 
-  const device = await upsertDevice({ user, deviceToken, userAgent });
+  // Determine if user has configured step-up security options (e.g., TOTP or security questions)
+  const hasConfiguredMfa =
+    user.hasEnabledMFA &&
+    Boolean(user.totpAuth.secret || user.securityQuestionsId);
 
-  const { accessToken, refreshToken } = await issueAuthTokens({
+  const device = await upsertDevice({
     user,
-    deviceId: device._id.toString(),
-    sessionId: uuidv4(),
+    deviceToken,
     userAgent,
-    ipAddress,
-    authTokens,
+    markAsVerified: !hasConfiguredMfa && isProviderEmailVerified ? true : false,
   });
+  const deviceIdString = device._id.toString();
+
+  const { isTrusted: isDeviceTrusted } = await validateDeviceTrust(
+    userId,
+    deviceToken,
+    deviceIdString,
+  );
+
+  const lastActive = user.lastActiveAt || user.createdAt;
+  let isInactive = false;
+  if (lastActive) {
+    isInactive = Date.now() - new Date(lastActive).getTime() > TRUST_WINDOW;
+  }
+
+  // Prompt step-up verification only if device is untrusted/inactive AND user has extra MFA setup
+  const requireVerification =
+    (!isDeviceTrusted || isInactive) && hasConfiguredMfa;
+
+  const now = new Date();
+
+  let accessToken: string | undefined;
+  let refreshToken: string | undefined;
+
+  if (!requireVerification) {
+    const tokens = await issueAuthTokens({
+      user,
+      deviceId: deviceIdString,
+      sessionId: uuidv4(),
+      userAgent,
+      ipAddress,
+      authTokens,
+    });
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
+    user.lastActiveAt = now;
+  }
+
+  await user.save();
+
+  let verificationMethods: VerificationMethod[] = [];
+  if (hasConfiguredMfa) {
+    if (user.totpAuth.secret) verificationMethods.push("TOTP");
+    if (user.securityQuestionsId)
+      verificationMethods.push("SECURITY_QUESTIONS");
+  }
 
   await INVALIDATE_CACHE.forUser({
-    userId: user._id.toString(),
+    userId,
     deviceToken,
     eventType: "DEVICE_TRUST_UPDATE",
   });
@@ -235,7 +343,12 @@ export const authenticateWithOAuth = async (
       MESSAGES_REGISTRY.AUTH.LOGGED_IN_SUCCESSFULLY_VIA_OAUTH(provider),
     accessToken,
     refreshToken,
+    deviceId: deviceIdString,
     isNewUser: false,
+    requireVerification,
+    verificationMethods:
+      verificationMethods.length > 0 ? verificationMethods : undefined,
+    verificationReason: requireVerification ? "UNTRUSTED_DEVICE" : undefined,
     payload: safeData,
   };
 };

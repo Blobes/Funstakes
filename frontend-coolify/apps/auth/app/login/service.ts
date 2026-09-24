@@ -6,7 +6,8 @@ import {
   ISinglePayload,
   SERVER_API,
   VerificationReason,
-  CheckPurpose,
+  AuthPurposeType,
+  VerifyIdentityMethod,
 } from "@repo/core";
 
 interface LoginRequest {
@@ -15,15 +16,16 @@ interface LoginRequest {
 }
 export interface LoginResponse extends ISinglePayload<IUser> {
   requireVerification?: boolean;
-  verificationReason: VerificationReason;
+  verificationReason?: VerificationReason;
+  verificationMethods?: VerifyIdentityMethod[];
   deviceId?: string;
   fixedMsg?: string;
-  accessToken: string | null; // Keep short-lived token in volatile memory only
+  accessToken?: string | null;
 }
 
 export interface CheckRequest {
   identifier: string;
-  purpose?: CheckPurpose;
+  purpose?: AuthPurposeType;
 }
 
 export interface CheckResponse extends ISinglePayload<IUser> {

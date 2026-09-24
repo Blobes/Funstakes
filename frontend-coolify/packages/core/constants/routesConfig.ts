@@ -171,6 +171,8 @@ export const SERVER_API = {
   checkWhatsappStatus: `${API_BASE.auth}/whatsapp-status`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
   oauthPopup: `${API_BASE.auth}/oauth/popup`,
+  initiateGoogleOauth: `${API_BASE.auth}/oauth/google`,
+  oauthGoogleCallback: `${API_BASE.auth}/oauth/google/callback`,
   // Device
   getDevices: `${API_BASE.auth}/devices/`,
   setPrimaryDevice: (userId: string) =>

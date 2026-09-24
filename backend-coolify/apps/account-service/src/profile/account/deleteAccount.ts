@@ -22,7 +22,7 @@ export const deleteAccount = async (
 ): Promise<any> => {
   const { targetId } = req.body as IDeleteAccountRequestBody;
   const authUserId = req.user?.id;
-  const userRole = req.user?.role;
+  const userRoles = req.user?.roles;
 
   if (!authUserId) {
     return res.status(401).json({
@@ -36,7 +36,7 @@ export const deleteAccount = async (
     const isTargetingSelf = !targetId || targetId === authUserId;
     const targetUserId = isTargetingSelf ? authUserId : (targetId as string);
 
-    if (!isTargetingSelf && userRole !== "ADMIN") {
+    if (!isTargetingSelf && !userRoles?.includes("ADMIN")) {
       return res.status(403).json({
         status: "ERROR",
         ...MESSAGES_REGISTRY.AUTH.FORBIDDEN,

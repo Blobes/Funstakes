@@ -8,7 +8,7 @@ export const useCreatePost = () => {
 
   const openCreatePost = useCallback(
     (element: React.ReactNode) => {
-      openPopup("CREATE_POST", element);
+      openPopup({ name: "CREATE_POST", content: element });
     },
     [openPopup],
   );

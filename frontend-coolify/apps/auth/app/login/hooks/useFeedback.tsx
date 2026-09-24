@@ -66,26 +66,50 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       if (loginResponse.status === "SUCCESS" && user) {
         setAccessToken(loginResponse.accessToken);
 
-        if (loginMethod === "INTERNAL") {
-          const hasTotp = checkTotpConfiguration(user);
-          const isEmail = identifierType === "EMAIL" && !hasTotp;
+        const hasTotp = checkTotpConfiguration(user);
+        const isEmail = identifierType === "EMAIL" && !hasTotp;
 
-          if (loginResponse.requireVerification) {
-            setAccountStatus("NOT_VERIFIED");
-            handleVerificationNavigation({
-              user,
-              deviceId: loginResponse.deviceId,
-              identifier: user.email || user.phoneNumber || identifier,
-              identifierType:
-                identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
-              purpose: "LOGIN_VERIFICATION",
-              otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
-              verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
-              reason: loginResponse.verificationReason,
-              text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
-            });
-            return;
-          }
+        // if (loginMethod === "INTERNAL") {
+        //   if (loginResponse.requireVerification) {
+        //     setAccountStatus("NOT_VERIFIED");
+        //     handleVerificationNavigation({
+        //       user,
+        //       deviceId: loginResponse.deviceId,
+        //       identifier: user.email || user.phoneNumber || identifier,
+        //       identifierType:
+        //         identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+        //       purpose: "LOGIN_VERIFICATION",
+        //       otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
+        //       verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
+        //       reason: loginResponse.verificationReason,
+        //       text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
+        //     });
+        //     return;
+        //   }
+        // }
+
+        // Handle step-up verification for both internal and OAuth logins
+        if (loginResponse.requireVerification) {
+          setAccountStatus("NOT_VERIFIED");
+
+          const primaryMethod =
+            loginResponse.verificationMethods?.[0] ||
+            (hasTotp ? "TOTP" : "MESSAGING");
+
+          handleVerificationNavigation({
+            user,
+            deviceId: loginResponse.deviceId,
+            identifier: user.email || user.phoneNumber || identifier,
+            identifierType:
+              identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+            purpose: "LOGIN_VERIFICATION",
+            otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
+            verificationMethod: primaryMethod,
+            authMethod: loginMethod,
+            reason: loginResponse.verificationReason,
+            text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
+          });
+          return;
         }
 
         setAuthUser(user);

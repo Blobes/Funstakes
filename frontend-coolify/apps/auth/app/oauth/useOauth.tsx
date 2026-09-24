@@ -2,23 +2,39 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, AUTH_FEEDBACK } from "@repo/core";
+import {
+  ApiError,
+  AUTH_FEEDBACK,
+  AuthPurposeType,
+  COMMON_BUTTON_LABELS,
+  SERVER_API,
+  useGlobalStore,
+} from "@repo/core";
 import {
   OAuthExchangeRequest,
   OAuthExchangeResponse,
-  OAuthPurpose,
   OAuthService,
 } from "./service";
 import { useLoginFeedback } from "../login/hooks/useFeedback";
 import { useSignupFeedback } from "../signup/registration/useFeedback";
-import { useStaticTranslation } from "@repo/shared-hooks";
+import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
 import { useSearchParams } from "next/navigation";
+import { usePopup } from "@repo/features";
+import { ConfirmAction } from "@repo/shared-ui";
+import { UserPlus } from "lucide-react";
 
 interface UseOAuthProps {
-  purpose?: OAuthPurpose;
+  purpose?: AuthPurposeType;
   email?: string;
   setMsg?: React.Dispatch<React.SetStateAction<React.ReactNode | null>>;
   autoPromptGoogle?: boolean;
+}
+
+export interface PendingOAuthAction {
+  type: "CONFIRM_REGISTRATION" | "CONFIRM_LOGIN";
+  provider: "GOOGLE" | "APPLE";
+  idToken: string;
+  email: string;
 }
 
 /**
@@ -35,15 +51,24 @@ export const useOAuth = ({
   const { handleLoginSuccess, handleLoginError } = useLoginFeedback({});
   const { handleSignupSuccess, handleSignupError } = useSignupFeedback();
   const { translateTxtString } = useStaticTranslation();
+  const { openPopup } = usePopup();
+  const { closeModal } = useMisc();
+  const setIsSpaLoading = useGlobalStore((state) => state.setIsSpaLoading);
   const [isSdkReady, setIsSdkReady] = useState(false);
+
+  // Holds pending confirmation details when flow state requires user intent conversion
+  const [pendingOAuthAction, setPendingOAuthAction] =
+    useState<PendingOAuthAction | null>(null);
 
   // Mutation pipeline to send validated provider token to Express backend
   const { mutate: executeOAuthPopupSignIn, isPending: isOAuthLoading } =
     useMutation({
       mutationFn: async (payload: OAuthExchangeRequest) => {
+        setIsSpaLoading(true);
         return await oauthPopupSignIn(payload);
       },
       onSuccess: (res: OAuthExchangeResponse) => {
+        setPendingOAuthAction(null);
         if (res.isNewUser || purpose === "REGISTRATION") {
           handleSignupSuccess(res, { email, signupMethod: "OAUTH" });
         } else {
@@ -55,13 +80,71 @@ export const useOAuth = ({
         }
       },
       onError: (err: ApiError) => {
-        if (purpose === "REGISTRATION" && setMsg) {
+        // Intercept account non-existence when flow purpose is LOGIN
+        if (err?.statusType === "ACCOUNT_NOT_FOUND" && err?.payload) {
+          setPendingOAuthAction({
+            type: "CONFIRM_REGISTRATION",
+            provider: err.payload.provider,
+            idToken: err.payload.idToken,
+            email: err.payload.email,
+          });
+
+          return;
+        }
+
+        // Intercept existing account when flow purpose is REGISTRATION
+        if (err?.statusType === "ACCOUNT_ALREADY_EXISTS" && err?.payload) {
+          setPendingOAuthAction({
+            type: "CONFIRM_LOGIN",
+            provider: err.payload.provider,
+            idToken: err.payload.idToken,
+            email: err.payload.email,
+          });
+          return;
+        }
+
+        if (purpose === "REGISTRATION") {
           handleSignupError(err, setMsg);
         } else {
           handleLoginError({ error: err, setMsg });
         }
       },
+      onSettled: () => {
+        setIsSpaLoading(false);
+      },
     });
+
+  /**
+   * Confirms pending action and retries OAuth authentication with converted purpose.
+   */
+  const confirmOAuthAction = useCallback(() => {
+    if (!pendingOAuthAction) return;
+
+    const targetPurpose: AuthPurposeType =
+      pendingOAuthAction.type === "CONFIRM_REGISTRATION"
+        ? "REGISTRATION"
+        : "LOGIN";
+
+    const { provider, idToken } = pendingOAuthAction;
+
+    // Reset pending action state and dismiss existing modal context before re-triggering mutation
+    setPendingOAuthAction(null);
+    closeModal();
+
+    executeOAuthPopupSignIn({
+      provider,
+      idToken,
+      purpose: targetPurpose,
+    });
+  }, [setPendingOAuthAction, executeOAuthPopupSignIn, closeModal]);
+
+  /**
+   * Dismisses pending authorization confirmation state.
+   */
+  const cancelOAuthAction = useCallback(() => {
+    setPendingOAuthAction(null);
+    closeModal();
+  }, [closeModal]);
 
   // Load Google and Apple Client SDK Scripts dynamically
   useEffect(() => {
@@ -109,6 +192,7 @@ export const useOAuth = ({
 
     window.google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      use_fedcm_for_prompt: false,
       callback: (response: { credential?: string }) => {
         if (response.credential) {
           executeOAuthPopupSignIn({
@@ -122,14 +206,25 @@ export const useOAuth = ({
 
     // Display Google One Tap prompt on initial page load
     window.google.accounts.id.prompt();
-  }, [isSdkReady, autoPromptGoogle, executeOAuthPopupSignIn, purpose]);
+  }, [
+    isSdkReady,
+    autoPromptGoogle,
+    executeOAuthPopupSignIn,
+    purpose,
+    setIsSpaLoading,
+  ]);
 
   /**
    * Triggers full-page Google OAuth authorization redirect.
    */
   const handleGoogleRedirectSignIn = useCallback(() => {
-    const gatewayUrl = process.env.NEXT_PUBLIC_API_URL;
-    window.location.href = `${gatewayUrl}/oauth/google`;
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+    // window.open(
+    //   `${backendUrl}${SERVER_API.initiateGoogleOauth}`,
+    //   "_blank",
+    //   "noopener,noreferrer",
+    // );
+    window.location.href = `${backendUrl}${SERVER_API.initiateGoogleOauth}`;
   }, []);
 
   /**
@@ -204,14 +299,44 @@ export const useOAuth = ({
   useEffect(() => {
     const oauthError = searchParams.get("error");
     if (!oauthError) return;
-
     handleOAuthRedirectError(oauthError);
-
     // Cleaning up error query parameter from browser address bar
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.delete("error");
     window.history.replaceState({}, "", currentUrl.pathname);
   }, [searchParams, handleOAuthRedirectError]);
+
+  /**
+   * Opens confirmation popup whenever a pending OAuth action state is set
+   */
+  useEffect(() => {
+    if (!pendingOAuthAction) return;
+
+    const headlineText =
+      pendingOAuthAction.type === "CONFIRM_REGISTRATION"
+        ? AUTH_FEEDBACK.create_account
+        : AUTH_FEEDBACK.sign_in;
+
+    const taglineText =
+      pendingOAuthAction.type === "CONFIRM_REGISTRATION"
+        ? AUTH_FEEDBACK.oauth_confirm_registration(pendingOAuthAction.email)
+        : AUTH_FEEDBACK.oauth_confirm_login(pendingOAuthAction.email);
+
+    openPopup({
+      name: "CONFIRM_LOGIN_OR_SIGNUP",
+      content: (
+        <ConfirmAction
+          icon={<UserPlus size={32} />}
+          headline={translateTxtString(headlineText)}
+          tagline={translateTxtString(taglineText)}
+          cancelLabel={translateTxtString(COMMON_BUTTON_LABELS.cancel)}
+          confirmLabel={translateTxtString(COMMON_BUTTON_LABELS.continue)}
+          onConfirm={confirmOAuthAction}
+          onCancel={cancelOAuthAction}
+        />
+      ),
+    });
+  }, [pendingOAuthAction]);
 
   return {
     handleGoogleRedirectSignIn,
@@ -219,5 +344,6 @@ export const useOAuth = ({
     isOAuthLoading,
     isSdkReady,
     handleOAuthRedirectError,
+    pendingOAuthAction,
   };
 };

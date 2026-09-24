@@ -60,11 +60,11 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
    */
   const openMobileNav = useCallback(
     (element: AvatarParams) => {
-      openPopup(
-        "APP_MOBILE_MENU",
-        element.mobile.content,
-        element.mobile.header,
-      );
+      openPopup({
+        name: "APP_MOBILE_MENU",
+        content: element.mobile.content,
+        header: element.mobile.header,
+      });
     },
     [openPopup],
   );

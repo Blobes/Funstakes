@@ -576,6 +576,12 @@ export const MESSAGES_REGISTRY = {
         "This account is already linked with {{provider}}. Please log in using that method.",
       interpolations: { provider },
     }),
+    OAUTH_ACCOUNT_CONFLICT: (provider: string) => ({
+      i18nKey: "auth.oauth_account_conflict",
+      message:
+        "An account with this email already exists. Please log in with your email and password first to verify your account before connecting {{provider}}.",
+      interpolations: { provider },
+    }),
     PASSWORD_RESET_INITIATED: {
       i18nKey: "auth.password_reset_initiated",
       message: "Password reset initiated. You will be redirected shortly.",

@@ -10,7 +10,8 @@ interface SignupRequest {
 }
 
 export interface SignupResponse extends ISinglePayload<IUser> {
-  accessToken: string | null;
+  accessToken?: string | null;
+  requireVerification?: boolean;
 }
 
 /**

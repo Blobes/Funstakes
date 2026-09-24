@@ -153,7 +153,7 @@ export default function VerificationPage() {
                   },
                 }}
                 onClick={() => {
-                  openPopup("CONFIRM_SESSION_TERMINATION");
+                  openPopup({ name: "CONFIRM_SESSION_TERMINATION" });
                 }}
               >
                 <ArrowLeft size={isMobile ? 22 : 26} />

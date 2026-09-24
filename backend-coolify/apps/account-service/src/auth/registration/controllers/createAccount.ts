@@ -77,16 +77,9 @@ export const createAccount = async (
       payload: serviceResult.safeData,
       accessToken: serviceResult.accessToken,
       refreshToken: serviceResult.refreshToken,
+      requireVerification: serviceResult.requireVerification,
     });
   } catch (error: any) {
-    // if (error.code === 11000) {
-    //   const fieldName = Object.keys(error.keyValue)[0] || "record";
-    //   return res.status(409).json({
-    //     status: "ERROR",
-    //     ...MESSAGES_REGISTRY.AUTH.RECORD_ALREADY_EXISTS(fieldName),
-    //     payload: null,
-    //   });
-    // }
     console.error("Registration Error:", error);
     return forwardError(
       next,

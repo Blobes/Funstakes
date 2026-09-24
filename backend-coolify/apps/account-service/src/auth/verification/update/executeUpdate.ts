@@ -294,7 +294,7 @@ export const executeAccountUpdate = async (
     }
 
     case "MFA_DEACTIVATION": {
-      if (user.hasEnabledMFA)
+      if (!user.hasEnabledMFA)
         return {
           status: "BAD_REQUEST",
           transInfo: MESSAGES_REGISTRY.AUTH.MFA_ALREADY_DISABLED,

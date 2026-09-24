@@ -108,7 +108,7 @@ export default function LoginPage() {
           type="ALREADY_LOGGED_IN"
           secondaryCta={{
             label: translateTxtString(AUTH_BUTTON_LABELS.logout),
-            action: () => openPopup("CONFIRM_LOGOUT"),
+            action: () => openPopup({ name: "CONFIRM_LOGOUT" }),
           }}
         />
       )}

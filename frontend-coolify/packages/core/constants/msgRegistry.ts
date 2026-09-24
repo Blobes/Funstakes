@@ -160,37 +160,48 @@ export const auth = {
       tValue: "Your account has been suspended for violating our terms.",
     },
     missing_oauth_id_token: {
-      tKey: "auth.feedback.invalid_oauth_token",
+      tKey: "auth:feedback.invalid_oauth_token",
       tValue: "Unable to retrieve token identity credentials. Please retry.",
     },
     invalid_oauth_token: {
-      tKey: "auth.feedback.invalid_oauth_token",
+      tKey: "auth:feedback.invalid_oauth_token",
       tValue:
         "OAuth token/code missing or invalid. Please try logging in again.",
     },
-
+    oauth_confirm_registration: (email: string) => ({
+      tKey: "auth:feedback.oauth_confirm_registration",
+      tValue:
+        "Would you like to create a new account for <strong>{{email}}</strong>?",
+      interpolations: { email },
+    }),
+    oauth_confirm_login: (email: string) => ({
+      tKey: "auth:feedback.oauth_confirm_login",
+      tValue:
+        "An account with {{email}} already exists. Would you like to log in instead?",
+      interpolations: { email },
+    }),
     oauth_provider_conflict: {
-      tKey: "auth.feedback.oauth_provider_conflict",
-      mtValue:
+      tKey: "auth:feedback.oauth_provider_conflict",
+      tValue:
         "This account is already linked with an OAuth provider (Google or Apple). Please log in using that method.",
     },
     account_deactivated: {
-      tKey: "auth.feedback.account_deactivated",
+      tKey: "auth:feedback.account_deactivated",
       tValue: "This account is deactivated. Please restore it to continue.",
     },
     account_suspended: {
-      tKey: "auth.feedback.account_suspended",
+      tKey: "auth:feedback.account_suspended",
       tValue:
         "This account is suspended for violating our terms of use. If you are the owner you can appeal to restore it.",
     },
     account_banned: {
-      tKey: "auth.feedback.account_banned",
+      tKey: "auth:feedback.account_banned",
       tValue:
         "This account has been banned for severely violating our commnunity policies",
     },
 
     authenticator_not_configured: {
-      tKey: "auth.feedback.authenticator_not_configured",
+      tKey: "auth:feedback.authenticator_not_configured",
       tValue: "Authenticator app is not configured for this account",
     },
     already_have_an_account: {
@@ -208,6 +219,16 @@ export const auth = {
     confirm_identity: {
       tKey: "auth:feedback.confirm_identity",
       tValue: "Confirm your identity",
+    },
+
+    create_account: {
+      tKey: "auth:feedback.create_account",
+      tValue: "Create an Account?",
+    },
+
+    sign_in: {
+      tKey: "auth:feedback.sign_in",
+      tValue: "Want to Sign in?",
     },
 
     enter_password_to_login: (
