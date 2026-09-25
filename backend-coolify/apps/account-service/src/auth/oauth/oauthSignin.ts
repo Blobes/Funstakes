@@ -1,10 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  authenticateWithOAuth,
-  OAuthPurpose,
-  OAuthProvider,
-  IOauthInput,
-} from "./executeOAuth";
+import { authenticateWithOAuth, IOauthInput } from "./executeOAuth";
 import {
   buildLocationFromRequest,
   forwardError,
@@ -14,7 +9,7 @@ import {
 } from "@repo/shared";
 import { setAuthCookies } from "@repo/security";
 import { getGoogleOAuthClient } from "./oAuthConfig";
-import { FRONTEND_URL, GATEWAY_URL } from "../../envVars";
+import { FRONTEND_URL, GATEWAY_URL, STAGING_FRONTEND_URL } from "../../envVars";
 
 /**
  * Controller endpoint to exchange validated provider credentials for platform session JWTs.
@@ -30,12 +25,6 @@ export const oauthSpa = async (
     purpose = "LOGIN",
     identityPayload,
   } = req.body as IOauthInput;
-  //  {
-  //   provider?: OAuthProvider;
-  //   idToken?: string;
-  //   purpose?: OAuthPurpose;
-  //   identityPayload?: { firstName?: string; lastName?: string };
-  // };
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "";
 
@@ -168,7 +157,7 @@ export const handleGoogleOAuthCallback = async (
   next: NextFunction,
 ): Promise<any> => {
   const { code } = req.query;
-  const frontendUrl = FRONTEND_URL || "http://localhost:3000";
+  const frontendUrl = STAGING_FRONTEND_URL || "http://localhost:3000";
 
   if (!code || typeof code !== "string") {
     return res.redirect(`${frontendUrl}/login?error=INVALID_OAUTH_CODE`);
