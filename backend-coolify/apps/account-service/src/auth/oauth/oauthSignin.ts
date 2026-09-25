@@ -9,7 +9,7 @@ import {
 } from "@repo/shared";
 import { setAuthCookies } from "@repo/security";
 import { getGoogleOAuthClient } from "./oAuthConfig";
-import { FRONTEND_URL, GATEWAY_URL, STAGING_FRONTEND_URL } from "../../envVars";
+import { FRONTEND_URL, GATEWAY_URL } from "../../envVars";
 
 /**
  * Controller endpoint to exchange validated provider credentials for platform session JWTs.
@@ -157,7 +157,7 @@ export const handleGoogleOAuthCallback = async (
   next: NextFunction,
 ): Promise<any> => {
   const { code } = req.query;
-  const frontendUrl = STAGING_FRONTEND_URL || "http://localhost:3000";
+  const frontendUrl = FRONTEND_URL || "http://localhost:3000";
 
   if (!code || typeof code !== "string") {
     return res.redirect(`${frontendUrl}/login?error=INVALID_OAUTH_CODE`);

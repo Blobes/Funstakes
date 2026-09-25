@@ -36,9 +36,6 @@ export const env = {
   get FRONTEND_URL() {
     return getEnv("FRONTEND_URL");
   },
-  get STAGING_FRONTEND_URL() {
-    return getEnv("STAGING_FRONTEND_URL");
-  },
 };
 
 /**
@@ -163,4 +160,3 @@ export const MONGO_URI = env.MONGO_URI;
 export const FUNSTAKES_REDIS_URL = env.FUNSTAKES_REDIS_URL;
 export const GATEWAY_URL = env.GATEWAY_URL;
 export const FRONTEND_URL = env.FRONTEND_URL;
-export const STAGING_FRONTEND_URL = env.STAGING_FRONTEND_URL;
