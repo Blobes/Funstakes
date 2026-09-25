@@ -58,8 +58,9 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
     async (feedbackProps: UseFeedbackProps) => {
       const { loginResponse, identifierType, loginMethod } = feedbackProps;
 
-      if (loginResponse?.httpStatus !== 200) return;
+      //  console.log("Hello");
 
+      if (loginResponse?.httpStatus !== 200) return;
       clearLoginLock();
 
       const user = loginResponse.payload as IUser;
@@ -68,25 +69,6 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
 
         const hasTotp = checkTotpConfiguration(user);
         const isEmail = identifierType === "EMAIL" && !hasTotp;
-
-        // if (loginMethod === "INTERNAL") {
-        //   if (loginResponse.requireVerification) {
-        //     setAccountStatus("NOT_VERIFIED");
-        //     handleVerificationNavigation({
-        //       user,
-        //       deviceId: loginResponse.deviceId,
-        //       identifier: user.email || user.phoneNumber || identifier,
-        //       identifierType:
-        //         identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
-        //       purpose: "LOGIN_VERIFICATION",
-        //       otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
-        //       verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
-        //       reason: loginResponse.verificationReason,
-        //       text: { headline: AUTH_FEEDBACK.lets_be_sure_it_is_you },
-        //     });
-        //     return;
-        //   }
-        // }
 
         // Handle step-up verification for both internal and OAuth logins
         if (loginResponse.requireVerification) {

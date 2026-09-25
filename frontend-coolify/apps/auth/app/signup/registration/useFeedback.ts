@@ -37,6 +37,8 @@ export const useSignupFeedback = () => {
     async (res: SignupResponse, options: UseSignupFeedbackProps) => {
       const { email, signupMethod = "INTERNAL" } = options;
 
+      //  console.log("Hello");
+
       if (res.httpStatus !== 200) return;
 
       const user = res.payload as IUser;

@@ -18,9 +18,6 @@ import { getCookie } from "@repo/helpers";
  * Manages user authentication state and session verification.
  */
 export const useAuthVerification = () => {
-  const authUser = useGlobalStore((state) => state.authUser);
-  const authStatus = useGlobalStore((state) => state.authStatus);
-  const accessToken = useGlobalStore((state) => state.accessToken);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
@@ -39,25 +36,14 @@ export const useAuthVerification = () => {
         const user = res.payload;
 
         if (user) {
-          if (JSON.stringify(authUser) !== JSON.stringify(user)) {
-            setAuthUser(user);
-          }
+          setAuthUser(user);
+          setAuthStatus("AUTHENTICATED");
+          setAccessToken(res.accessToken || null);
 
-          if (authStatus !== "AUTHENTICATED") {
-            setAuthStatus("AUTHENTICATED");
-          }
-
-          if (accessToken !== (res.accessToken || null)) {
-            setAccessToken(res.accessToken || null);
-          }
-
-          if (!user.isEmailVerified && !user.isPhoneVerified) {
+          if (!user.isEmailVerified && !user.isPhoneVerified)
             setAccountStatus("NOT_VERIFIED");
-          }
 
-          if (!user.isOnboarded) {
-            setAccountStatus("NOT_ONBOARDED");
-          }
+          if (!user.isOnboarded) setAccountStatus("NOT_ONBOARDED");
 
           if (user.accountStatus === "DEACTIVATED") {
             setAccountStatus("DEACTIVATED");
@@ -70,7 +56,7 @@ export const useAuthVerification = () => {
         return null;
       } catch (err: unknown) {
         const error = err as ApiError;
-        if (authUser !== null) setAuthUser(null);
+        setAuthUser(null);
 
         if (
           error.httpStatus === 401 ||
@@ -93,7 +79,7 @@ export const useAuthVerification = () => {
       }
     },
     enabled: !temporarySession,
-    retry: 3,
+    retry: 2,
     refetchOnWindowFocus: true,
     refetchInterval: 20 * 60 * 1000, // 20 mins
     refetchIntervalInBackground: false,

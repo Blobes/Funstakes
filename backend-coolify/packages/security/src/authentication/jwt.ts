@@ -72,12 +72,12 @@ export const setAuthCookies = (
     accessToken?: string;
     refreshToken?: string;
   },
-  authType: "ACCESS" | "REFRESH" | "BOTH" = "BOTH",
+  tokenType: "ACCESS" | "REFRESH" | "BOTH" = "BOTH",
 ) => {
   const isProduction = process.env.NODE_ENV === "production";
   const cookieDomain = isProduction ? ".funstakes.net" : undefined;
 
-  if (tokens.accessToken && (authType === "ACCESS" || authType === "BOTH")) {
+  if (tokens.accessToken && (tokenType === "ACCESS" || tokenType === "BOTH")) {
     res.cookie("access_token", tokens.accessToken, {
       httpOnly: true,
       secure: isProduction,
@@ -88,7 +88,10 @@ export const setAuthCookies = (
     });
   }
 
-  if (tokens.refreshToken && (authType === "REFRESH" || authType === "BOTH")) {
+  if (
+    tokens.refreshToken &&
+    (tokenType === "REFRESH" || tokenType === "BOTH")
+  ) {
     res.cookie("refresh_token", tokens.refreshToken, {
       httpOnly: true,
       secure: isProduction,
