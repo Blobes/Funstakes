@@ -66,9 +66,7 @@ export class SubscriptionService {
 
     // Basic requirements for elevated tiers
     const isBasicEligible =
-      user.isEmailVerified &&
-      user.accountStatus === "ACTIVE" &&
-      Boolean(user.meritsVerification);
+      user.isEmailVerified && user.accountStatus === "ACTIVE";
 
     if (!isBasicEligible) {
       return {
@@ -79,10 +77,9 @@ export class SubscriptionService {
 
     // Additional requirement for Enterprise tier
     if (targetTier === "ENTERPRISE") {
-      const isKycDone =
-        user.kycReviewStatus === "APPROVED" || Boolean(user.isKycVerified);
+      const isKycTier4 = user.kyc?.currentTier === "TIER_4";
 
-      if (!isKycDone) {
+      if (!isKycTier4) {
         return {
           isEligible: false,
           transInfo:

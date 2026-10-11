@@ -8,7 +8,11 @@ import {
   PermissionName,
   SubscriptionTier,
   SubscriptionStatus,
-  TopicSourceType,
+  ResourceType,
+  IKycIdentityRequest,
+  IKycAddressRequest,
+  IKycFinanceRequest,
+  IKycBusinessRequest,
 } from "@repo/database";
 import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
@@ -52,8 +56,7 @@ export interface IJwtUser {
   sessionId: string;
   email?: string;
   username?: string;
-  firstName?: string;
-  lastName?: string;
+  displayName?: string;
   accountStatus?: AccountStatus;
   roles: RoleName[];
   permissions?: PermissionName[];
@@ -136,6 +139,7 @@ export interface IPhoneDispatchTokens {
   WHATSAPP_ACCESS_KEY?: string;
   WHATSAPP_PHONE_NUMBER_ID?: string;
   WHATSAPP_BUSINESS_ACCOUNT_ID?: string;
+  WHATSAPP_WEBHOOK_TOKEN?: string;
   LOCAL_SMS_API_KEY?: string;
   LOCAL_SMS_SENDER_ID?: string;
   GLOBAL_SMS_SENDER_ID?: string;
@@ -163,7 +167,7 @@ export interface IModResult {
   status: PostContentStatus;
   newTopicsFromAi?: string[];
   hasSensitiveGraphic?: boolean;
-  topicsSource?: TopicSourceType;
+  topicsSource?: ResourceType;
 }
 
 type ModEventType = "POST_CREATION" | "POST_UPDATE";
@@ -175,7 +179,7 @@ export interface FinalizePostReq {
   caption?: string;
   media: IMedia[];
   event: ModEventType;
-  topicsSource?: TopicSourceType;
+  topicsSource?: ResourceType;
   modResult: IModResult;
   session: mongoose.ClientSession;
 }
@@ -187,7 +191,7 @@ export interface IPostModData {
   caption?: string;
   media?: IMedia[];
   topics?: string[];
-  topicsSource?: TopicSourceType;
+  topicsSource?: ResourceType;
   event: ModEventType;
   moderationTaskMode: ModerationTaskMode;
 }
@@ -202,4 +206,19 @@ export interface UserSettingsResult {
   status: "SUCCESS" | "NOT_FOUND" | "INVALID_INPUT";
   transInfo: TransInfo;
   payload?: any;
+}
+
+export type KycSubdocumentType =
+  | IKycIdentityRequest
+  | IKycAddressRequest
+  | IKycFinanceRequest
+  | IKycBusinessRequest;
+
+export interface IOAuthProfile {
+  email?: string;
+  providerId: string;
+  firstName?: string;
+  lastName?: string;
+  emailVerified?: boolean;
+  username?: string;
 }

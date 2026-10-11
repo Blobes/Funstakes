@@ -5,9 +5,10 @@
   "globalEnv": [
     "NODE_ENV",
     "NEXT_PUBLIC_API_URL",
-    "BASE_URL",
+    "NEXT_PUBLIC_SHELL_URL",
     "AUTH_URL",
     "POST_URL",
+    "PLATFORM_URL",
     "NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST",
     "NEXT_PUBLIC_APP_VERSION"
   ],

@@ -73,7 +73,19 @@ declare module "@mui/material/styles" {
 
   interface Theme {
     fixedColors: FixedColors;
-    radius: Record<string | number, string | number>;
+    radius: {
+      0: string;
+      4: string;
+      8: string;
+      12: string;
+      16: string;
+      20: string;
+      24: string;
+      40: string;
+      64: string;
+      full: string;
+    };
+    // Record<string | number, string | number>;
     boxSpacing: (
       top: number,
       right?: number,
@@ -84,7 +96,18 @@ declare module "@mui/material/styles" {
   }
   interface ThemeOptions {
     fixedColors?: FixedColors;
-    radius?: Record<string | number, string | number>;
+    radius?: {
+      0: string;
+      4: string;
+      8: string;
+      12: string;
+      16: string;
+      20: string;
+      24: string;
+      40: string;
+      64: string;
+      full: string;
+    };
     boxSpacing?: (
       top: number,
       right?: number,

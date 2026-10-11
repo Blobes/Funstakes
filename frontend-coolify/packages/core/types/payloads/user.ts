@@ -13,6 +13,15 @@ export type AccountStatus =
   | "NOT_ONBOARDED"
   | "NOT_VERIFIED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
+export type KycTierType = "NONE" | "TIER_1" | "TIER_2" | "TIER_3" | "TIER_4";
+
+export interface IPublicFigureSignals {
+  hasWikipedia?: boolean;
+  hasVipEmail?: boolean;
+  hasVipPhone?: boolean;
+  hasPressCoverage?: boolean;
+  isSearchVerified?: boolean;
+}
 
 interface PreferredTopics {
   topicId: string;
@@ -48,8 +57,8 @@ export interface IUserPayload {
   email?: string;
   username?: string;
   usernameCanonical?: string;
-  firstName?: string;
-  lastName?: string;
+  displayName?: string;
+  legalName?: string;
   phoneNumber?: string;
 
   // --- AUTHENTICATION & SECURITY ---
@@ -73,20 +82,19 @@ export interface IUserPayload {
   lastPhoneChangeAt?: Date | string | null;
   lastUsernameChangeAt?: Date | string | null;
 
-  // --- ROLES & AUTHORIZATION ---
-  role?: UserRole;
-
   // --- VERIFICATION & NOTABILITY ---
-  isVerified?: boolean;
-  isPublicFigure?: boolean;
-  meritsVerification?: boolean;
-  isNotable?: boolean;
-  idVerificationRequest?: string | null;
-  idVerificationStatus?: VerificationStatus;
-  verificationSignals?: {
-    hasWikipedia: boolean;
-    isVipEmail: boolean;
-    isVipPhone: boolean;
+  kyc?: {
+    kycId?: string | null;
+    currentTier?: KycTierType;
+  };
+  verifiedBadge?: {
+    badgeId?: string | null;
+    isEligible?: boolean;
+  };
+  publicFigureInfo?: {
+    publicFigureId?: string | null;
+    isEligible?: boolean;
+    signals?: IPublicFigureSignals;
   };
   isAgeVerified?: boolean;
 

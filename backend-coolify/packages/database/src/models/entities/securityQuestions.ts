@@ -1,5 +1,6 @@
 import { Schema, Model, model } from "mongoose";
 import { ISecurityQuestionDocument } from "../../types/others";
+import { SECURITY_QUESTION_NESTED_FIELDS } from "../../constants/fields";
 
 const SecurityQuestionSchema = new Schema<ISecurityQuestionDocument>(
   {
@@ -20,7 +21,10 @@ const SecurityQuestionSchema = new Schema<ISecurityQuestionDocument>(
 );
 
 SecurityQuestionSchema.index({ userId: 1 }, { unique: true });
-SecurityQuestionSchema.index({ userId: 1, "questions.question": 1 });
+SecurityQuestionSchema.index({
+  userId: 1,
+  [SECURITY_QUESTION_NESTED_FIELDS.QUESTION]: 1,
+});
 
 export const SecurityQuestionModel: Model<ISecurityQuestionDocument> =
   model<ISecurityQuestionDocument>(

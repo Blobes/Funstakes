@@ -77,7 +77,7 @@ const baseTheme = createTheme({
             2: "rgba(173, 218, 255, 0.2)",
             overlay: {
               default: "1, 6, 19",
-              adaptive: "40, 57, 217",
+              adaptive: "241, 243, 255",
             },
           },
         },
@@ -179,7 +179,7 @@ const baseTheme = createTheme({
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text6Caps: {
-      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 0.8125rem 13px
+      fontSize: "calc(0.75rem * var(--ui-font-scale, 1))", // 0.75rem 12px
       fontWeight: 600,
       textTransform: "uppercase",
       letterSpacing: 0.05,
@@ -188,14 +188,17 @@ const baseTheme = createTheme({
   },
   radius: {
     0: "0px",
-    1: "4px",
-    2: "8px",
-    3: "12px",
-    4: "16px",
-    5: "20px",
-    6: "24px",
+    4: "4px",
+    8: "8px",
+    12: "12px",
+    16: "16px",
+    20: "20px",
+    24: "24px",
+    40: "40px",
+    64: "64px",
     full: "1000px",
   },
+
   boxSpacing: (top, right, bottom, left) => {
     const multi = "var(--ui-density-base, 2px)";
     return `calc(${top} * ${multi}) ${right || right === 0 ? `calc(${right} * ${multi})` : ""} ${

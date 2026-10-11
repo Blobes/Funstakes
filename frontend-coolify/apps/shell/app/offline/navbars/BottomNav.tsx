@@ -3,13 +3,11 @@
 import React from "react";
 import { AppBar, Typography, useTheme } from "@mui/material";
 import { usePageScroll } from "@repo/shared-hooks";
+import { ScrollRefProps } from "@repo/core";
 
-interface NavProps {
-  scrollRef?: React.RefObject<HTMLElement | null>;
-}
-export const BottomNav: React.FC<NavProps> = ({ scrollRef }) => {
+export const BottomNav: React.FC<ScrollRefProps> = ({ scrollRef }) => {
   const theme = useTheme();
-  const { scrollDir } = usePageScroll(scrollRef);
+  const { scrollDir } = usePageScroll({ ref: scrollRef });
 
   return (
     <AppBar

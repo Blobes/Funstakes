@@ -11,6 +11,7 @@ import {
   ModerationDecision,
   ModerationCategory,
   ModeratorType,
+  MODERATION_CASE_NESTED_FIELDS,
 } from "@repo/database";
 import { PostType, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
@@ -108,13 +109,14 @@ export const executeCaseResolution = async (
       // Clean target assets field flags if target is a generic post/media entity
       if (modCase.targetType !== "PROFILE") {
         contentPayload.$unset = {
-          "moderationCase.caseId": null,
-          "moderationCase.caseCount": 0,
+          [MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_ID]: null,
+          [MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_COUNT]: 0,
         };
       }
     } else {
       if (modCase.targetType !== "PROFILE") {
-        contentPayload.$set["moderationCase.caseId"] = modCase._id;
+        contentPayload.$set[MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_ID] =
+          modCase._id;
       }
     }
     await TargetModel.findByIdAndUpdate(modCase.targetId, contentPayload);

@@ -1,4 +1,4 @@
-import { UserSettingsModel } from "@repo/database";
+import { UserSettingsModel, USER_SETTINGS_NESTED_FIELDS } from "@repo/database";
 import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { ClientSession } from "mongoose";
 
@@ -47,42 +47,63 @@ export const executeUpdateNotificationSettings = async (
 
   if (push) {
     if (typeof push.enabled === "boolean")
-      updateOps["notifications.push.enabled"] = push.enabled;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_ENABLED] =
+        push.enabled;
     if (typeof push.likes === "boolean")
-      updateOps["notifications.push.likes"] = push.likes;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_LIKES] =
+        push.likes;
     if (typeof push.comments === "boolean")
-      updateOps["notifications.push.comments"] = push.comments;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_COMMENTS] =
+        push.comments;
     if (typeof push.mentions === "boolean")
-      updateOps["notifications.push.mentions"] = push.mentions;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_MENTIONS] =
+        push.mentions;
     if (typeof push.newFollowers === "boolean")
-      updateOps["notifications.push.newFollowers"] = push.newFollowers;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_NEW_FOLLOWERS] =
+        push.newFollowers;
     if (typeof push.directMessages === "boolean")
-      updateOps["notifications.push.directMessages"] = push.directMessages;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_DIRECT_MESSAGES
+      ] = push.directMessages;
     if (typeof push.systemAnnouncements === "boolean")
-      updateOps["notifications.push.systemAnnouncements"] =
-        push.systemAnnouncements;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_SYSTEM_ANNOUNCEMENTS
+      ] = push.systemAnnouncements;
   }
 
   if (email) {
     if (typeof email.enabled === "boolean")
-      updateOps["notifications.email.enabled"] = email.enabled;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_EMAIL_ENABLED] =
+        email.enabled;
     if (typeof email.digest === "boolean")
-      updateOps["notifications.email.digest"] = email.digest;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_EMAIL_DIGEST] =
+        email.digest;
     if (typeof email.directMessages === "boolean")
-      updateOps["notifications.email.directMessages"] = email.directMessages;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_EMAIL_DIRECT_MESSAGES
+      ] = email.directMessages;
     if (typeof email.securityAlerts === "boolean")
-      updateOps["notifications.email.securityAlerts"] = email.securityAlerts;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_EMAIL_SECURITY_ALERTS
+      ] = email.securityAlerts;
   }
 
   if (quietMode) {
     if (typeof quietMode.isEnabled === "boolean")
-      updateOps["notifications.quietMode.isEnabled"] = quietMode.isEnabled;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_IS_ENABLED
+      ] = quietMode.isEnabled;
     if (quietMode.startTime)
-      updateOps["notifications.quietMode.startTime"] = quietMode.startTime;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_START_TIME
+      ] = quietMode.startTime;
     if (quietMode.endTime)
-      updateOps["notifications.quietMode.endTime"] = quietMode.endTime;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_END_TIME] =
+        quietMode.endTime;
     if (quietMode.timeZone)
-      updateOps["notifications.quietMode.timeZone"] = quietMode.timeZone;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_TIME_ZONE
+      ] = quietMode.timeZone;
   }
 
   if (Object.keys(updateOps).length === 0) {

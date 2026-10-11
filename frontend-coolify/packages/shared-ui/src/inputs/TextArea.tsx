@@ -9,7 +9,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Keyboard } from "lucide-react";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj, BaseStyleProps } from "@repo/core";
 import { scrollBarStyle } from "@repo/helpers";
 import { useVirtualKeyboard } from "@repo/shared-hooks";
 import { InputEventHandlers, InputProps } from "./Dynamic";
@@ -19,22 +19,14 @@ interface TextAreaProps extends InputProps, InputEventHandlers {
   maxRows?: number;
   minRows?: number;
   maxLength?: number | null;
-  style?: {
-    default: GenericStyle;
-    focused: GenericStyle;
-    hover: GenericStyle;
-  };
+  styles?: BaseStyleProps;
 }
 // TextArea Styled Input
 const StyledTextarea = styled(TextareaAutosize, {
-  shouldForwardProp: (prop) => prop !== "customStyle",
-})<{ customStyle: TextAreaProps["style"]; label: TextAreaProps["label"] }>(({
-  label,
-  customStyle,
-  theme,
-}) => {
+  //  shouldForwardProp: (prop) => prop !== "customStyle",
+})<TextAreaProps>(({ label, styles, theme }) => {
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-  const styles = {
+  const finalStyles = {
     ...theme.typography.text3,
     width: "100%",
     padding: label ? theme.boxSpacing(10, 0, 2, 2) : theme.boxSpacing(3, 2, 2),
@@ -44,17 +36,17 @@ const StyledTextarea = styled(TextareaAutosize, {
     resize: "none",
     border: "none",
     ...scrollBarStyle(theme),
-    ...customStyle?.default,
+    ...styles?.state?.default,
     "&:focus": {
       border: "none",
       outline: "none",
-      ...customStyle?.focused,
+      ...styles?.state?.focused,
     },
     "&:hover": {
-      ...customStyle?.hover,
+      ...styles?.state?.hover,
     },
   };
-  return styles as any;
+  return finalStyles as any;
 });
 
 // TextArea Styled Label
@@ -77,7 +69,7 @@ const StyledLabel = styled("label")<{ shrink: boolean }>(
 );
 
 export const ResponsiveTextarea = ({
-  style = { default: {}, focused: {}, hover: {} },
+  styles = {},
   maxRows = 4,
   minRows = 1,
   placeholder = "Type here...",
@@ -135,7 +127,7 @@ export const ResponsiveTextarea = ({
         ref={textareaRef}
         id="textarea"
         aria-label="Text area"
-        customStyle={style}
+        styles={styles}
         maxRows={maxRows}
         minRows={minRows}
         label={label}

@@ -40,7 +40,7 @@ export function EmailLayout({ content }: { content: string }): string {
       /* Header Container */
       .header-container {
         display: block;
-        background: #506AFF;
+        background:rgb(18, 23, 47);
         padding: 36px;
         margin-bottom: 24px;
       }

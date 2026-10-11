@@ -1,4 +1,8 @@
-import { IUserPreferredTopic, UserSettingsModel } from "@repo/database";
+import {
+  IUserPreferredTopic,
+  USER_SETTINGS_NESTED_FIELDS,
+  UserSettingsModel,
+} from "@repo/database";
 import { ClientSession } from "mongoose";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { fetchUserSettings } from "../user/settings";
@@ -69,14 +73,15 @@ export const executeUserTopicsSync = async (
         { userId },
         {
           $push: {
-            "display.contentPreferences.preferredTopics": {
-              $each: toAdd.map((t) => ({
-                topicId: t.topicId,
-                title: t.title,
-                lastViewed: new Date(),
-                addedBy: "USER",
-              })),
-            },
+            [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS]:
+              {
+                $each: toAdd.map((t) => ({
+                  topicId: t.topicId,
+                  title: t.title,
+                  lastViewed: new Date(),
+                  addedBy: "USER",
+                })),
+              },
           },
         },
         { session },
@@ -91,7 +96,7 @@ export const executeUserTopicsSync = async (
         { userId },
         {
           $set: {
-            "display.contentPreferences.preferredTopics.$[elem].lastViewed":
+            [`${USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS}.$[elem].lastViewed`]:
               new Date(),
           },
         },
@@ -151,9 +156,10 @@ export const removeTopicsFromUser = async (
     { userId },
     {
       $pull: {
-        "display.contentPreferences.preferredTopics": {
-          topicId: { $in: topicIds },
-        },
+        [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS]:
+          {
+            topicId: { $in: topicIds },
+          },
       },
     },
     { session },

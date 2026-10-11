@@ -16,7 +16,7 @@ export const ToggleBox = styled(IconButton)(({ theme }) => ({
   ...theme.typography.text3,
   width: 32,
   height: 32,
-  borderRadius: theme.radius[3],
+  borderRadius: theme.radius[12],
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -45,7 +45,8 @@ export const ColorSetter = ({
         color: activeConfig.color,
         opacity: disabled ? 0.4 : 1,
         transition: "opacity 0.2s ease",
-      }}>
+      }}
+    >
       T
     </ToggleBox>
   );

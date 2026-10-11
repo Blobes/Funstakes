@@ -12,6 +12,7 @@ import {
   ModerationCategory,
   ModerationEvidenceModel,
   ModerationEvidenceType,
+  MODERATION_CASE_NESTED_FIELDS,
 } from "@repo/database";
 import { calculateThreshold } from "../../utils/calculations";
 import { PostType, TransInfo } from "../../types/general";
@@ -288,7 +289,8 @@ export const executeCaseReport = async (
           TargetModel.findByIdAndUpdate(targetId, {
             $set: {
               [statusFieldName]: "BANNED",
-              "moderationCase.caseId": flaggedRecord._id,
+              [MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_ID]:
+                flaggedRecord._id,
               updatedAt: new Date(),
             },
           }),
@@ -350,7 +352,8 @@ export const executeCaseReport = async (
 
       // Set internal tracking reference strictly on compatible non-profile collections
       if (targetType !== "PROFILE") {
-        assetPayload.$set["moderationCase.caseId"] = flaggedRecord._id;
+        assetPayload.$set[MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_ID] =
+          flaggedRecord._id;
       }
 
       updatePromises.push(

@@ -105,7 +105,7 @@ export const GlobalUIManager = ({
       await verifyAuth();
     };
     init();
-  }, []); // verifyAuth, verifySignal
+  }, [verifyAuth]); // verifyAuth, verifySignal
 
   // Runs heart-beat update for time-dependent state.
   useEffect(() => {
@@ -185,7 +185,7 @@ export const GlobalUIManager = ({
         <ProgressUI
           type="linear"
           style={{
-            container: {
+            wrapper: {
               position: "fixed",
               top: 0,
               left: 0,

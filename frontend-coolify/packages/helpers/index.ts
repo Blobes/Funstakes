@@ -15,5 +15,5 @@ export * from "./src/cloudUpload";
 export * from "./src/formatter";
 export * from "./src/page";
 export * from "./src/media";
-export * from "./src/translation";
+export * from "./src/localize";
 export * from "./src/saveLogin";

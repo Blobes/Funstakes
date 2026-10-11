@@ -1,4 +1,4 @@
-import { DeviceModel } from "@repo/database";
+import { DEVICE_NESTED_FIELDS, DeviceModel } from "@repo/database";
 import {
   CACHE_EXPIRY,
   CACHE_KEYS,
@@ -10,7 +10,7 @@ import {
 import { NextFunction, Response } from "express";
 
 /**
- * Fetches all hardware devices associated with the authenticated user with read-aside caching.
+ * Fetches user hardware devices and projects only the requesting user's meta context.
  */
 export const getDevices = async (
   req: IAuthRequest,
@@ -34,7 +34,20 @@ export const getDevices = async (
     const devices = await getOrSetCache(
       cacheKey,
       async () => {
-        return await DeviceModel.find({ userId })
+        return await DeviceModel.find(
+          { [DEVICE_NESTED_FIELDS.USERS_USER_ID]: userId },
+          {
+            deviceToken: 1,
+            name: 1,
+            deviceType: 1,
+            os: 1,
+            browser: 1,
+            userAgent: 1,
+            lastSeenAt: 1,
+            isStale: 1,
+            users: { $elemMatch: { userId } },
+          },
+        )
           .sort({ lastSeenAt: -1 })
           .lean();
       },

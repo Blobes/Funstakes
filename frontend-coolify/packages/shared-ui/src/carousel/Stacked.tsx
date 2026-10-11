@@ -51,8 +51,9 @@ export const StackedCarousel = ({
         gap: theme.gap(8),
         flex: "none",
         userSelect: "none",
-        ...style?.container,
-      }}>
+        ...style?.wrapper,
+      }}
+    >
       <Box
         sx={{
           position: "relative",
@@ -63,7 +64,8 @@ export const StackedCarousel = ({
           flex: "1 1 0%",
           minHeight: 0,
           ...style?.viewport,
-        }}>
+        }}
+      >
         {visibleItems.map(({ itemIndex, depthIndex }) => {
           const isTopCard = depthIndex === 0;
           const transforms = getCardTransforms(depthIndex);
@@ -90,7 +92,8 @@ export const StackedCarousel = ({
                 transition: transforms.transition,
                 transformOrigin: "bottom center",
                 ...style?.item,
-              }}>
+              }}
+            >
               {items[itemIndex]}
             </Box>
           );

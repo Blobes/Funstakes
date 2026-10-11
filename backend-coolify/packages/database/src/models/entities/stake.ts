@@ -1,5 +1,6 @@
 import { Model, Schema, model } from "mongoose";
 import { IStakeDocument } from "../../types/post";
+import { POST_NESTED_FIELDS } from "../../constants/fields";
 
 const StakeSchema = new Schema<IStakeDocument>(
   {
@@ -95,7 +96,10 @@ StakeSchema.index({ authorId: 1, status: 1, createdAt: -1 });
 // Automated worker processing queue for draft or under-review stakes
 StakeSchema.index({ status: 1, createdAt: 1 });
 // Spatial distribution queries for stakes
-StakeSchema.index({ "location.coordinates": "2dsphere", status: 1 });
+StakeSchema.index({
+  [POST_NESTED_FIELDS.LOCATION_COORDINATES]: "2dsphere",
+  status: 1,
+});
 
 export const StakeModel: Model<IStakeDocument> = model<IStakeDocument>(
   "Stake",

@@ -1,4 +1,4 @@
-import { getEnv, loadEnv } from "@repo/shared";
+import { ENV_KEYS, getEnv, loadEnv } from "@repo/shared";
 
 if (process.env.NODE_ENV !== "production") {
   loadEnv();
@@ -9,36 +9,36 @@ if (process.env.NODE_ENV !== "production") {
  */
 export const env = {
   get NODE_ENV() {
-    return getEnv("NODE_ENV");
+    return getEnv(ENV_KEYS.NODE_ENV);
   },
   get MONGO_URI() {
-    return getEnv("MONGO_URI");
+    return getEnv(ENV_KEYS.MONGO_URI);
   },
   get PORT() {
-    return parseInt(getEnv("GATEWAY_PORT", false) || "8000", 10);
+    return parseInt(getEnv(ENV_KEYS.GATEWAY_PORT, false) || "8000", 10);
   },
   get GATEWAY_URL() {
-    return getEnv("GATEWAY_URL");
+    return getEnv(ENV_KEYS.GATEWAY_URL);
   },
   get ACCOUNT_URL() {
-    return getEnv("ACCOUNT_URL");
+    return getEnv(ENV_KEYS.ACCOUNT_URL);
   },
   get POST_URL() {
-    return getEnv("POST_URL");
+    return getEnv(ENV_KEYS.POST_URL);
   },
   get PLATFORM_URL() {
-    return getEnv("PLATFORM_URL");
+    return getEnv(ENV_KEYS.PLATFORM_URL);
   },
   get WORKER_URL() {
-    return getEnv("WORKER_URL");
+    return getEnv(ENV_KEYS.WORKER_URL);
   },
 
   get JWT_SECRET() {
-    return getEnv("JWT_SECRET");
+    return getEnv(ENV_KEYS.JWT_SECRET);
   },
 
   get FUNSTAKES_REDIS_URL() {
-    return getEnv("FUNSTAKES_REDIS_URL");
+    return getEnv(ENV_KEYS.FUNSTAKES_REDIS_URL);
   },
 };
 

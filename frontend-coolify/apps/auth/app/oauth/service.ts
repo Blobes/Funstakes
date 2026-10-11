@@ -1,10 +1,16 @@
 "use client";
 
 import { AuthPurposeType, SERVER_API } from "@repo/core";
-import { apiClient } from "@repo//helpers";
+import { apiClient } from "@repo/helpers";
 import { LoginResponse } from "../login/service";
 
-export type OAuthProvider = "GOOGLE" | "APPLE";
+export type OAuthProvider =
+  | "GOOGLE"
+  | "APPLE"
+  | "FACEBOOK"
+  | "GITHUB"
+  | "X_TWITTER"
+  | "LINKEDIN";
 
 export interface OAuthExchangeRequest {
   provider: OAuthProvider;

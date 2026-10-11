@@ -44,7 +44,7 @@ export const FileInput = ({
       sx={{
         border: `1px dashed ${theme.palette.gray[100]}`,
         padding: theme.boxSpacing(8, 8),
-        borderRadius: theme.radius[3],
+        borderRadius: theme.radius[12],
         backgroundColor: theme.palette.gray[50],
         display: "flex",
         flexDirection: "column",

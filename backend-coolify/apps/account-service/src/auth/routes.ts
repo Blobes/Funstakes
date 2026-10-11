@@ -14,11 +14,7 @@ import { getDevices } from "./device/getAllDevices";
 import { removeDevice } from "./device/removeDevice";
 import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
-import {
-  handleGoogleOAuthCallback,
-  initiateGoogleOAuth,
-  oauthSpa,
-} from "./oauth/oauthSignin";
+import { handleOauthSpa } from "./oauth/spa";
 import { verifyTotpCode } from "./verification/totp/controller/verify";
 import { fetchTotpSetup } from "./verification/totp/controller/fetch";
 import { autoInvalidateUserCache } from "@repo/shared";
@@ -37,6 +33,35 @@ import { resetMessagingOtp } from "./verification/messaging/controllers/resetOtp
 import { verifySecurityQuestions } from "./verification/security-questions/controller/verify";
 import { setupSecurityQuestions } from "./verification/security-questions/controller/setup";
 import { fetchSecurityQuestions } from "./verification/security-questions/controller/fetch";
+import {
+  handleGoogleOAuthCallback,
+  initiateGoogleOAuth,
+} from "./oauth/google/controller";
+import {
+  handleAppleOAuthCallback,
+  initiateAppleOAuth,
+} from "./oauth/apple/controller";
+import {
+  handleFacebookOAuthCallback,
+  initiateFacebookOAuth,
+} from "./oauth/facebook/signin";
+import {
+  handleXOAuthCallback,
+  initiateXOAuth,
+} from "./oauth/x-twitter/controller";
+import {
+  handleLinkedinOAuthCallback,
+  initiateLinkedinOAuth,
+} from "./oauth/linkedin/controller";
+import {
+  handleGitHubOAuthCallback,
+  initiateGitHubOAuth,
+} from "./oauth/github/controller";
+import { handleFacebookDeauthorize } from "./oauth/facebook/deauthorize";
+import {
+  handleWhatsappChallenge,
+  handleWhatsappMsgUpdates,
+} from "./verification/whatsapp/webhook";
 
 const router: Router = express.Router();
 
@@ -61,9 +86,26 @@ router.post(
 );
 
 // --- OAUTH ---
-router.post("/oauth/popup", oauthSpa);
+router.post("/oauth/popup", handleOauthSpa);
 router.get("/oauth/google", initiateGoogleOAuth);
 router.get("/oauth/google/callback", handleGoogleOAuthCallback);
+
+router.get("/oauth/facebook", initiateFacebookOAuth);
+router.get("/oauth/facebook/callback", handleFacebookOAuthCallback);
+router.post("/auth/oauth/facebook/deauthorize", handleFacebookDeauthorize);
+
+router.get("/oauth/x", initiateXOAuth);
+router.get("/oauth/x/callback", handleXOAuthCallback);
+
+router.get("/oauth/linkedin", initiateLinkedinOAuth);
+router.get("/oauth/linkedin/callback", handleLinkedinOAuthCallback);
+
+router.get("/oauth/github", initiateGitHubOAuth);
+router.get("/oauth/github/callback", handleGitHubOAuthCallback);
+
+router.get("/oauth/apple", initiateAppleOAuth);
+router.post("/oauth/apple/callback", handleAppleOAuthCallback);
+router.get("/oauth/apple/callback", handleAppleOAuthCallback);
 
 // --- SESSION MANAGEMENT ---
 router.post("/session/login", loginUser);
@@ -100,6 +142,8 @@ router.post(
   verifySecurityQuestions,
 );
 router.get("/whatsapp-status/:phoneNumber", checkWhatsAppStatus);
+router.get("/whatsapp/webhook", handleWhatsappChallenge);
+router.post("/whatsapp/webhook", handleWhatsappMsgUpdates);
 
 // --- DEVICE MANAGEMENT ---
 router.get(

@@ -3,25 +3,26 @@
 import React, { useMemo, useState } from "react";
 import { useTheme, styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
-import Image from "next/image";
 import { Blurhash } from "react-blurhash";
 import {
   AnalyzedImage,
   IMedia,
-  MediaStyle,
   ColorType,
   FontType,
+  BaseStyleObj,
+  BaseStyleProps,
 } from "@repo/core";
 import { analyzeImage } from "@repo/helpers";
 import { COLOR_CONFIGS, useMisc } from "@repo/shared-hooks";
 import { VideoMedia } from "./VideoMedia";
+import { AppImage } from "../../Image";
 
 export interface RendererProps {
   media: IMedia;
   excludeBlurHash?: boolean;
-  width?: `${number}` | number;
-  height?: `${number}` | number;
-  style?: MediaStyle;
+  width?: number;
+  height?: number;
+  style?: BaseStyleProps;
 }
 
 export const MediaRenderer = ({
@@ -53,7 +54,6 @@ export const MediaRenderer = ({
   // Handles the image load event to check dimensions only if metadata was insufficient.
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     setIsLoaded(true);
-
     if (aspectRatio !== undefined || (mediaHeight && mediaWidth)) return;
     const img = e.currentTarget;
     const analyzed = analyzeImage(img);
@@ -63,23 +63,25 @@ export const MediaRenderer = ({
   };
 
   // Your existing dynamic style logic
-  const contentStyle = {
-    height: isPortrait ? (style?.content?.height ?? "80svh") : "auto",
+  const contentStyle: BaseStyleObj = {
+    height: isPortrait ? (style?.targetContent?.height ?? "80svh") : "auto",
     width: isPortrait ? "auto" : "100%",
-    maxHeight: style?.content?.maxHeight ?? "80svh",
+    maxHeight: style?.targetContent?.maxHeight ?? "80svh",
     maxWidth: "100%",
-    objectFit: "contain" as const,
+    objectFit: "contain",
     zIndex: 4,
-    position: "relative" as const,
+    position: "relative",
     transition: "opacity 0.4s ease-in-out",
     opacity: isLoaded ? 1 : 0,
     // Responsive Breakpoints
     ...(!isDesktop && {
       width: "100%",
-      height: isPortrait ? (style?.content?.height ?? "auto") : "unset",
-      maxHeight: isPortrait ? (style?.content?.maxHeight ?? "none") : "60svh",
+      height: isPortrait ? (style?.targetContent?.height ?? "auto") : "unset",
+      maxHeight: isPortrait
+        ? (style?.targetContent?.maxHeight ?? "none")
+        : "60svh",
     }),
-    ...(style?.content as React.CSSProperties),
+    ...style?.targetContent,
   };
 
   return (
@@ -96,9 +98,9 @@ export const MediaRenderer = ({
         aspectRatio: dimensions?.aspectRatio
           ? `${dimensions.aspectRatio}`
           : "auto",
-        ...style?.container?.base,
+        ...style?.wrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.container?.smallScreen,
+          ...style?.wrapper?.smScreen,
         },
       }}
     >
@@ -124,30 +126,28 @@ export const MediaRenderer = ({
             />
           </Box>
         ) : (
-          <Image
+          <AppImage
             src={url}
             alt=""
             fill
             style={{
-              objectFit: "cover",
-              filter: "blur(48px)",
-              opacity: 0.6, // Slightly lower opacity for better contrast
+              targetContent: {
+                filter: "blur(48px)",
+                opacity: 0.6,
+              },
             }}
-            priority={false}
           />
         ))}
 
       {/* 2. Main Media Content */}
       {mediaType === "IMAGE" ? (
-        <Image
+        <AppImage
           src={url}
-          width={width || mediaWidth || analyzedImg?.width || 0}
-          height={height || mediaHeight || analyzedImg?.height || 0}
-          sizes="100vw"
-          loading="lazy"
-          alt={alt || "Image"}
+          alt={alt}
+          width={width || mediaWidth || analyzedImg?.width}
+          height={height || mediaHeight || analyzedImg?.height}
           onLoad={handleImageLoad}
-          style={contentStyle}
+          style={{ targetContent: contentStyle }}
         />
       ) : (
         <VideoMedia
@@ -204,20 +204,7 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
       <MediaRenderer
         media={media}
         style={{
-          content: {
-            // maxHeight: "100%",
-            // height: "100%",
-            // width: "100%",
-            // objectFit: "contain",
-            filter: activeFilterStyle,
-          },
-          // container: {
-          //   base: {
-          //     width: "100%",
-          //     height: "100%",
-          //     backgroundColor: "transparent",
-          //   },
-          // },
+          wrapper: { filter: activeFilterStyle },
         }}
       />
 
@@ -237,23 +224,19 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
                   position: "absolute",
                   left: `${item.position.x}%`,
                   top: `${item.position.y}%`,
-                  borderRadius: theme.radius.base,
+                  borderRadius: theme.radius[8],
                   padding: theme.boxSpacing(1, 3),
                   backgroundColor: colorCfg.backgroundColor,
+
+                  display: "block",
+                  color: colorCfg.color,
+                  fontFamily: activeFontType,
+                  fontSize: `${item.size}px`,
+                  textAlign: item.textAlign || "center",
+                  whiteSpace: "pre-wrap",
                 }}
               >
-                <span
-                  style={{
-                    display: "block",
-                    color: colorCfg.color,
-                    fontFamily: activeFontType,
-                    fontSize: `${item.size}px`,
-                    textAlign: item.textAlign || "center",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {item.content}
-                </span>
+                {item.content}
               </Box>
             );
           })}
@@ -270,16 +253,12 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
                 position: "absolute",
                 left: `${item.position.x}%`,
                 top: `${item.position.y}%`,
+
+                fontSize: `${item.size}px`,
+                userSelect: "none",
               }}
             >
-              <span
-                style={{
-                  fontSize: `${item.size}px`,
-                  userSelect: "none",
-                }}
-              >
-                {item.content}
-              </span>
+              {item.content}
             </Box>
           ))}
         </LayerOverlay>

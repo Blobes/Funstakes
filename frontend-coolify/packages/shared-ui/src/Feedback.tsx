@@ -29,7 +29,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
   const secHref = secondaryCta?.href ? { href: secondaryCta?.href } : {};
 
   return (
-    <Stack sx={style?.container}>
+    <Stack sx={style?.wrapper}>
       {/* Icon */}
       {icon && <Stack sx={style?.icon}>{icon}</Stack>}
 
@@ -126,15 +126,15 @@ export const DisplayFeedbackUI = ({
       primaryCta={handlePrimaryCta}
       secondaryCta={handleSecondaryCta}
       style={{
-        container: {
+        wrapper: {
           padding: theme.boxSpacing(18),
           backgroundColor: theme.palette.gray[0],
-          borderRadius: theme.radius[3],
+          borderRadius: theme.radius[12],
           alignItems: "center",
           justifyContent: "center",
           gap: theme.gap(14),
           border: `1px solid ${theme.fixedColors.pTrans}`,
-          ...(style?.container ?? config.style?.container),
+          ...(style?.wrapper ?? config.style?.wrapper),
         },
         headline: {
           ...theme.typography.text2,

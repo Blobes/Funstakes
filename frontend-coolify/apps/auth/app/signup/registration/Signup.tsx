@@ -1,16 +1,15 @@
 "use client";
 
 import React from "react";
-import { Divider, Stack } from "@mui/material";
+import { Box, Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { asset } from "@repo/assets";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
   AUTH_INPUT,
   CLIENT_ROUTES,
   COMMON_FEEDBACK,
-  GenericStyle,
+  BaseStyleProps,
 } from "@repo/core";
 import {
   AppButton,
@@ -18,7 +17,6 @@ import {
   PasswordInput,
   InlineMsgUI,
   ProgressUI,
-  SVGWrapper,
   AnchorLink,
   UIGuide,
   PhoneInput,
@@ -27,14 +25,11 @@ import {
 } from "@repo/shared-ui";
 import { useSignup } from "./useSignup";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
-import { useOAuth } from "../../oauth/useOauth";
+import { OAuthProviders } from "../../oauth/Providers";
+import { autoScroll } from "@repo/helpers";
 
 interface SignupProps {
-  style?: {
-    container?: GenericStyle;
-    headline?: React.CSSProperties;
-    tagline?: React.CSSProperties;
-  };
+  style?: BaseStyleProps;
 }
 
 /**
@@ -43,12 +38,6 @@ interface SignupProps {
 export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const theme = useTheme();
   const { INPUT_GUIDES } = useGuides();
-
-  const { handleGoogleRedirectSignIn, handleAppleSignIn, isOAuthLoading } =
-    useOAuth({
-      purpose: "REGISTRATION",
-      autoPromptGoogle: true,
-    });
 
   const {
     email,
@@ -67,11 +56,9 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     isSubmitLoading,
     isSubmitDisabled,
     inlineMsg,
-    handleLoginClick,
+    handleAnchorNavigation,
     clearInlineMsg,
   } = useSignup();
-
-  const isGlobalLoading = isSubmitLoading || isOAuthLoading;
 
   const { translateTxtString } = useStaticTranslation();
 
@@ -82,221 +69,229 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
       color: theme.palette.primary.dark,
       textDecoration: "underline",
       fontWeight: 600,
+      borderRadius: theme.radius[8],
     },
   };
 
   return (
-    <Stack
+    <Box
       sx={{
-        backgroundColor: theme.palette.gray[0],
-        justifyContent: "center",
+        display: "flex",
+        ...autoScroll().base, // Has height
+        width: "50%",
+        minWidth: 420,
+        padding: theme.boxSpacing(18),
         alignItems: "center",
-        gap: theme.gap(10),
-        width: "100%",
-        margin: "0 auto",
-        padding: theme.boxSpacing(8),
-        ...style.container,
+        flexDirection: "column",
+        ...(style?.wrapper as any),
         [theme.breakpoints.down("md")]: {
-          ...style.container?.mdScreen,
+          height: "100svh",
+          width: "80%",
+          minWidth: "unset",
+          minHeight: "fit-content",
+          flex: "none",
+          scrollSnapAlign: "start",
+          padding: theme.boxSpacing(20, 10),
+          overflow: "unset",
+          ...style.wrapper?.mdScreen,
         },
         [theme.breakpoints.down("sm")]: {
-          width: style.container?.smScreen,
+          width: "100%",
+          minWidth: "unset",
+          ...style.wrapper?.smScreen,
         },
       }}
     >
-      <AppLogo color={theme.palette.gray[300]} sx={{ alignSelf: "center" }} />
       <Stack
-        gap={theme.gap(4)}
         sx={{
           width: "100%",
-          paddingBottom: theme.boxSpacing(6),
-          [theme.breakpoints.down("md")]: {
-            paddingBottom: theme.boxSpacing(12),
-          },
+          maxWidth: 420,
+          margin: "auto 0",
+          gap: theme.gap(8),
         }}
       >
-        <TransText
-          {...COMMON_FEEDBACK.predict_stake_win}
-          component="h3"
-          breakWord
-          sx={{
-            ...theme.typography.h6,
-            color: theme.palette.gray[300],
-            textAlign: "center",
-            ...style.headline,
-          }}
+        <AppLogo
+          color={theme.palette.gray[300]}
+          sx={{ alignSelf: "center", marginBottom: theme.boxSpacing(8) }}
         />
-        <TransText
-          {...COMMON_FEEDBACK.user_terms_agreement}
-          component="p"
-          inlineComponents={{
-            agreement: (
-              <AnchorLink href="/user-agreement" style={inlineLinkStyle} />
-            ),
-            policy: (
-              <AnchorLink href="/privacy-policy" style={inlineLinkStyle} />
-            ),
+        <Stack
+          gap={theme.gap(4)}
+          sx={{
+            width: "100%",
+            paddingBottom: theme.boxSpacing(6),
+            [theme.breakpoints.down("md")]: {
+              paddingBottom: theme.boxSpacing(12),
+            },
           }}
+        >
+          <TransText
+            {...COMMON_FEEDBACK.create_an_account}
+            component="h3"
+            breakWord
+            sx={{
+              ...theme.typography.h6,
+              color: theme.palette.gray[300],
+              textAlign: "center",
+              ...style.headline,
+            }}
+          />
+          <TransText
+            {...COMMON_FEEDBACK.user_terms_agreement_signup}
+            component="p"
+            inlineComponents={{
+              agreement: (
+                <AnchorLink
+                  href={CLIENT_ROUTES.terms.path}
+                  onClick={(e: React.MouseEvent) =>
+                    handleAnchorNavigation?.(e, CLIENT_ROUTES.terms)
+                  }
+                  style={inlineLinkStyle}
+                />
+              ),
+              policy: (
+                <AnchorLink
+                  href={CLIENT_ROUTES.privacy.path}
+                  onClick={(e: React.MouseEvent) =>
+                    handleAnchorNavigation?.(e, CLIENT_ROUTES.privacy)
+                  }
+                  style={inlineLinkStyle}
+                />
+              ),
+            }}
+            sx={{
+              ...theme.typography.text5,
+              color: theme.palette.gray[200],
+              paddingBottom: theme.boxSpacing(2),
+              textAlign: "center",
+              ...style.tagline,
+            }}
+          />
+        </Stack>
+
+        {/* Third Party Providers */}
+        <OAuthProviders
+          purpose="REGISTRATION"
+          autoPromptGoogle={true}
+          isAppAuthLoading={isSubmitLoading}
+        />
+
+        <Divider
           sx={{
             ...theme.typography.text5,
             color: theme.palette.gray[200],
-            paddingBottom: theme.boxSpacing(2),
-            textAlign: "center",
-            ...style.tagline,
-          }}
-        />
-      </Stack>
-
-      {/* Third Party Providers */}
-      <Stack direction="row" gap={theme.gap(4)} sx={{ width: "100%" }}>
-        <AppButton
-          variant="outlined"
-          onClick={handleGoogleRedirectSignIn}
-          style={{
-            gap: theme.gap(4),
             width: "100%",
+            margin: 0,
           }}
-          options={{ disabled: isGlobalLoading }}
         >
-          <SVGWrapper
-            src={asset.googleLogo}
-            size={20}
-            fallbackUIType="SKELETON"
+          <TransText {...AUTH_FEEDBACK.or_sign_up_with} noComponent />
+        </Divider>
+
+        {inlineMsg && (
+          <InlineMsgUI scrollIntoView={true} msg={inlineMsg} type="ERROR" />
+        )}
+
+        {/* Input Fields Form Container */}
+        <Stack
+          sx={{ gap: theme.gap(6), width: "100%" }}
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+        >
+          <DynamicInput
+            required
+            value={email}
+            type="email"
+            label={translateTxtString(AUTH_INPUT.label.email_address)}
+            placeholder={translateTxtString(
+              AUTH_INPUT.placeholder.enter_your_email,
+            )}
+            onChange={handleEmailChange}
+            onClear={handleClearEmail}
+            helperText={emailValidationMsg}
+            error={email !== "" && emailValidity === "INVALID"}
           />
-          Google
-        </AppButton>
-        <AppButton
-          variant="outlined"
-          onClick={handleAppleSignIn}
-          style={{
-            gap: theme.gap(4),
-            width: "100%",
-          }}
-          options={{ disabled: isGlobalLoading }}
-        >
-          <SVGWrapper
-            src={asset.appleLogo}
-            size={20}
-            fallbackUIType="SKELETON"
-            color={theme.palette.gray[300]}
+
+          <PhoneInput
+            value={phone}
+            label={translateTxtString(AUTH_INPUT.label.phone_optional)}
+            placeholder={translateTxtString(
+              AUTH_INPUT.placeholder.phone_example,
+            )}
+            includeCountryCode={true}
+            onPhoneChange={handlePhoneChange}
+            onClearInlineMsg={clearInlineMsg}
+            helperText={phoneValidationMsg}
+            error={phone !== "" && phoneValidity === "INVALID"}
           />
-          Apple
-        </AppButton>
-      </Stack>
 
-      <Divider
-        sx={{
-          ...theme.typography.text5,
-          color: theme.palette.gray[200],
-          width: "100%",
-          margin: 0,
-        }}
-      >
-        <TransText {...AUTH_FEEDBACK.or_sign_up_with} noComponent />
-      </Divider>
+          <PasswordInput
+            required
+            label={translateTxtString(AUTH_INPUT.label.password)}
+            placeholder={translateTxtString(
+              AUTH_INPUT.placeholder.create_password,
+            )}
+            onChange={handlePasswordChange}
+            value={password}
+            inputGuideUI={
+              <UIGuide
+                guides={[INPUT_GUIDES.PASSWORD]}
+                showTitle={false}
+                detailVisuals={passwordVisualStates}
+                containerStyle={{
+                  backgroundColor: theme.palette.gray.trans[1],
+                  borderRadius: theme.radius[12],
+                }}
+              />
+            }
+          />
 
-      {inlineMsg && (
-        <InlineMsgUI scrollIntoView={true} msg={inlineMsg} type="ERROR" />
-      )}
-
-      {/* Input Fields Form Container */}
-      <Stack
-        sx={{ gap: theme.gap(6), width: "100%" }}
-        component="form"
-        onSubmit={handleSubmit}
-        noValidate
-      >
-        <DynamicInput
-          required
-          value={email}
-          type="email"
-          label={translateTxtString(AUTH_INPUT.label.email_address)}
-          placeholder={translateTxtString(
-            AUTH_INPUT.placeholder.enter_your_email,
-          )}
-          onChange={handleEmailChange}
-          onClear={handleClearEmail}
-          helperText={emailValidationMsg}
-          error={email !== "" && emailValidity === "INVALID"}
-        />
-
-        <PhoneInput
-          value={phone}
-          label={translateTxtString(AUTH_INPUT.label.phone_optional)}
-          placeholder={translateTxtString(AUTH_INPUT.placeholder.phone_example)}
-          includeCountryCode={true}
-          onPhoneChange={handlePhoneChange}
-          onClearInlineMsg={clearInlineMsg}
-          helperText={phoneValidationMsg}
-          error={phone !== "" && phoneValidity === "INVALID"}
-        />
-
-        <PasswordInput
-          required
-          label={translateTxtString(AUTH_INPUT.label.password)}
-          placeholder={translateTxtString(
-            AUTH_INPUT.placeholder.create_password,
-          )}
-          onChange={handlePasswordChange}
-          value={password}
-          inputGuideUI={
-            <UIGuide
-              guides={[INPUT_GUIDES.PASSWORD]}
-              showTitle={false}
-              detailVisuals={passwordVisualStates}
-              containerStyle={{
-                backgroundColor: theme.palette.gray.trans[1],
-                borderRadius: theme.radius[3],
-              }}
-            />
-          }
-        />
-
-        <AppButton
-          variant="contained"
-          submit
-          style={{
-            width: "100%",
-            marginTop: theme.gap(4),
-          }}
-          options={{ disabled: isSubmitDisabled || isGlobalLoading }}
-        >
-          {isSubmitLoading ? (
-            <ProgressUI options={{ size: 25 }} />
-          ) : (
-            <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
-          )}
-        </AppButton>
-      </Stack>
-      <Stack
-        sx={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          paddingTop: theme.boxSpacing(8),
-          gap: theme.gap(2),
-        }}
-      >
-        <TransText
-          {...AUTH_FEEDBACK.already_have_an_account}
-          component="p"
+          <AppButton
+            variant="contained"
+            submit
+            style={{
+              width: "100%",
+              marginTop: theme.gap(4),
+            }}
+            options={{ disabled: isSubmitDisabled || isSubmitLoading }}
+          >
+            {isSubmitLoading ? (
+              <ProgressUI options={{ size: 25 }} />
+            ) : (
+              <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
+            )}
+          </AppButton>
+        </Stack>
+        <Stack
           sx={{
-            ...theme.typography.text4,
-            textAlign: "center",
-            width: "100%",
-            ...style.tagline,
-          }}
-        />
-        <AnchorLink
-          onClick={handleLoginClick}
-          href={CLIENT_ROUTES.login.path}
-          style={{
-            ...inlineLinkStyle,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingTop: theme.boxSpacing(8),
+            gap: theme.gap(2),
           }}
         >
-          <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
-        </AnchorLink>
+          <TransText
+            {...AUTH_FEEDBACK.already_have_an_account}
+            component="p"
+            sx={{
+              ...theme.typography.text4,
+              textAlign: "center",
+              ...style.tagline,
+            }}
+          />
+          <AnchorLink
+            onClick={(e: React.MouseEvent) =>
+              handleAnchorNavigation?.(e, CLIENT_ROUTES.login)
+            }
+            href={CLIENT_ROUTES.login.path}
+            style={{
+              ...inlineLinkStyle,
+            }}
+          >
+            <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
+          </AnchorLink>
+        </Stack>
       </Stack>
-    </Stack>
+    </Box>
   );
 };

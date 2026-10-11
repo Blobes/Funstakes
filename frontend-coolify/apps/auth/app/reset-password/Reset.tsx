@@ -55,19 +55,19 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
     <Stack
       sx={{
         backgroundColor: theme.palette.gray[0],
-        borderRadius: theme.radius[5],
+        borderRadius: theme.radius[20],
         paddingY: theme.boxSpacing(14),
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
         width: "40%",
         maxWidth: 400,
-        ...style.container,
+        ...style.wrapper,
         [theme.breakpoints.down("md")]: {
           width: "60%",
           maxWidth: "unset",
           flex: "none",
-          ...style.container?.mdScreen,
+          ...style.wrapper?.mdScreen,
         },
         [theme.breakpoints.down("sm")]: {
           width: "100%",
@@ -76,7 +76,7 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
       }}
     >
       <AppLogo
-        size={50}
+        size={44}
         color={theme.palette.gray[300]}
         sx={{ alignSelf: "center" }}
       />

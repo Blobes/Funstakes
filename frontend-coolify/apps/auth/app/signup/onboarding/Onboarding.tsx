@@ -66,7 +66,7 @@ export const Onboarding: React.FC<StepperProps<AuthStepName>> = ({
         width: "50%",
         minWidth: "500px",
         backgroundColor: theme.palette.gray[0],
-        borderRadius: theme.radius[5],
+        borderRadius: theme.radius[20],
         justifyContent: "center",
         alignItems: "center",
         padding: theme.boxSpacing(12),
@@ -78,7 +78,7 @@ export const Onboarding: React.FC<StepperProps<AuthStepName>> = ({
           minWidth: "unset",
           padding: theme.boxSpacing(6, 6),
         },
-        ...style.container,
+        ...style.wrapper,
       }}
     >
       {/* Visual Progress Tracker (Independent) */}

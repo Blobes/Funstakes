@@ -73,8 +73,7 @@ export const executeUserProfileFetch = async (
         _id: baseProfile._id,
         username: baseProfile.username,
         profileImage: baseProfile.profileImage,
-        firstName: baseProfile.firstName,
-        lastName: baseProfile.lastName,
+        displayName: baseProfile.displayName,
         isOwner,
       },
     };

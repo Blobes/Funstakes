@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AllowedVerificationTypes,
   OtpMessageChannel,
@@ -10,19 +12,19 @@ import {
   VERIFY_IDENTITY_METHODS,
 } from "./others";
 
-export type TranslationNode =
+export type Translationode =
   | ITranslation
   | ((...args: any[]) => ITranslation)
-  | { readonly [tKey: string]: TranslationNode };
+  | { readonly [tKey: string]: Translationode };
 
 export type TranslationRegistry = {
   readonly [namespace: string]: {
-    readonly [section: string]: TranslationNode;
+    readonly [section: string]: Translationode;
   };
 };
 
 /**
- * Authentication handling structures. Extracts to ../../../locale/versions/en/auth.json
+ * Auth App Message Registry. Extracts to ../../../locale/versions/en/auth.json
  */
 export const auth = {
   button: {
@@ -166,7 +168,7 @@ export const auth = {
     invalid_oauth_token: {
       tKey: "auth:feedback.invalid_oauth_token",
       tValue:
-        "OAuth token/code missing or invalid. Please try logging in again.",
+        "Oauth token/code missing or invalid. Please try logging in again.",
     },
     oauth_confirm_registration: (email: string) => ({
       tKey: "auth:feedback.oauth_confirm_registration",
@@ -185,6 +187,16 @@ export const auth = {
       tValue:
         "This account is already linked with an OAuth provider (Google or Apple). Please log in using that method.",
     },
+    oauth_credential_unavailable: {
+      tKey: "auth:feedback.oauth_email_or_username_unavailable",
+      tValue:
+        "This sign-in method did not provide an email address or username. Please signin with an alternative supported method.",
+    },
+    oauth_email_required: {
+      tKey: "auth:feedback.oauth_email_required",
+      tValue:
+        "This sign-in method did not provide an email address required for an creating account. Please use an alternative supported method.",
+    },
     account_deactivated: {
       tKey: "auth:feedback.account_deactivated",
       tValue: "This account is deactivated. Please restore it to continue.",
@@ -197,7 +209,7 @@ export const auth = {
     account_banned: {
       tKey: "auth:feedback.account_banned",
       tValue:
-        "This account has been banned for severely violating our commnunity policies",
+        "This account has been baned for severely violating our commnunity policies",
     },
 
     authenticator_not_configured: {
@@ -306,6 +318,12 @@ export const auth = {
       tKey: "auth:feedback.new_code_sent_tagline",
       tValue: "A new code has been sent to your {{channel}}.",
       interpolations: { channel },
+    }),
+    oauth_provider_not_available: (provider: string) => ({
+      tKey: "auth:feedback.oauth_provider_not_available",
+      tValue:
+        "Signing in with {{provider}} is not currently supported yet. You can expect it later.",
+      interpolations: { provider },
     }),
     need_to_scan_qr_code_again: {
       tKey: "auth:feedback.need_to_scan_qr_code_again",
@@ -673,9 +691,9 @@ export const auth = {
         tKey: "auth:input.placeholder.email_phone_username",
         tValue: "Email address, phone or username",
       },
-      enter_first_name: {
+      enter_display_name: {
         tKey: "auth:input.placeholder.enter_first_name",
-        tValue: "Enter first name",
+        tValue: "Enter display name",
       },
       enter_last_name: {
         tKey: "auth:input.placeholder.enter_last_name",
@@ -702,7 +720,7 @@ export const auth = {
         tValue: "Select a question...",
       },
       type_your_answer: {
-        tKey: "auth:input.label.rtype_your_answer",
+        tKey: "auth:input.label.type_your_answer",
         tValue: "Type your answer...",
       },
     },
@@ -753,7 +771,7 @@ export const auth = {
 } as const;
 
 /**
- * Common layout structures. Extracts to ../../../locale/versions/en/common.json
+ * Shared Message Registry. Extracts to ../../../locale/versions/en/common.json
  */
 export const common = {
   button: {
@@ -840,11 +858,11 @@ export const common = {
     },
     show_less: {
       tKey: "common:button.show_less",
-      tValue: "Show less",
+      tValue: "See less",
     },
     show_more: {
       tKey: "common:button.show_more",
-      tValue: "Show more",
+      tValue: "See more",
     },
     skip: {
       tKey: "common:button.skip",
@@ -1024,9 +1042,9 @@ export const common = {
       tValue: " No {{type}} found",
       interpolations: { type: activeTab === "STICKER" ? "stickers" : "emojis" },
     }),
-    predict_stake_win: {
-      tKey: "common:feedback.predict_stake_win",
-      tValue: "Predict. Stake. Win.",
+    create_an_account: {
+      tKey: "common:feedback.create_an_account",
+      tValue: "Create an account",
     },
     progress_saved: {
       tKey: "common:feedback.progress_saved",
@@ -1098,10 +1116,15 @@ export const common = {
       tKey: "common:feedback.user_no_follower_tagline",
       tValue: "You don't have followers!",
     },
-    user_terms_agreement: {
-      tKey: "common:feedback.user_terms_agreement",
+    user_terms_agreement_login: {
+      tKey: "common:feedback.user_terms_agreement_login",
       tValue:
         "By continuing, you agree to our <agreement>User Agreement</agreement> and acknowledge that you understand the <policy>Privacy Policy</policy>.",
+    },
+    user_terms_agreement_signup: {
+      tKey: "common:feedback.user_terms_agreement_signup",
+      tValue:
+        "By creating an account on Funstakes, you agree to our <agreement>User Agreement</agreement> and acknowledge that you understand the <policy>Privacy Policy</policy>.",
     },
     welcome_aboard_headline: {
       tKey: "common:feedback.welcome_aboard_headline",
@@ -1493,6 +1516,737 @@ export const common = {
 } as const;
 
 /**
+ * Platform App Message Registry entries Extracts to ../../../locale/versions/en/company.json
+ */
+export const platform = {
+  // Privacy Policy Page
+  privacy_page: {
+    page_headline: {
+      tKey: "platform:privacy_page.page_headline",
+      tValue: "Privacy Policy",
+    },
+    page_tagline: {
+      tKey: "platform:privacy_page.page_tagline",
+      tValue:
+        "This page describes how Funstakes collects, uses, and protects your information when you use our website and services.",
+    },
+    effective_date: (date: string) => ({
+      tKey: "platform:privacy_page.effective_date",
+      tValue: "Effective date: {{date}}",
+      interpolations: { date },
+    }),
+    last_updated: (date: string) => ({
+      tKey: "platform:privacy_page.last_updated",
+      tValue: "Last updated: {{date}}",
+      interpolations: { date },
+    }),
+    nav_title: {
+      tKey: "platform:privacy_page.nav_title",
+      tValue: "On this page",
+    },
+    nav_aria_label: {
+      tKey: "platform:privacy_page.nav_aria_label",
+      tValue: "Privacy policy sections",
+    },
+    footer_text: {
+      tKey: "platform:privacy_page.footer_text",
+      tValue: "Also see our",
+    },
+    user_agreement_link: {
+      tKey: "platform:privacy_page.user_agreement_link",
+      tValue: "User Agreement",
+    },
+    login_link: {
+      tKey: "platform:privacy_page.login_link",
+      tValue: "Log in",
+    },
+
+    // Section contents
+    who_we_are: {
+      title: {
+        tKey: "platform:privacy_page.who_we_are.title",
+        tValue: "1. Who we are",
+      },
+      p1: {
+        tKey: "platform:privacy_page.who_we_are.p1",
+        tValue:
+          "Funstakes (“Funstakes,” “we,” “us,” or “our”) operates the Funstakes website, applications, and related services (the “Services”). This Privacy Policy explains how we collect, use, store, share, and protect information when you use the Services.",
+      },
+      p2: {
+        tKey: "platform:privacy_page.who_we_are.p2",
+        tValue:
+          "By using the Services, you agree to this Privacy Policy. If you do not agree, please do not use the Services.",
+      },
+      p3: {
+        tKey: "platform:privacy_page.who_we_are.p3",
+        tValue: "For privacy-related requests, contact us at {{email}}.",
+      },
+    },
+    information_we_collect: {
+      title: {
+        tKey: "platform:privacy_page.information_we_collect.title",
+        tValue: "2. Information we collect",
+      },
+      sub_you_provide: {
+        title: {
+          tKey: "platform:privacy_page.information_we_collect.sub_you_provide.title",
+          tValue: "2.1 Information you provide",
+        },
+        b1: {
+          tKey: "platform:privacy_page.information_we_collect.sub_you_provide.b1",
+          tValue:
+            "Account details such as email address, phone number, password (stored in hashed form), display name, username, profile information, and preferences.",
+        },
+        b2: {
+          tKey: "platform:privacy_page.information_we_collect.sub_you_provide.b2",
+          tValue:
+            "Identity and verification data you submit for account verification, KYC, public-figure recognition, or similar reviews (for example legal name, identity documents, selfies, or address or business documents, where applicable).",
+        },
+        b3: {
+          tKey: "platform:privacy_page.information_we_collect.sub_you_provide.b3",
+          tValue:
+            "Content you create, including posts, comments, messages, media uploads, and other material you share on the Services.",
+        },
+        b4: {
+          tKey: "platform:privacy_page.information_we_collect.sub_you_provide.b4",
+          tValue:
+            "Communications you send to support and feedback you provide.",
+        },
+        b5: {
+          tKey: "platform:privacy_page.information_we_collect.sub_you_provide.b5",
+          tValue:
+            "Payment-related data if you subscribe or make payments. Limited billing details are processed by our payment providers; we do not store full card numbers on our servers unless stated otherwise.",
+        },
+      },
+      sub_third_party: {
+        title: {
+          tKey: "platform:privacy_page.information_we_collect.sub_third_party.title",
+          tValue: "2.2 Information from third-party sign-in",
+        },
+        p1: {
+          tKey: "platform:privacy_page.information_we_collect.sub_third_party.p1",
+          tValue:
+            "If you sign in with a provider such as Google, Apple, Facebook, GitHub, LinkedIn, or X (Twitter), we receive information those providers share with us—typically a provider user ID, name, and email when available—subject to your settings with that provider.",
+        },
+      },
+      sub_automatic: {
+        title: {
+          tKey: "platform:privacy_page.information_we_collect.sub_automatic.title",
+          tValue: "2.3 Information collected automatically",
+        },
+        b1: {
+          tKey: "platform:privacy_page.information_we_collect.sub_automatic.b1",
+          tValue:
+            "Device and log data, including IP address, browser type, device identifiers, operating system, app version, referring URLs, and access times.",
+        },
+        b2: {
+          tKey: "platform:privacy_page.information_we_collect.sub_automatic.b2",
+          tValue:
+            "Security and session data, including device tokens, session identifiers, approximate location derived from IP address, and signals used to detect fraud, abuse, or unauthorized access.",
+        },
+        b3: {
+          tKey: "platform:privacy_page.information_we_collect.sub_automatic.b3",
+          tValue:
+            "Cookies and similar technologies used for authentication, preferences, analytics, and security.",
+        },
+      },
+      sub_other_sources: {
+        title: {
+          tKey: "platform:privacy_page.information_we_collect.sub_other_sources.title",
+          tValue: "2.4 Information from other sources",
+        },
+        p1: {
+          tKey: "platform:privacy_page.information_we_collect.sub_other_sources.p1",
+          tValue:
+            "We may receive information from service providers (for example email, SMS, WhatsApp delivery, fraud prevention, and analytics) and, where lawful, from public or commercial sources relevant to safety or verification features.",
+        },
+      },
+    },
+    how_we_use: {
+      title: {
+        tKey: "platform:privacy_page.how_we_use.title",
+        tValue: "3. How we use information",
+      },
+      p1: {
+        tKey: "platform:privacy_page.how_we_use.p1",
+        tValue:
+          "We use information to operate and improve Funstakes, including to:",
+      },
+      b1: {
+        tKey: "platform:privacy_page.how_we_use.b1",
+        tValue:
+          "Create and manage accounts, authenticate users, and maintain sessions.",
+      },
+      b2: {
+        tKey: "platform:privacy_page.how_we_use.b2",
+        tValue:
+          "Provide core product features such as profiles, posts, feeds, and notifications.",
+      },
+      b3: {
+        tKey: "platform:privacy_page.how_we_use.b3",
+        tValue:
+          "Send one-time codes and security alerts via email, SMS, or messaging channels you choose.",
+      },
+      b4: {
+        tKey: "platform:privacy_page.how_we_use.b4",
+        tValue:
+          "Process verification, KYC, eligibility, and public-figure or badge-related requests.",
+      },
+      b5: {
+        tKey: "platform:privacy_page.how_we_use.b5",
+        tValue: "Personalize content and recommendations where applicable.",
+      },
+      b6: {
+        tKey: "platform:privacy_page.how_we_use.b6",
+        tValue:
+          "Detect, prevent, and investigate fraud, spam, abuse, security incidents, and policy violations.",
+      },
+      b7: {
+        tKey: "platform:privacy_page.how_we_use.b7",
+        tValue:
+          "Comply with law, enforce our terms, and protect rights, safety, and property.",
+      },
+      b8: {
+        tKey: "platform:privacy_page.how_we_use.b8",
+        tValue:
+          "Communicate about the Services, policy updates, and, where permitted, product news.",
+      },
+      b9: {
+        tKey: "platform:privacy_page.how_we_use.b9",
+        tValue:
+          "Analyze usage in aggregate to improve performance and reliability.",
+      },
+      p2: {
+        tKey: "platform:privacy_page.how_we_use.p2",
+        tValue:
+          "We process personal data under one or more lawful bases as applicable: contract (to provide the Services), legitimate interests (security, improvement, and fraud prevention), consent (where required), and legal obligation.",
+      },
+    },
+    how_we_share: {
+      title: {
+        tKey: "platform:privacy_page.how_we_share.title",
+        tValue: "4. How we share information",
+      },
+      p1: {
+        tKey: "platform:privacy_page.how_we_share.p1",
+        tValue: "We do not sell your personal information.",
+      },
+      p2: {
+        tKey: "platform:privacy_page.how_we_share.p2",
+        tValue: "We may share information with:",
+      },
+      b1: {
+        tKey: "platform:privacy_page.how_we_share.b1",
+        tValue:
+          "Service providers that help us operate the Services (hosting, databases, messaging delivery, analytics, error monitoring, payment processing, and moderation tools), under contractual confidentiality and security obligations.",
+      },
+      b2: {
+        tKey: "platform:privacy_page.how_we_share.b2",
+        tValue:
+          "Authentication providers when you choose to sign in with them.",
+      },
+      b3: {
+        tKey: "platform:privacy_page.how_we_share.b3",
+        tValue:
+          "Other users for information you choose to make public, such as your profile or posts.",
+      },
+      b4: {
+        tKey: "platform:privacy_page.how_we_share.b4",
+        tValue:
+          "Authorities or third parties when required by law, or to protect rights, safety, or security.",
+      },
+      b5: {
+        tKey: "platform:privacy_page.how_we_share.b5",
+        tValue:
+          "Parties involved in a business transfer such as a merger, acquisition, or asset sale, subject to appropriate safeguards.",
+      },
+    },
+    international_transfers: {
+      title: {
+        tKey: "platform:privacy_page.international_transfers.title",
+        tValue: "5. International transfers",
+      },
+      p1: {
+        tKey: "platform:privacy_page.international_transfers.p1",
+        tValue:
+          "We may process and store information on servers in different countries or regions. Where personal data is transferred internationally, we use appropriate safeguards required by applicable law.",
+      },
+    },
+    cookies: {
+      title: {
+        tKey: "platform:privacy_page.cookies.title",
+        tValue: "6. Cookies and similar technologies",
+      },
+      p1: {
+        tKey: "platform:privacy_page.cookies.p1",
+        tValue:
+          "We use cookies and similar technologies to keep you signed in, secure your session, remember preferences, measure traffic, improve the Services, and support security and abuse prevention.",
+      },
+      p2: {
+        tKey: "platform:privacy_page.cookies.p2",
+        tValue:
+          "You can control cookies through your browser settings. Disabling certain cookies may limit functionality, especially login and security features.",
+      },
+    },
+    retention: {
+      title: {
+        tKey: "platform:privacy_page.retention.title",
+        tValue: "7. Data retention",
+      },
+      p1: {
+        tKey: "platform:privacy_page.retention.p1",
+        tValue:
+          "We retain personal data only as long as needed for the purposes described in this Policy, including to provide the Services, comply with legal obligations, resolve disputes, and enforce agreements.",
+      },
+      b1: {
+        tKey: "platform:privacy_page.retention.b1",
+        tValue:
+          "Account data is retained while your account is active and for a reasonable period after closure or deactivation, unless a longer period is required by law.",
+      },
+      b2: {
+        tKey: "platform:privacy_page.retention.b2",
+        tValue:
+          "Security logs are retained for a limited period for fraud and abuse prevention.",
+      },
+      b3: {
+        tKey: "platform:privacy_page.retention.b3",
+        tValue:
+          "KYC and verification records are retained as required for compliance and dispute resolution.",
+      },
+      b4: {
+        tKey: "platform:privacy_page.retention.b4",
+        tValue:
+          "Backups may persist for a limited time in encrypted storage before deletion.",
+      },
+    },
+    security: {
+      title: {
+        tKey: "platform:privacy_page.security.title",
+        tValue: "8. Security",
+      },
+      p1: {
+        tKey: "platform:privacy_page.security.p1",
+        tValue:
+          "We use administrative, technical, and organizational measures designed to protect personal data, including encryption in transit, access controls, hashed passwords, and session and device safeguards. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.",
+      },
+    },
+    your_rights: {
+      title: {
+        tKey: "platform:privacy_page.your_rights.title",
+        tValue: "9. Your rights and choices",
+      },
+      p1: {
+        tKey: "platform:privacy_page.your_rights.p1",
+        tValue:
+          "Depending on where you live, you may have rights to access, correct, delete, or port your personal data; object to or restrict certain processing; withdraw consent where processing is based on consent; and lodge a complaint with a supervisory authority.",
+      },
+      p2: {
+        tKey: "platform:privacy_page.your_rights.p2",
+        tValue:
+          "To exercise these rights, contact {{email}}. We may need to verify your identity before fulfilling a request.",
+      },
+      p3: {
+        tKey: "platform:privacy_page.your_rights.p3",
+        tValue:
+          "You can opt out of promotional emails using the unsubscribe link in those messages. Transactional and security messages may still be sent.",
+      },
+    },
+    children: {
+      title: {
+        tKey: "platform:privacy_page.children.title",
+        tValue: "10. Children’s privacy",
+      },
+      p1: {
+        tKey: "platform:privacy_page.children.p1",
+        tValue:
+          "The Services are not directed to children under 13 (or a higher age required in your country). We do not knowingly collect personal information from children under that age. If you believe we have collected such information, contact us and we will take appropriate steps to delete it.",
+      },
+    },
+    third_parties: {
+      title: {
+        tKey: "platform:privacy_page.third_parties.title",
+        tValue: "11. Third-party links and services",
+      },
+      p1: {
+        tKey: "platform:privacy_page.third_parties.p1",
+        tValue:
+          "The Services may link to third-party sites or integrate third-party services. Their privacy practices are governed by their own policies. We are not responsible for those practices.",
+      },
+    },
+    changes: {
+      title: {
+        tKey: "platform:privacy_page.changes.title",
+        tValue: "12. Changes to this policy",
+      },
+      p1: {
+        tKey: "platform:privacy_page.changes.p1",
+        tValue:
+          "We may update this Privacy Policy from time to time. We will post the updated version on this page and change the “Last updated” date. Material changes may be communicated by email or in-product notice where appropriate. Continued use of the Services after changes become effective constitutes acceptance of the updated Policy, except where consent is required by law.",
+      },
+    },
+    contact: {
+      title: {
+        tKey: "platform:privacy_page.contact.title",
+        tValue: "13. Contact us",
+      },
+      p1: {
+        tKey: "platform:privacy_page.contact.p1",
+        tValue: "General support: {{email}}",
+      },
+    },
+  },
+
+  // Terms of Use Page
+  terms_page: {
+    page_headline: {
+      tKey: "platform:terms_page.page_headline",
+      tValue: "Terms of Use",
+    },
+    page_tagline: {
+      tKey: "platform:terms_page.page_tagline",
+      tValue:
+        "These Terms of Use govern your access to and use of Funstakes. Please read them carefully.",
+    },
+    effective_date: (date: string) => ({
+      tKey: "platform:terms_page.effective_date",
+      tValue: "Effective date: {{date}}",
+      interpolations: { date },
+    }),
+    last_updated: (date: string) => ({
+      tKey: "platform:terms_page.last_updated",
+      tValue: "Last updated: {{date}}",
+      interpolations: { date },
+    }),
+    nav_title: {
+      tKey: "platform:terms_page.nav_title",
+      tValue: "On this page",
+    },
+    nav_aria_label: {
+      tKey: "platform:terms_page.nav_aria_label",
+      tValue: "Terms of use sections",
+    },
+    footer_text: {
+      tKey: "platform:terms_page.footer_text",
+      tValue: "Also see our",
+    },
+    privacy_policy_link: {
+      tKey: "platform:terms_page.privacy_policy_link",
+      tValue: "Privacy Policy",
+    },
+    login_link: {
+      tKey: "platform:terms_page.login_link",
+      tValue: "Log in",
+    },
+
+    // Sections
+    agreement: {
+      title: {
+        tKey: "platform:terms_page.agreement.title",
+        tValue: "1. Agreement to these Terms",
+      },
+      p1: {
+        tKey: "platform:terms_page.agreement.p1",
+        tValue:
+          "These Terms of Use (“Terms”) form a binding agreement between you and Funstakes (“Funstakes,” “we,” “us,” or “our”) regarding your access to and use of the Funstakes website, applications, and related services (the “Services”).",
+      },
+      p2: {
+        tKey: "platform:terms_page.agreement.p2",
+        tValue:
+          "By creating an account, accessing, or using the Services, you agree to these Terms and our Privacy Policy. If you do not agree, do not use the Services.",
+      },
+    },
+    eligibility: {
+      title: {
+        tKey: "platform:terms_page.eligibility.title",
+        tValue: "2. Eligibility",
+      },
+      p1: {
+        tKey: "platform:terms_page.eligibility.p1",
+        tValue:
+          "You must be at least 13 years old (or the minimum age required in your country) to use the Services. If you are under the age of majority where you live, you may use the Services only with the consent of a parent or legal guardian who agrees to these Terms.",
+      },
+      p2: {
+        tKey: "platform:terms_page.eligibility.p2",
+        tValue:
+          "You may not use the Services if you are barred from doing so under applicable law, or if we have previously suspended or terminated your account for violations of these Terms.",
+      },
+    },
+    accounts: {
+      title: {
+        tKey: "platform:terms_page.accounts.title",
+        tValue: "3. Accounts and security",
+      },
+      p1: {
+        tKey: "platform:terms_page.accounts.p1",
+        tValue:
+          "You are responsible for the accuracy of information you provide and for maintaining the confidentiality of your login credentials and devices.",
+      },
+      bullets: {
+        b1: {
+          tKey: "platform:terms_page.accounts.b1",
+          tValue:
+            "Provide accurate registration information and keep it up to date.",
+        },
+        b2: {
+          tKey: "platform:terms_page.accounts.b2",
+          tValue:
+            "Do not share your password or allow others to access your account without authorization.",
+        },
+        b3: {
+          tKey: "platform:terms_page.accounts.b3",
+          tValue:
+            "Notify us promptly of any unauthorized use of your account or security breach.",
+        },
+        b4: {
+          tKey: "platform:terms_page.accounts.b4",
+          tValue:
+            "You are responsible for activity that occurs under your account, except where caused solely by our failure to implement reasonable security measures.",
+        },
+      },
+    },
+    services: {
+      title: {
+        tKey: "platform:terms_page.services.title",
+        tValue: "4. The Services",
+      },
+      p1: {
+        tKey: "platform:terms_page.services.p1",
+        tValue:
+          "Funstakes provides a platform for users to create profiles, share content, interact with others, and use related features such as verification, subscriptions, and notifications. We may change, suspend, or discontinue features at any time, with or without notice, where permitted by law.",
+      },
+      p2: {
+        tKey: "platform:terms_page.services.p2",
+        tValue:
+          "Some features may require additional eligibility checks (for example identity verification, KYC, or public-figure recognition) and may be limited or denied based on those checks or applicable law.",
+      },
+    },
+    user_content: {
+      title: {
+        tKey: "platform:terms_page.user_content.title",
+        tValue: "5. User content",
+      },
+      p1: {
+        tKey: "platform:terms_page.user_content.p1",
+        tValue:
+          "You retain ownership of content you create and share on the Services (“User Content”). By submitting User Content, you grant Funstakes a worldwide, non-exclusive, royalty-free license to host, store, reproduce, modify (for formatting or display), distribute, and display that content as needed to operate, promote, and improve the Services.",
+      },
+      p2: {
+        tKey: "platform:terms_page.user_content.p2",
+        tValue:
+          "You represent that you have all rights necessary to post your User Content and that it does not violate these Terms or any third-party rights.",
+      },
+      p3: {
+        tKey: "platform:terms_page.user_content.p3",
+        tValue:
+          "We may remove or restrict User Content that violates these Terms, our policies, or the law, or that we reasonably believe creates risk or harm.",
+      },
+    },
+    prohibited: {
+      title: {
+        tKey: "platform:terms_page.prohibited.title",
+        tValue: "6. Prohibited conduct",
+      },
+      p1: {
+        tKey: "platform:terms_page.prohibited.p1",
+        tValue: "You agree not to:",
+      },
+      bullets: {
+        b1: {
+          tKey: "platform:terms_page.prohibited.b1",
+          tValue:
+            "Violate any applicable law or regulation, or infringe others’ rights.",
+        },
+        b2: {
+          tKey: "platform:terms_page.prohibited.b2",
+          tValue:
+            "Post or share content that is unlawful, harmful, harassing, hateful, defamatory, pornographic where prohibited, or otherwise objectionable under our policies.",
+        },
+        b3: {
+          tKey: "platform:terms_page.prohibited.b3",
+          tValue:
+            "Impersonate any person or entity, or misrepresent your affiliation.",
+        },
+        b4: {
+          tKey: "platform:terms_page.prohibited.b4",
+          tValue:
+            "Attempt to gain unauthorized access to the Services, other accounts, or our systems.",
+        },
+        b5: {
+          tKey: "platform:terms_page.prohibited.b5",
+          tValue:
+            "Scrape, harvest, or collect user data without authorization, or interfere with the normal operation of the Services.",
+        },
+        b6: {
+          tKey: "platform:terms_page.prohibited.b6",
+          tValue:
+            "Use the Services to spam, distribute malware, or engage in fraud or financial scams.",
+        },
+        b7: {
+          tKey: "platform:terms_page.prohibited.b7",
+          tValue:
+            "Circumvent security, rate limits, moderation, or verification controls.",
+        },
+      },
+    },
+    verification: {
+      title: {
+        tKey: "platform:terms_page.verification.title",
+        tValue: "7. Verification, KYC, and badges",
+      },
+      p1: {
+        tKey: "platform:terms_page.verification.p1",
+        tValue:
+          "Certain features may require identity verification, document checks, or other reviews. Submission of materials does not guarantee approval. We may approve, deny, revoke, or require additional information at our reasonable discretion and as required by law.",
+      },
+      p2: {
+        tKey: "platform:terms_page.verification.p2",
+        tValue:
+          "Verified badges, public-figure recognition, and similar status indicators are privileges, not rights, and may be withdrawn if eligibility criteria are no longer met or if these Terms are violated.",
+      },
+    },
+    payments: {
+      title: {
+        tKey: "platform:terms_page.payments.title",
+        tValue: "8. Subscriptions and payments",
+      },
+      p1: {
+        tKey: "platform:terms_page.payments.p1",
+        tValue:
+          "Some features may require payment or a subscription. Prices, billing cycles, and renewal terms will be presented at the time of purchase. Unless required by law or stated otherwise at purchase, fees are non-refundable.",
+      },
+      p2: {
+        tKey: "platform:terms_page.payments.p2",
+        tValue:
+          "Payment processing may be handled by third-party providers. Their terms and privacy practices apply to the information they process.",
+      },
+    },
+    ip: {
+      title: {
+        tKey: "platform:terms_page.ip.title",
+        tValue: "9. Intellectual property",
+      },
+      p1: {
+        tKey: "platform:terms_page.ip.p1",
+        tValue:
+          "The Services, including software, design, branding, and trademarks, are owned by Funstakes or its licensors and are protected by intellectual property laws. Except for the limited rights expressly granted in these Terms, no rights are transferred to you.",
+      },
+      p2: {
+        tKey: "platform:terms_page.ip.p2",
+        tValue:
+          "You may not copy, modify, distribute, sell, or create derivative works from our software or branding without our prior written permission.",
+      },
+    },
+    third_party: {
+      title: {
+        tKey: "platform:terms_page.third_party.title",
+        tValue: "10. Third-party services",
+      },
+      p1: {
+        tKey: "platform:terms_page.third_party.p1",
+        tValue:
+          "The Services may integrate or link to third-party services (including sign-in providers and payment processors). We are not responsible for third-party services, content, or practices. Your use of them is at your own risk and subject to their terms.",
+      },
+    },
+    disclaimers: {
+      title: {
+        tKey: "platform:terms_page.disclaimers.title",
+        tValue: "11. Disclaimers",
+      },
+      p1: {
+        tKey: "platform:terms_page.disclaimers.p1",
+        tValue:
+          "THE SERVICES ARE PROVIDED “AS IS” AND “AS AVAILABLE.” TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, WHETHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.",
+      },
+      p2: {
+        tKey: "platform:terms_page.disclaimers.p2",
+        tValue:
+          "We do not warrant that the Services will be uninterrupted, secure, or error-free, or that content on the Services will be accurate or reliable.",
+      },
+    },
+    liability: {
+      title: {
+        tKey: "platform:terms_page.liability.title",
+        tValue: "12. Limitation of liability",
+      },
+      p1: {
+        tKey: "platform:terms_page.liability.p1",
+        tValue:
+          "TO THE MAXIMUM EXTENT PERMITTED BY LAW, FUNSTAKES AND ITS AFFILIATES, OFFICERS, EMPLOYEES, AND AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, DATA, GOODWILL, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICES.",
+      },
+      p2: {
+        tKey: "platform:terms_page.liability.p2",
+        tValue:
+          "OUR TOTAL LIABILITY FOR ANY CLAIM ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICES WILL NOT EXCEED THE GREATER OF THE AMOUNT YOU PAID US IN THE TWELVE MONTHS BEFORE THE CLAIM OR ONE HUNDRED US DOLLARS (OR EQUIVALENT IN LOCAL CURRENCY), EXCEPT WHERE LIABILITY CANNOT BE LIMITED BY LAW.",
+      },
+    },
+    indemnification: {
+      title: {
+        tKey: "platform:terms_page.indemnification.title",
+        tValue: "13. Indemnification",
+      },
+      p1: {
+        tKey: "platform:terms_page.indemnification.p1",
+        tValue:
+          "You agree to defend, indemnify, and hold harmless Funstakes and its affiliates, officers, employees, and agents from and against any claims, damages, losses, liabilities, and expenses (including reasonable legal fees) arising out of or related to your User Content, your use of the Services, or your violation of these Terms or applicable law.",
+      },
+    },
+    termination: {
+      title: {
+        tKey: "platform:terms_page.termination.title",
+        tValue: "14. Suspension and termination",
+      },
+      p1: {
+        tKey: "platform:terms_page.termination.p1",
+        tValue:
+          "You may stop using the Services at any time. We may suspend or terminate your access, with or without notice, if you violate these Terms, if required by law, or if we discontinue the Services.",
+      },
+      p2: {
+        tKey: "platform:terms_page.termination.p2",
+        tValue:
+          "Upon termination, your right to use the Services ceases. Provisions that by their nature should survive (including ownership, disclaimers, limitations of liability, and indemnification) will survive termination.",
+      },
+    },
+    governing_law: {
+      title: {
+        tKey: "platform:terms_page.governing_law.title",
+        tValue: "15. Governing law and disputes",
+      },
+      p1: {
+        tKey: "platform:terms_page.governing_law.p1",
+        tValue:
+          "These Terms are governed by the laws of [Jurisdiction], without regard to conflict-of-law principles, except where mandatory consumer protections in your country of residence apply.",
+      },
+      p2: {
+        tKey: "platform:terms_page.governing_law.p2",
+        tValue:
+          "Courts located in [Venue] will have exclusive jurisdiction over disputes arising from these Terms, unless applicable law requires otherwise.",
+      },
+    },
+    changes: {
+      title: {
+        tKey: "platform:terms_page.changes.title",
+        tValue: "16. Changes to these Terms",
+      },
+      p1: {
+        tKey: "platform:terms_page.changes.p1",
+        tValue:
+          "We may update these Terms from time to time. We will post the updated Terms on this page and update the “Last updated” date. Material changes may be communicated by email or in-product notice where appropriate. Continued use after changes become effective constitutes acceptance, except where consent is required by law.",
+      },
+    },
+    contact: {
+      title: {
+        tKey: "platform:terms_page.contact.title",
+        tValue: "17. Contact us",
+      },
+      p1: {
+        tKey: "platform:terms_page.contact.p1",
+        tValue: "Questions about these Terms: {{email}}",
+      },
+    },
+  },
+} as const;
+
+/**
  * Post workflow components. Extracts to ../../../locale/versions/en/post.json
  */
 export const post = {
@@ -1668,6 +2422,7 @@ export const post = {
 export const MESSAGE_REGISTRY = {
   auth,
   common,
+  platform,
   post,
 } satisfies TranslationRegistry;
 
@@ -1684,6 +2439,9 @@ export const AUTH_FEEDBACK = MESSAGE_REGISTRY.auth.feedback;
 export const AUTH_SECURITY_QUESTIONS = MESSAGE_REGISTRY.auth.security_questions;
 export const AUTH_INPUT = MESSAGE_REGISTRY.auth.input;
 export const AUTH_BUTTON_LABELS = MESSAGE_REGISTRY.auth.button;
+
+export const PLATFORM_PRIVACY_PAGE = MESSAGE_REGISTRY.platform.privacy_page;
+export const PLATFORM_TERMS_PAGE = MESSAGE_REGISTRY.platform.terms_page;
 
 export const POST_FEEDBACK = MESSAGE_REGISTRY.post.feedback;
 export const POST_BUTTON_LABELS = MESSAGE_REGISTRY.post.button;

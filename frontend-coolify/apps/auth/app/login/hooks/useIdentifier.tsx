@@ -5,13 +5,13 @@ import { useDynamicInputValidation, usePage } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { CheckRequest, LoginService } from "../service";
 import { delay, getSavedIdentifier, sanitizePhoneNumber } from "@repo/helpers";
-import { CLIENT_ROUTES, ApiError, GenericStyle } from "@repo/core";
+import { ApiError, IPage, BaseStyleObj } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { useLoginFeedback } from "./useFeedback";
 import { LoginProps } from "../../types";
 
 interface UseIdentifier extends LoginProps {
-  inlineTxtStyle?: GenericStyle;
+  inlineTxtStyle?: BaseStyleObj;
   handleResetPassClick?: (e: React.MouseEvent<Element, MouseEvent>) => void;
 }
 
@@ -44,14 +44,14 @@ export const useIdentifier = ({
   }, []);
 
   /**
-   * Handles user redirect to signup flow.
+   * Handles hyperlink navigations.
    */
-  const handleSignupClick = useCallback(
-    (e: React.MouseEvent) => {
+  const handleAnchorNavigation = useCallback(
+    (e: React.MouseEvent, page: IPage) => {
       setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.signup, { event: e });
+      navigateTo(page, { event: e });
     },
-    [navigateTo],
+    [navigateTo, setInlineMsg],
   );
 
   const {
@@ -105,7 +105,7 @@ export const useIdentifier = ({
         error,
         resolvedType,
         setInlineMsg,
-        handleSignupClick,
+        handleAnchorNavigation: handleAnchorNavigation,
         handleResetPassClick,
         inlineTxtStyle,
         theme,
@@ -140,7 +140,7 @@ export const useIdentifier = ({
     isSubmitDisabled: validity === "INVALID" || input === "" || isAuthLoading,
     countryMenuRef,
     validateAndSet,
-    handleSignupClick,
+    handleAnchorNavigation,
     inlineMsg,
   };
 };

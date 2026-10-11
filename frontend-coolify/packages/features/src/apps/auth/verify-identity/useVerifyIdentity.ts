@@ -10,6 +10,7 @@ import {
   useGlobalStore,
   AUTH_BUTTON_LABELS,
   IUser,
+  BaseStyleObj,
 } from "@repo/core";
 
 export interface BaseVerificationProps<
@@ -22,7 +23,7 @@ export interface BaseVerificationProps<
   onRateLimitExceeded?: () => void;
   isBotChallengeAllowed?: () => boolean;
   setShouldRestrict?: (value: boolean) => void;
-  style?: React.CSSProperties;
+  style?: BaseStyleObj;
 }
 
 export interface VerifyIdentityProps<
@@ -34,7 +35,7 @@ export interface VerifyIdentityProps<
   onRateLimitExceeded?: () => void;
   isBotChallengeAllowed?: () => boolean;
   setShouldRestrict?: (value: boolean) => void;
-  containerStyle?: React.CSSProperties;
+  containerStyle?: BaseStyleObj;
 }
 
 export interface UseVerifyIdentityProps<P extends TransitPurpose> {

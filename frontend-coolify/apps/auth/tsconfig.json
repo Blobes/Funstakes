@@ -3,7 +3,9 @@
   "compilerOptions": {
     "target": "es2020"
   },
-
+  "paths": {
+    "@/*": ["./app/*"]
+  },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",

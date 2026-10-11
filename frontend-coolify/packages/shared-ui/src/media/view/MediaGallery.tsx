@@ -1,22 +1,29 @@
 "use client";
 
-import React, { CSSProperties, useMemo } from "react";
-import { Box, ImageList, ImageListItem } from "@mui/material";
+import React, { useMemo } from "react";
+import { Box, ImageList, ImageListItem, Theme } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ElementTap } from "../../ElementTap";
-import Image from "next/image";
 import { VideoMedia } from "./VideoMedia";
-import { COMMON_MEDIA, MediaProps, MediaStyle } from "@repo/core";
+import { BaseStyleProps, COMMON_MEDIA, MediaProps } from "@repo/core";
 import { TransText } from "../../Text";
 import { MediaRenderer } from "./MediaRenderer";
+import { applyBgEffects } from "@repo/helpers";
+import { AppImage } from "../../Image";
 
 export interface GalleryProps {
   mediaList: MediaProps[];
-  style?: MediaStyle;
-  bgEffects?: any;
+  style?: BaseStyleProps;
+  shouldApplyBgEffects?: boolean;
+  renderItemOverlay?: (media: MediaProps, index: number) => React.ReactNode;
 }
 
-export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
+export const MediaGridView = ({
+  mediaList,
+  style,
+  shouldApplyBgEffects = true,
+  renderItemOverlay,
+}: GalleryProps) => {
   const theme = useTheme();
 
   // 1. Define patterns to ensure the 4-column grid is always full
@@ -76,13 +83,13 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
       sx={{
         width: "100%",
         height: "auto",
-        borderRadius: theme.radius[2],
+        borderRadius: theme.radius[8],
         overflow: "hidden",
         bgcolor: theme.palette.gray.trans[1],
         margin: 0,
-        ...style?.container?.base,
+        ...style?.wrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.container?.smallScreen,
+          ...style?.wrapper?.smScreen,
         },
       }}
       variant="quilted"
@@ -92,7 +99,6 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
       {displayMedia.map((media, index) => {
         const isLastItem = index === 4 && remainingCount > 0;
         const { _id, onSingleTap, onDoubleTap, cols, rows } = media;
-        // const mediaType = type ?? "IMAGE";
 
         return (
           <ImageListItem
@@ -103,13 +109,18 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
               position: "relative",
               overflow: "hidden",
               cursor: "pointer",
-              ...bgEffects(theme).zoom("& video, & img"),
+              ...(shouldApplyBgEffects &&
+                applyBgEffects?.(theme)?.zoom?.("& video, & img")),
             }}
           >
             <ElementTap
               onSingleTap={() => onSingleTap && onSingleTap()}
               onDoubleTap={() => onDoubleTap && onDoubleTap()}
-              style={{ ...(!isLastItem && bgEffects(theme).overlay) }}
+              style={{
+                ...(!isLastItem &&
+                  shouldApplyBgEffects &&
+                  applyBgEffects(theme)?.overlay?.()),
+              }}
             >
               <MediaRenderer
                 media={media}
@@ -117,15 +128,8 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
                 height={0}
                 excludeBlurHash
                 style={{
-                  content: {
-                    // width: "100%",
-                    // height: "100%",
-                    // maxHeight: "none",
-                    // maxWidth: "none",
-                    // objectFit: "cover",
-                    ...style?.content,
-                  },
-                  container: {
+                  targetContent: style?.targetContent,
+                  wrapper: {
                     base: {
                       width: "100%",
                       height: "100%",
@@ -160,6 +164,7 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
                 </Box>
               )}
             </ElementTap>
+            {renderItemOverlay?.(media, index)}
           </ImageListItem>
         );
       })}
@@ -170,7 +175,12 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
 /**
  * Standardized horizontal scrolling strip for multi-media rendering on small viewports.
  */
-export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
+export const MediaSlidesView = ({
+  mediaList,
+  style,
+  shouldApplyBgEffects = true,
+  renderItemOverlay,
+}: GalleryProps) => {
   const theme = useTheme();
 
   // Guard against missing files or unexpected single items since they are processed separately
@@ -186,18 +196,18 @@ export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
         overflowX: "auto",
         overflowY: "hidden",
         WebkitOverflowScrolling: "touch",
-        paddingBottom: theme.gap(1), // Prevents scrollbar from clipping item bounds
-        scrollbarWidth: "none", // Keeps viewport clean on Firefox
+        paddingBottom: theme.gap(1),
+        scrollbarWidth: "none",
         "&::-webkit-scrollbar": {
-          display: "none", // Keeps viewport clean on Chrome/Safari
+          display: "none",
         },
-        ...style?.container?.base,
+        ...style?.wrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.container?.smallScreen,
+          ...style?.wrapper?.smScreen,
         },
       }}
     >
-      {mediaList.map((media) => {
+      {mediaList.map((media, index) => {
         const {
           _id,
           ownerId,
@@ -219,16 +229,19 @@ export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
               width: "calc(85% - 12px)",
               maxWidth: "340px",
               height: "280px",
-              borderRadius: theme.radius[2],
+              borderRadius: theme.radius[8],
               overflow: "hidden",
               backgroundColor: theme.palette.gray.trans[1],
-              ...bgEffects?.(theme)?.zoom?.("& video, & img"),
+              ...(shouldApplyBgEffects &&
+                applyBgEffects(theme)?.zoom?.("& video, & img")),
             }}
           >
             <ElementTap
               onSingleTap={() => onSingleTap && onSingleTap()}
               onDoubleTap={() => onDoubleTap && onDoubleTap()}
-              style={{ ...bgEffects?.(theme)?.overlay }}
+              style={{
+                ...(shouldApplyBgEffects && applyBgEffects(theme)?.overlay()),
+              }}
             >
               {mediaType === "VIDEO" ? (
                 <VideoMedia
@@ -240,26 +253,19 @@ export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    ...style?.content,
+                    ...style?.targetContent,
                   }}
                 />
               ) : (
-                <Image
+                <AppImage
                   src={url}
-                  width={0}
-                  height={0}
-                  sizes="(max-width: 768px) 100vw, 340px"
-                  loading="lazy"
                   alt={alt || "Post image"}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    ...(style?.content as CSSProperties),
-                  }}
+                  fill
+                  style={{ targetContent: style?.targetContent }}
                 />
               )}
             </ElementTap>
+            {renderItemOverlay?.(media, index)}
           </Box>
         );
       })}

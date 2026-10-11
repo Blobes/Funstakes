@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import { CircleQuestionMark, Keyboard, X } from "lucide-react";
-import { GenericStyle, SupportedIsoCode, useGlobalStore } from "@repo/core";
+import { BaseStyleObj, SupportedIsoCode, useGlobalStore } from "@repo/core";
 
 import {
   useDynamicInputValidation,
@@ -55,17 +55,17 @@ export interface InputProps {
   affix?: React.ReactNode;
   affixPosition?: "start" | "end";
   focusResizeWidth?: boolean;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
-interface SharedStyle {
+interface StyleConfig {
   theme: Theme;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   value: any;
   currLang?: SupportedIsoCode;
 }
 
-export const styleConfig = (styleOptions: SharedStyle) => {
+export const styleConfig = (styleOptions: StyleConfig) => {
   const { style, theme, value, currLang } = styleOptions;
   const rtlLabel = {
     default: {

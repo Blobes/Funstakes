@@ -129,7 +129,7 @@ export const VirtualKeyboard = () => {
   const sharedStyle = {
     color: theme.palette.gray[300],
     backgroundColor: theme.palette.gray.trans[1],
-    borderRadius: theme.radius[2],
+    borderRadius: theme.radius[8],
     height: 38,
     "&:hover": {
       backgroundColor: theme.palette.gray[50],
@@ -153,7 +153,7 @@ export const VirtualKeyboard = () => {
         maxWidth: "460px",
         backgroundColor: theme.palette.gray[0],
         border: `1px solid ${theme.palette.gray.trans[1]}`,
-        borderRadius: theme.radius[4],
+        borderRadius: theme.radius[16],
         padding: theme.boxSpacing(4),
         boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.16)",
         display: "flex",
@@ -166,18 +166,21 @@ export const VirtualKeyboard = () => {
           borderRadius: 0,
           borderTop: `1px solid ${theme.palette.gray.trans[1]}`,
         },
-      }}>
+      }}
+    >
       <Stack
         flexDirection="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ padding: theme.boxSpacing(1) }}>
+        sx={{ padding: theme.boxSpacing(1) }}
+      >
         <TransText
           sx={{
             ...theme.typography.text5,
             color: theme.palette.gray[200],
             fontWeight: 600,
-          }}>
+          }}
+        >
           {showSymbols ? "Symbols" : currentConfig.label}
         </TransText>
         <IconButton
@@ -186,7 +189,8 @@ export const VirtualKeyboard = () => {
             setShowSymbols(false);
             setIsUppercase(false);
           }}
-          sx={{ backgroundColor: theme.palette.gray.trans[1], flex: "none" }}>
+          sx={{ backgroundColor: theme.palette.gray.trans[1], flex: "none" }}
+        >
           <X size={18} />
         </IconButton>
       </Stack>
@@ -198,7 +202,8 @@ export const VirtualKeyboard = () => {
             flexDirection: "row",
             gap: theme.gap(1.5),
             justifyContent: "center",
-          }}>
+          }}
+        >
           {row.map((char) => (
             <AppButton
               key={char}
@@ -209,7 +214,8 @@ export const VirtualKeyboard = () => {
                 padding: theme.boxSpacing(1.5),
                 width: "100%",
                 ...sharedStyle,
-              }}>
+              }}
+            >
               {char}
             </AppButton>
           ))}
@@ -224,7 +230,8 @@ export const VirtualKeyboard = () => {
             fontSize: "13px",
             fontWeight: 600,
             ...sharedStyle,
-          }}>
+          }}
+        >
           {showSymbols ? <Globe size={18} /> : "?12"}
         </AppButton>
 
@@ -237,7 +244,8 @@ export const VirtualKeyboard = () => {
               backgroundColor: isUppercase
                 ? theme.palette.gray[100]
                 : theme.palette.gray.trans[1],
-            }}>
+            }}
+          >
             <ArrowUp size={22} />
           </AppButton>
         )}
@@ -247,21 +255,24 @@ export const VirtualKeyboard = () => {
           style={{
             width: "100%",
             ...sharedStyle,
-          }}>
+          }}
+        >
           <Space size={28} />
         </AppButton>
         <AppButton
           onClick={handleBackspace}
           style={{
             ...sharedStyle,
-          }}>
+          }}
+        >
           <Delete size={24} />
         </AppButton>
         <AppButton
           onClick={handleTabNavigation}
           style={{
             ...sharedStyle,
-          }}>
+          }}
+        >
           <CornerDownLeft size={22} />
         </AppButton>
       </Stack>

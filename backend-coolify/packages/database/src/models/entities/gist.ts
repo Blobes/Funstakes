@@ -1,5 +1,6 @@
 import { Schema, model, Model } from "mongoose";
 import { IGistDocument } from "../../types/post";
+import { POST_NESTED_FIELDS } from "../../constants/fields";
 
 const GistSchema = new Schema<IGistDocument>(
   {
@@ -92,9 +93,12 @@ GistSchema.index({ authorId: 1, isPinned: -1, createdAt: -1 });
 // Topic-based feed discovery
 GistSchema.index({ topics: 1, status: 1, createdAt: -1 });
 // Geospatial querying for location-based feeds
-GistSchema.index({ "location.coordinates": "2dsphere", status: 1 });
+GistSchema.index({
+  [POST_NESTED_FIELDS.LOCATION_COORDINATES]: "2dsphere",
+  status: 1,
+});
 // Active moderation review queue lookup
-GistSchema.index({ status: 1, "moderationCase.caseCount": -1 });
+GistSchema.index({ status: 1, [POST_NESTED_FIELDS.MODERATION_CASE_COUNT]: -1 });
 
 export const GistModel: Model<IGistDocument> = model<IGistDocument>(
   "Gist",

@@ -1,4 +1,4 @@
-import { DeviceModel } from "@repo/database";
+import { DEVICE_NESTED_FIELDS, DeviceModel } from "@repo/database";
 import { clearAuthCookies } from "@repo/security";
 import {
   cleanDeviceSessions,
@@ -11,7 +11,7 @@ import {
 import { NextFunction, Response } from "express";
 
 /**
- * Controller update: Wipes Redis sessions when a device is removed.
+ * Removes user device link using atomic $pull or deletes document if no users remain.
  */
 export const removeDevice = async (
   req: IAuthRequest,
@@ -23,7 +23,11 @@ export const removeDevice = async (
   const { id } = req.params;
 
   try {
-    const device = await DeviceModel.findOne({ _id: id, userId });
+    const device = await DeviceModel.findOne({
+      _id: id,
+      [DEVICE_NESTED_FIELDS.USERS_USER_ID]: userId,
+    });
+
     if (!device) {
       return res.status(404).json({
         status: "ERROR",
@@ -31,13 +35,23 @@ export const removeDevice = async (
       });
     }
 
-    // Wipe all sessions associated with this hardware ID in Redis
     await cleanDeviceSessions(userId, id);
 
-    const wasPrimary = device.isPrimary;
+    const userMeta = device.users.find((u) => u.userId.toString() === userId);
+    const wasPrimary = userMeta?.isPrimary ?? false;
     const isCurrentDevice = id === currentDeviceId;
 
-    await device.deleteOne();
+    // Atomically remove user subdocument entry using $pull with string constant path
+    const updatedDevice = await DeviceModel.findByIdAndUpdate(
+      id,
+      { $pull: { users: { userId } } },
+      { new: true },
+    );
+
+    // Purge document if no users remain
+    if (!updatedDevice || updatedDevice.users.length === 0) {
+      await DeviceModel.findByIdAndDelete(id);
+    }
 
     if (wasPrimary) {
       const user = await fetchSingleUser({

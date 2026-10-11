@@ -1,29 +1,21 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { updateAccountBasicInfo } from "../services/updateBasic";
-
-interface InfoRequest extends IAuthRequest {
-  body: {
-    firstName?: string;
-    lastName?: string;
-    about?: string;
-    interests?: string[];
-    website?: string;
-    occupation?: string;
-  };
-}
+import {
+  IUpdateBasicInfoInput,
+  updateAccountBasicInfo,
+} from "../services/updateBasic";
 
 /**
  * Controller endpoint to modify core identity parameters and evaluate authorization states.
  */
 export const updateBasicInfo = async (
-  req: InfoRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const authUserId = req.user?.id;
-  const { firstName, lastName, about, interests, website, occupation } =
-    req.body;
+  const { displayName, about, interests, website, occupation } =
+    req.body as IUpdateBasicInfoInput;
 
   if (!authUserId) {
     return res.status(401).json({
@@ -36,8 +28,7 @@ export const updateBasicInfo = async (
   try {
     const serviceResult = await updateAccountBasicInfo({
       authUserId,
-      firstName,
-      lastName,
+      displayName,
       about,
       interests,
       website,
@@ -56,7 +47,7 @@ export const updateBasicInfo = async (
       status: "SUCCESS",
       ...serviceResult.transInfo,
       payload: serviceResult.payload,
-      requiresIdVerification: serviceResult.requiresIdVerification,
+      requiresIdVerification: serviceResult.isPotentialPublicFigure,
     });
   } catch (error: any) {
     console.error("Update Info Error:", error);

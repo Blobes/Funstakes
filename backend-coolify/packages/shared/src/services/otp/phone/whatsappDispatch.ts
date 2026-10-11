@@ -48,32 +48,33 @@ export async function dispatchWhatsAppOtp(
     },
     body: JSON.stringify({
       messaging_product: "whatsapp",
+      recipient_type: "individual",
       to: recipientPhone,
       type: "template",
       template: {
-        name: "account_creation",
+        name: "funstakes_otp",
         language: { code: "en_US" },
-        components: [
-          {
-            type: "header",
-            parameters: [
-              {
-                type: "image",
-                image: { link: APP_INFO.logoUrl },
-              },
-            ],
-          },
-          {
-            type: "body",
-            parameters: [{ type: "text", text: recipient.code }],
-          },
-          {
-            type: "button",
-            sub_type: "url",
-            index: "0",
-            parameters: [{ type: "text", text: recipient.code }],
-          },
-        ],
+        // components: [
+        //   {
+        //     type: "header",
+        //     parameters: [
+        //       {
+        //         type: "image",
+        //         image: { link: APP_INFO.logoUrl },
+        //       },
+        //     ],
+        //   },
+        //   {
+        //     type: "body",
+        //     parameters: [{ type: "text", text: recipient.code }],
+        //   },
+        //   {
+        //     type: "button",
+        //     sub_type: "url",
+        //     index: "0",
+        //     parameters: [{ type: "text", text: recipient.code }],
+        //   },
+        // ],
       },
     }),
   });

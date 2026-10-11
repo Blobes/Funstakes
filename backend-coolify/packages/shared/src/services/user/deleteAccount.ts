@@ -12,6 +12,7 @@ import {
   BookmarkModel,
   StakeModel,
   PostViewModel,
+  DEVICE_NESTED_FIELDS,
 } from "@repo/database";
 import { IS3Config, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
@@ -75,7 +76,9 @@ export const executeAccountDeletion = async (
   // Execute hard deletes across collections owned entirely by the target user
   await Promise.all([
     UserModel.findByIdAndDelete(targetUserId),
-    DeviceModel.deleteMany({ userId: targetUserId }),
+    DeviceModel.deleteMany({
+      [DEVICE_NESTED_FIELDS.USERS_USER_ID]: targetUserId,
+    }),
     AccountStatusHistoryModel.deleteMany({ account: userObjectId }),
     UserLogModel.deleteMany({ userId: userObjectId }),
     KycRequestModel.deleteMany({ userId: userObjectId }),

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { IPost, GenericStyle, COMMON_FEEDBACK, POST_INFO } from "@repo/core";
+import { IPost, COMMON_FEEDBACK, POST_INFO, BaseStyleObj } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -186,7 +186,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
 /**
  * Complete side landing wrapper managing title headers and core carousels.
  */
-export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
+export const TrendingPosts = ({ style }: { style?: BaseStyleObj }) => {
   const theme = useTheme();
   const { processedPosts, isLoading } = useTrendingData();
 
@@ -199,6 +199,8 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
       sx={{
         width: "50%",
         display: "flex",
+        height: "100%",
+        minHeight: 500,
         position: "relative",
         flexDirection: "column",
         alignItems: "center",
@@ -206,16 +208,16 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         gap: theme.gap(16),
         paddingBottom: theme.boxSpacing(5),
         margin: "0 auto",
-        backgroundColor: theme.palette.gray[300],
+        backgroundColor: theme.fixedColors.pTrans,
         overflow: "hidden",
-        ...style?.container,
+        ...style?.wrapper,
         [theme.breakpoints.down("md")]: {
           width: "100%",
           height: "100svh",
           minHeight: "fit-content",
           scrollSnapAlign: "start",
           flex: "none",
-          ...style?.container?.smallScreen,
+          ...style?.wrapper?.smScreen,
         },
       }}
     >

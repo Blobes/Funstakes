@@ -60,19 +60,10 @@ export const PasswordStep: React.FC<LoginProps> = ({
   } = useLogin({ identifier, inputType, setStep });
 
   return !isLocked ? (
-    <Stack
-      sx={{
-        width: "90%",
-        gap: theme.gap(8),
-        [theme.breakpoints.down("md")]: {
-          width: "100%",
-        },
-      }}
-    >
+    <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
       <SVGWrapper
-        src={asset.shield}
-        size={70}
-        color={theme.palette.primary.dark}
+        src={asset.OfflineAvatar}
+        size={60}
         fallbackUIType="SKELETON"
         sx={{
           flex: "none",
@@ -124,7 +115,7 @@ export const PasswordStep: React.FC<LoginProps> = ({
                 ...theme.typography.text4,
                 textAlign: "left",
                 padding: theme.boxSpacing(4, 6),
-                borderRadius: theme.radius[3],
+                borderRadius: theme.radius[12],
                 color: theme.palette.primary.dark,
                 backgroundColor: theme.fixedColors.pTrans,
                 width: "100%",
@@ -140,7 +131,7 @@ export const PasswordStep: React.FC<LoginProps> = ({
                 sx={{
                   padding: theme.boxSpacing(4, 4),
                   color: theme.palette.gray[300],
-                  borderRadius: theme.radius[3],
+                  borderRadius: theme.radius[12],
                   width: "44px",
                   backgroundColor: theme.fixedColors.pTrans,
                 }}

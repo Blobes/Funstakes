@@ -6,7 +6,7 @@ import { Heart } from "lucide-react";
 import { pulse } from "@repo/helpers";
 import { red } from "@mui/material/colors";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, UIMode } from "@repo/core";
+import { BaseStyleObj, UIMode } from "@repo/core";
 import { AnimatedWrapper } from "@repo/shared-ui";
 
 export interface LikeProps {
@@ -15,7 +15,7 @@ export interface LikeProps {
   handleLike: () => void;
   mode?: UIMode;
   size?: number;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const LikeButton = ({
@@ -43,9 +43,11 @@ export const LikeButton = ({
           background: "none",
         },
         ...style,
-      }}>
+      }}
+    >
       <AnimatedWrapper
-        sx={{ ...(isLiking && { animation: `${pulse()} 0.3s linear` }) }}>
+        sx={{ ...(isLiking && { animation: `${pulse()} 0.3s linear` }) }}
+      >
         <Heart
           size={size}
           style={{

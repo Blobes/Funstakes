@@ -1,7 +1,7 @@
 "use client";
 
 export const getInitialsAndColors = (
-  value: string,
+  value: string = "#",
 ): { initials: string; textColor: string; bgColor: string } => {
   const parts = value.trim().split(/\s+/);
   const initials =
@@ -45,7 +45,7 @@ export const getInitialsAndColors = (
  * Returns a deterministic image URL from an array based on initials or text hash matches.
  */
 export const getImageFromText = (
-  text: string,
+  text: string = "#",
   images: string[],
 ): { imageUrl: string } => {
   if (!images || images.length === 0) {

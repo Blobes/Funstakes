@@ -1,4 +1,4 @@
-import { UserSettingsModel } from "@repo/database";
+import { UserSettingsModel, USER_SETTINGS_NESTED_FIELDS } from "@repo/database";
 import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { ClientSession } from "mongoose";
 
@@ -40,30 +40,36 @@ export const executeUpdatePrivacySettings = async (
   const updateOps: Record<string, unknown> = {};
 
   if (typeof isPrivateAccount === "boolean") {
-    updateOps["privacy.isPrivateAccount"] = isPrivateAccount;
+    updateOps[USER_SETTINGS_NESTED_FIELDS.PRIVACY_IS_PRIVATE_ACCOUNT] =
+      isPrivateAccount;
   }
 
   if (discoverability) {
     if (typeof discoverability.searchIndexing === "boolean") {
-      updateOps["privacy.discoverability.searchIndexing"] =
-        discoverability.searchIndexing;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.PRIVACY_DISCOVERABILITY_SEARCH_INDEXING
+      ] = discoverability.searchIndexing;
     }
     if (typeof discoverability.contactSync === "boolean") {
-      updateOps["privacy.discoverability.contactSync"] =
-        discoverability.contactSync;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.PRIVACY_DISCOVERABILITY_CONTACT_SYNC
+      ] = discoverability.contactSync;
     }
     if (typeof discoverability.recommendToOthers === "boolean") {
-      updateOps["privacy.discoverability.recommendToOthers"] =
-        discoverability.recommendToOthers;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.PRIVACY_DISCOVERABILITY_RECOMMEND_TO_OTHERS
+      ] = discoverability.recommendToOthers;
     }
   }
 
   if (directMessaging) {
-    updateOps["privacy.directMessaging"] = directMessaging;
+    updateOps[USER_SETTINGS_NESTED_FIELDS.PRIVACY_DIRECT_MESSAGING] =
+      directMessaging;
   }
 
   if (mentionsAndTagging) {
-    updateOps["privacy.mentionsAndTagging"] = mentionsAndTagging;
+    updateOps[USER_SETTINGS_NESTED_FIELDS.PRIVACY_MENTIONS_AND_TAGGING] =
+      mentionsAndTagging;
   }
 
   if (Object.keys(updateOps).length === 0) {

@@ -1,6 +1,6 @@
 import { TransInfo, MESSAGES_REGISTRY, fetchSingleUser } from "@repo/shared";
 
-interface IUpdateDemoInfoInput {
+export interface IUpdateDemoInfoInput {
   authUserId: string;
   gender?: string;
   dateOfBirth?: string;

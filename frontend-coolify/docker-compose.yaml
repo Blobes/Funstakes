@@ -35,6 +35,32 @@ services:
       - "coolify.exposed_port=3000"
 
   # =========================
+  # 📝 COMPANY APP
+  # =========================
+  platform-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        APP_NAME: platform
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST: ${NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST}
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  # =========================
   # 🔐 AUTH APP
   # =========================
   auth-app:

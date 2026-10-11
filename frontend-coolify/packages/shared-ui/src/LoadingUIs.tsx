@@ -10,14 +10,14 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RootUIContainer } from "./Containers";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleProps } from "@repo/core";
 import { TransText } from "./Text";
 import { AppLogo } from "./AppLogo";
 
 export interface BaseProgressProps {
   label?: React.ReactNode;
   value?: number;
-  style?: { container?: GenericStyle; element?: GenericStyle };
+  style?: BaseStyleProps;
 }
 export interface CircularProgressTypeProps extends BaseProgressProps {
   type?: "circular";
@@ -51,12 +51,11 @@ export const ProgressUI = (props: ProgressProps) => {
           sx={{
             width: "100%",
             height: "100%",
-            color: theme.fixedColors.primary,
             backgroundColor: theme.palette.gray.trans[1],
             "& .MuiLinearProgress-bar": {
-              backgroundColor: theme.fixedColors.primary,
+              backgroundColor: theme.palette.primary.main,
             },
-            ...style?.element,
+            ...style?.tracker,
           }}
           {...(options as LinearProgressProps)}
           aria-label="Loading…"
@@ -64,14 +63,12 @@ export const ProgressUI = (props: ProgressProps) => {
       );
     }
 
-    //  const circularVariant = options?.variant ?? "indeterminate";
-
     return (
       <CircularProgress
         enableTrackSlot
         variant={variant as "determinate" | "indeterminate"}
         value={value}
-        sx={{ color: theme.fixedColors.primary, ...style?.element }}
+        sx={{ color: theme.fixedColors.primary, ...style?.tracker }}
         thickness={2.5}
         aria-label="Loading…"
         {...(options as CircularProgressProps)}
@@ -89,7 +86,7 @@ export const ProgressUI = (props: ProgressProps) => {
         background: theme.palette.gray.trans[1],
         borderRadius: theme.radius.full,
         overflow: "hidden",
-        ...style?.container,
+        ...style?.wrapper,
       }}
     >
       {renderProgress()}
@@ -130,7 +127,7 @@ export const PageLoaderUI = () => {
           variant: "indeterminate",
         }}
         style={{
-          container: {
+          wrapper: {
             width: 50,
             height: 5,
           },
@@ -154,16 +151,14 @@ export const SplashUI = () => {
         gap: theme.gap(10),
       }}
     >
-      <AppLogo withName size={170} />
+      <AppLogo withName size={200} />
       <ProgressUI
         type="linear"
-        options={{
-          variant: "indeterminate",
-        }}
+        options={{ variant: "indeterminate" }}
         style={{
-          element: {
-            width: 170,
-            height: 3,
+          tracker: {
+            width: 200,
+            height: 4,
           },
         }}
       />

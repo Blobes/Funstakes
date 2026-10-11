@@ -355,6 +355,19 @@ export const MESSAGES_REGISTRY = {
       message:
         "Email updated successfully. Other devices have been logged out.",
     },
+    FACEBOOK_DEAUTHORIZE_SERVER_ERROR: {
+      i18nKey: "auth.facebook_deauthorization_server_error",
+      message:
+        "An internal server error occurred while processing deauthorization.",
+    },
+    FACEBOOK_DEAUTHORIZE_FAILED: {
+      i18nKey: "auth.facebook_deauthorize_failed",
+      message: "Invalid payload or missing configuration.",
+    },
+    FACEBOOK_INVALID_SIGNATURE: {
+      i18nKey: "auth.facebook_invalid_signature",
+      message: "Failed to verify signed request signature.",
+    },
     FORBIDDEN: {
       i18nKey: "auth.forbidden",
       message: "You don't have permission to perform this action.",
@@ -400,7 +413,7 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.invalid_oauth_token",
       message: "OAuth code missing or invalid. Please try logging in again.",
     },
-    INVALD_TOKEN: {
+    INVALID_TOKEN: {
       i18nKey: "auth.invalid_token",
       message: "Invalid or expired token",
     },
@@ -570,6 +583,16 @@ export const MESSAGES_REGISTRY = {
         "You've reached the limit for verification code requests. Please try again in {{duration}} minutes or use a different option.",
       interpolations: { duration },
     }),
+    OAUTH_CREDENTIAL_UNAVAILABLE: {
+      i18nKey: "auth.oauth_email_or_username_unavailable",
+      message:
+        "This sign-in method did not provide an email address or username. Please signin with an alternative supported method.",
+    },
+    OAUTH_EMAIL_REQUIRED: {
+      i18nKey: "auth.oauth_email_required",
+      message:
+        "This sign-in method did not provide an email address required for an creating account. Please use an alternative supported method.",
+    },
     OAUTH_PROVIDER_CONFLICT: (provider: string): TransInfo => ({
       i18nKey: "auth.oauth_provider_conflict",
       message:
@@ -1454,6 +1477,68 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "profile.demographic_information_updated_successfully",
       message: "Demographic information updated successfully.",
     },
+
+    MISSING_NAMES: {
+      i18nKey: "profile.missing_names",
+      message: "Please provide a display or at least a valid legal name.",
+    },
+    EXTERNAL_RECORD_NOT_FOUND: {
+      i18nKey: "profile.external_record_not_found",
+      message:
+        "No external public figure records or verified signals were found.",
+    },
+    EXTERNAL_DATA_FETCHED: {
+      i18nKey: "profile.external_data_fetched",
+      message: "External public figure data fetched successfully.",
+    },
+
+    EMAIL_NOT_VERIFIED: {
+      i18nKey: "profile.email_not_verified",
+      message:
+        "Verify your email address before requesting public figure recognition.",
+    },
+    PUBLIC_FIGURE_MODERATION_BLOCKED: {
+      i18nKey: "profile.public_figure_moderation_blocked",
+      message:
+        "You can’t request public figure recognition while you have an open moderation case, active strike, or policy violation. Resolve those first, then try again.",
+    },
+    PUBLIC_FIGURE_ALREADY_APPROVED: {
+      i18nKey: "profile.public_figure_already_approved",
+      message: "Your account already has active public figure recognition.",
+    },
+    PUBLIC_FIGURE_PENDING_REVIEW: {
+      i18nKey: "profile.public_figure_pending_review",
+      message:
+        "Your public figure request is already under review. We'll notify you when a decision is made.",
+    },
+    PUBLIC_FIGURE_NOT_QUALIFIED: {
+      i18nKey: "profile.public_figure_not_qualified",
+      message:
+        "We couldn’t confirm enough public notability for this account. You may update your profile details and try again later.",
+    },
+    PUBLIC_FIGURE_AUTO_APPROVED: {
+      i18nKey: "profile.public_figure_auto_approved",
+      message:
+        "Public figure recognition was granted automatically. Your profile has been updated.",
+    },
+    PUBLIC_FIGURE_SUBMITTED: {
+      i18nKey: "profile.public_figure_submitted",
+      message:
+        "Your public figure request was submitted and is pending admin review.",
+    },
+    PUBLIC_FIGURE_REQUEST_NOT_FOUND: {
+      i18nKey: "profile.public_figure_request_not_found",
+      message: "That public figure request could not be found.",
+    },
+    PUBLIC_FIGURE_REQUEST_ALREADY_REVIEWED: {
+      i18nKey: "profile.public_figure_request_already_reviewed",
+      message: "This public figure request has already been reviewed.",
+    },
+    PUBLIC_FIGURE_REVIEW_PROCESSED: {
+      i18nKey: "profile.public_figure_review_processed",
+      message: "The public figure request review was saved successfully.",
+    },
+
     FETCH_USER_ERROR: {
       i18nKey: "profile.fetch_error",
       message: "Failed to get user due to server error.",
@@ -1689,7 +1774,90 @@ export const MESSAGES_REGISTRY = {
   VERIFICATION: {
     ALREADY_PENDING: {
       i18nKey: "verification.already_pending",
-      message: "You already have a pending verification request.",
+      message:
+        "Your verification submission is currently under review. Please wait for an update.",
+    },
+    INVALID_PAYLOAD: {
+      i18nKey: "verification.invalid_payload",
+      message: "Invalid request parameters. Please verify the submitted data.",
+    },
+    ACCOUNT_NOT_ACTIVE: {
+      i18nKey: "verification.account_not_active",
+      message:
+        "Your account must be in active standing to request verification.",
+    },
+    REQUIRED_PAID_SUBSCRIPTION: {
+      i18nKey: "verification.required_paid_subscription",
+      message:
+        "An active Premium or Enterprise subscription is required to unlock your verified badge.",
+    },
+    KYC_TIER_1_REQUIRED: {
+      i18nKey: "verification.kyc_tier_1_required",
+      message:
+        "Please complete Tier 1 identity verification before claiming your badge.",
+    },
+    UNRESOLVED_DISPUTE_FOUND: {
+      i18nKey: "verification.unresolved_dispute_found",
+      message:
+        "Your verification is paused due to an open moderation case or pending dispute.",
+    },
+    POLICY_BREACH_EXCEEDED: {
+      i18nKey: "verification.policy_breach_exceeded",
+      message:
+        "Your account is currently ineligible for verification due to recent policy violations.",
+    },
+    ACCOUNT_AGE_INSUFFICIENT: {
+      i18nKey: "verification.account_age_insufficient",
+      message:
+        "Your account must be active for at least 30 days to qualify for verification.",
+    },
+    IMPRESSIONS_INSUFFICIENT: {
+      i18nKey: "verification.impressions_insufficient",
+      message:
+        "You need at least 1,000 total impressions over the last 90 days to qualify.",
+    },
+    NEW_FOLLOWERS_INSUFFICIENT: {
+      i18nKey: "verification.new_followers_insufficient",
+      message:
+        "You need at least 50 new followers over the last 90 days to qualify.",
+    },
+    BADGE_ISSUED_SUCCESS: {
+      i18nKey: "verification.badge_issued_success",
+      message:
+        "Congratulations! Your verified badge has been issued successfully.",
+    },
+
+    MISSING_REQUIRED_TIER_PAYLOADS: {
+      i18nKey: "verification.missing_required_tiers",
+      message:
+        "Please fill in all required verification fields for your selected request type.",
+    },
+    REQUEST_ALREADY_ACTIVE: {
+      i18nKey: "verification.already_active",
+      message: "You already have an active verified record for this tier.",
+    },
+    REQUEST_SUBMITTED_SUCCESSFULLY: {
+      i18nKey: "verification.request_submitted_successfully",
+      message:
+        "Verification request submitted successfully. We will review your requeest and get back to you shortly.",
+    },
+    REJECTION_REASON_REQUIRED: {
+      i18nKey: "verification.rejection_reason_required",
+      message:
+        "Please provide a reason for rejecting this verification request.",
+    },
+    SUBMISSION_NOT_FOUND: {
+      i18nKey: "verification.submission_not_found",
+      message: "We couldn't find the requested verification record.",
+    },
+    SUBDOCUMENT_NOT_FOUND: {
+      i18nKey: "verification.subdocument_not_found",
+      message:
+        "The specific document you are trying to review could not be found.",
+    },
+    SUBMISSION_REVIEWED_SUCCESSFULLY: {
+      i18nKey: "verification.kyc_reviewed_success",
+      message: "Verification request reviewed successfully.",
     },
     INELIGIBLE: {
       i18nKey: "verification.ineligible",
@@ -1698,11 +1866,6 @@ export const MESSAGES_REGISTRY = {
     NAME_ID_DOC_SELFIE_REQUIRED: {
       i18nKey: "verification.missing_fields",
       message: "Full name, ID document, and verification selfie are required.",
-    },
-    REQUEST_SUBMITTED_SUCCESSFULLY: {
-      i18nKey: "verification.request_submitted_successfully",
-      message:
-        "Verification request submitted. Our team will review your documents.",
     },
     SERVER_ERROR: {
       i18nKey: "verification.server_error",

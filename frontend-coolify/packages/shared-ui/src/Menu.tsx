@@ -10,7 +10,14 @@ import React, {
 } from "react";
 import { Box, Menu } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { MenuRef, GenericStyle, IMenuItem, ListType, LISTS } from "@repo/core";
+import {
+  MenuRef,
+  BaseStyleObj,
+  IMenuItem,
+  ListType,
+  LISTS,
+  BaseStyleProps,
+} from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
 import { SearchBar } from "./inputs/Search";
 import { scrollBarStyle } from "@repo/helpers";
@@ -25,7 +32,7 @@ interface MenuProps {
   marginThreshold?: number;
   onMenuClose?: () => void;
   adaptToParentWidth?: boolean;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 /**
@@ -100,7 +107,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
             sx: {
               display: "flex",
               flexDirection: "column",
-              borderRadius: theme.radius[4],
+              borderRadius: theme.radius[16],
               border: `1px solid ${theme.palette.gray.trans.overlay(0.08, true)}`,
               width: anchorWidth ? `${anchorWidth}px` : "fit-content",
               minWidth: 180,
@@ -153,11 +160,7 @@ interface MenuListProps<T extends IMenuItem> extends RenderListProps<T> {
     isFetchingNextPage: boolean;
     fetchNextPage?: () => void;
   }) => { sentinelRef: React.RefObject<any> };
-  style?: {
-    container?: GenericStyle;
-    item?: GenericStyle;
-    searchBar?: GenericStyle;
-  };
+  style?: BaseStyleProps;
 }
 
 /**
@@ -252,7 +255,7 @@ export const DisplayList = <T extends IMenuItem>({
   };
 
   // Default styles for nav menus
-  const itemStyle: GenericStyle = {
+  const itemStyle: BaseStyleObj = {
     padding: theme.boxSpacing(4, 6),
     gap: theme.gap(8),
     textAlign: "left",
@@ -277,7 +280,8 @@ export const DisplayList = <T extends IMenuItem>({
           width: "100%",
           maxWidth: "unset",
         },
-        ...(style?.container as GenericStyle),
+
+        ...style?.wrapper,
       }}
     >
       {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (

@@ -4,7 +4,7 @@ import React from "react";
 import { Avatar, IconButton } from "@mui/material";
 import { getImageFromText, getInitialsAndColors } from "@repo/helpers";
 import { BasicTooltip } from "./Tooltips";
-import { GenericStyle, IUser } from "@repo/core";
+import { BaseStyleObj, IUser } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { asset } from "@repo/assets";
 
@@ -12,7 +12,7 @@ interface UserAvatarProps {
   userInfo: IUser | null;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   url?: string;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   toolTipValue?: string;
 }
 
@@ -28,10 +28,10 @@ export const UserAvatar = ({
   if (!userInfo) {
     return null;
   }
-  const { firstName, lastName, profileImage } = userInfo;
-  const textAvatar = getInitialsAndColors(`${firstName} ${lastName}`);
-  const { marginTop, marginLeft, ...otherStyle } = style;
-  const dynamicFontSize = `calc(${otherStyle.width || "30px"} * 0.45)`;
+  const { displayName, profileImage } = userInfo;
+  const textAvatar = getInitialsAndColors(displayName);
+  const { marginTop, marginLeft, width, ...otherStyles } = style;
+  const dynamicFontSize = `calc(${width || "30px"} * 0.45)`;
 
   const defaultAvatars = [
     asset.avatar1,
@@ -42,11 +42,10 @@ export const UserAvatar = ({
     asset.avatar6,
   ];
   const imageAvatar =
-    profileImage ||
-    getImageFromText(`${firstName} ${lastName}`, defaultAvatars).imageUrl;
+    profileImage || getImageFromText(displayName, defaultAvatars).imageUrl;
 
   return (
-    <BasicTooltip title={toolTipValue} sx={{ borderRadius: theme.radius[3] }}>
+    <BasicTooltip title={toolTipValue} sx={{ borderRadius: theme.radius[12] }}>
       <IconButton
         {...(url ? { href: url } : {})}
         onClick={onClick}
@@ -56,17 +55,18 @@ export const UserAvatar = ({
           ...(marginLeft && { marginLeft }),
           ...(marginTop && { marginTop }),
         }}
-        aria-label="User profile">
+        aria-label="User profile"
+      >
         <Avatar
           sx={{
             color: textAvatar.textColor,
             bgcolor: textAvatar.bgColor,
-            borderRadius: theme.radius[100],
+            borderRadius: theme.radius.full,
             fontSize: dynamicFontSize,
             fontWeight: 600,
-            ...otherStyle,
+            ...otherStyles,
           }}
-          alt={`${firstName} ${lastName}`}
+          alt={displayName}
           {...(imageAvatar
             ? { src: imageAvatar }
             : { children: textAvatar.initials })}

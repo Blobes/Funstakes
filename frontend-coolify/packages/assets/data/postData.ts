@@ -10,9 +10,7 @@ export const stakeTestData: IStake[] = [
     author: {
       _id: "1",
       username: "User1",
-      firstName: "User1 First",
-      lastName: "User1 Last",
-      fullName: "User1 FullName",
+      displayName: "User1 Display",
       profileImage: null,
     },
     content: "Stake 1 content",
@@ -32,9 +30,7 @@ export const stakeTestData: IStake[] = [
     author: {
       _id: "2",
       username: "User2",
-      firstName: "User2 First",
-      lastName: "User2 Last",
-      fullName: "User2 FullName",
+      displayName: "User2 First",
       profileImage: null,
     },
     content: "Stake 2 content",
@@ -54,9 +50,7 @@ export const stakeTestData: IStake[] = [
     author: {
       _id: "3",
       username: "User3",
-      firstName: "User3 First",
-      lastName: "User3 Last",
-      fullName: "User3 FullName",
+      displayName: "User3 First",
       profileImage: null,
     },
     content: "Stake 3 content",

@@ -149,6 +149,7 @@ export const loadUserResource = (paramKey = "id") => {
 export const loadDeviceResource = (paramKey = "id") => {
   return async (req: IAuthRequest): Promise<IDeviceResource> => {
     const deviceId = getParamString(req, paramKey);
+    const requestingUserId = req.user?.id;
     const cacheKey = CACHE_KEYS.DEVICE_RESOURCE(deviceId);
 
     return getOrSetCache<IDeviceResource>(
@@ -165,10 +166,22 @@ export const loadDeviceResource = (paramKey = "id") => {
           );
         }
 
+        // Resolving owner context for ReBAC evaluation from multi-user array
+        const userMeta = device.users.find(
+          (u) => u.userId.toString() === requestingUserId,
+        );
+        const primaryUserMeta = device.users.find((u) => u.isPrimary);
+
+        const resolvedOwnerId =
+          userMeta?.userId.toString() ??
+          primaryUserMeta?.userId.toString() ??
+          device.users[0]?.userId.toString() ??
+          "";
+
         return {
           type: "DEVICE",
           deviceId: device._id.toString(),
-          ownerId: device.userId.toString(),
+          ownerId: resolvedOwnerId,
           isDeleted: false,
           isArchived: device.isStale,
           isSuspended: false,

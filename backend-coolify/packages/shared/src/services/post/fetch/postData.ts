@@ -1,5 +1,6 @@
 import { PipelineStage } from "mongoose";
 import { postStaticLookup, postDynamicLookup } from "./dataLookup";
+import { POST_NESTED_FIELDS } from "@repo/database";
 
 /**
  * Generates the full static data pipeline for Posts (Gists & Stakes).
@@ -31,33 +32,11 @@ export const getPostStaticData = (): PipelineStage[] => {
           _id: { $ifNull: ["$authorDetails._id", "$authorId"] },
           username: {
             $toLower: {
-              $ifNull: ["$authorDetails.username", "$authorDetails.firstName"],
+              $ifNull: ["$authorDetails.username", "anonymous"],
             },
           },
-          firstName: { $ifNull: ["$authorDetails.firstName", ""] },
-          lastName: { $ifNull: ["$authorDetails.lastName", ""] },
+          displayName: { $ifNull: ["$authorDetails.displayName", "anonymous"] },
           profileImage: { $ifNull: ["$authorDetails.profileImage", null] },
-          fullName: {
-            $let: {
-              vars: {
-                f: { $ifNull: ["$authorDetails.firstName", ""] },
-                l: { $ifNull: ["$authorDetails.lastName", ""] },
-                u: { $ifNull: ["$authorDetails.username", "anonymous"] },
-              },
-              in: {
-                $let: {
-                  vars: {
-                    combined: {
-                      $trim: { input: { $concat: ["$$f", " ", "$$l"] } },
-                    },
-                  },
-                  in: {
-                    $cond: [{ $eq: ["$$combined", ""] }, "$$u", "$$combined"],
-                  },
-                },
-              },
-            },
-          },
         },
         // Conditional logic to flatten unique fields based on postType
         details: {
@@ -66,13 +45,23 @@ export const getPostStaticData = (): PipelineStage[] => {
             {
               // Mapping to Gist Schema (latestCaption)
               latestCaption: {
-                caption: { $ifNull: ["$latestCaption.caption", ""] },
-                captionId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
+                caption: {
+                  $ifNull: [`$${POST_NESTED_FIELDS.LATEST_CAPTION}`, ""],
+                },
+                captionId: {
+                  $ifNull: [`$${POST_NESTED_FIELDS.LATEST_CAPTION_ID}`, "$_id"],
+                },
                 detectedLanguage: {
-                  $ifNull: ["$latestCaption.detectedLanguage", "en"],
+                  $ifNull: [
+                    `$${POST_NESTED_FIELDS.LATEST_CAPTION_DETECTED_LANGUAGE}`,
+                    "en",
+                  ],
                 },
                 updatedAt: {
-                  $ifNull: ["$latestCaption.createdAt", "$createdAt"],
+                  $ifNull: [
+                    `$${POST_NESTED_FIELDS.LATEST_CAPTION_CREATED_AT}`,
+                    "$createdAt",
+                  ],
                 },
               },
               isEdited: { $gt: [{ $ifNull: ["$editCount", 0] }, 0] },

@@ -5,7 +5,7 @@ import { SxProps, Theme } from "@mui/material";
 import { asset } from "@repo/assets";
 import { rotate } from "./animations";
 
-export const scrollBarStyle = (theme: any) => {
+export const scrollBarStyle = (theme: Theme) => {
   return {
     "&::-webkit-scrollbar": {
       height: "4px",
@@ -16,12 +16,12 @@ export const scrollBarStyle = (theme: any) => {
       },
     },
     "&::-webkit-scrollbar-track": {
-      borderRadius: theme.radius[2],
+      borderRadius: theme.radius[8],
       margin: "0px 8px",
     },
     "&::-webkit-scrollbar-thumb": {
       background: theme.palette.gray[100] /* Scrollbar color */,
-      borderRadius: theme.radius[2],
+      borderRadius: theme.radius[8],
       boxShadow: "inset 0 0 4px 4px rgba(0, 0, 0, 0.1)",
     },
     "&::-webkit-scrollbar-thumb:hover": {
@@ -74,7 +74,6 @@ export const applyBGPattern = (config: BgConfig = {}) => ({
 
   "&::before": {
     content: '""',
-
     position: config.contain ? "absolute" : "fixed",
     top: 0,
     left: 0,
@@ -89,23 +88,24 @@ export const applyBGPattern = (config: BgConfig = {}) => ({
   },
 });
 
-export const applyBGEffects = (theme: any) => ({
+export const applyBgEffects = (theme: Theme) => ({
   // Fade in the overlay
-  overlay: {
+  overlay: (baseTrans = 0, hoverTrans = 0.4) => ({
     "&::before": {
       content: '""',
       position: "absolute",
       inset: 0,
-      bgcolor: theme.fixedColors.gray800,
-      opacity: 0,
+      bgcolor: theme.fixedColors.grayTrans(baseTrans, "dark"),
       zIndex: 2,
-      transition: "opacity 0.4s ease",
+      transition: "background 0.4s ease",
       pointerEvents: "none",
     },
     "&:hover": {
-      "&::before": { opacity: 0.4 },
+      "&::before": {
+        bgcolor: theme.fixedColors.grayTrans(hoverTrans, "dark"),
+      },
     },
-  },
+  }),
   // Apply zoom to the internal box
   zoom: (element: string = ".MuiBox-root") => ({
     [`${element}`]: {
@@ -130,6 +130,8 @@ export const applyBGEffects = (theme: any) => ({
         : theme.palette.gray.trans.overlay(0.6),
   }),
 });
+
+export type BGEffects = ReturnType<typeof applyBgEffects>;
 
 interface BorderParams {
   borderWidth?: number;

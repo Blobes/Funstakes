@@ -19,11 +19,7 @@ export const useIdentity = (onSuccess?: () => void) => {
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const { translateTxtString } = useStaticTranslation();
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
-  });
+  const [formData, setFormData] = useState({ displayName: "", username: "" });
 
   const [usernameStatus, setUsernameStatus] = useState<{
     status: "IDLE" | "CHECKING" | "TAKEN" | "AVAILABLE";
@@ -67,8 +63,7 @@ export const useIdentity = (onSuccess?: () => void) => {
 
   // Perform bulk check on all local identity fields
   const isLocalValid = !validateInputs([
-    { value: formData.firstName, type: "NAME" },
-    { value: formData.lastName, type: "NAME" },
+    { value: formData.displayName, type: "NAME" },
     { value: formData.username, type: "USERNAME" },
   ]);
 

@@ -7,7 +7,6 @@ import {
 } from "@repo/shared";
 import appLoader from "./loader";
 import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";
-import { syncDBAuthorization } from "@repo/security";
 
 const startServer = async () => {
   const app = express();

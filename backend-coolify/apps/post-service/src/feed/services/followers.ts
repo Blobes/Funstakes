@@ -43,7 +43,7 @@ export const executeGetFollowersPosts = async (
 
   // Resolves cached following IDs list.
   const followingIds = await getOrSetCacheSet(
-    `user:${userId}:following`,
+    CACHE_KEYS.USER_FOLLOWING(userId),
     async () => {
       const docs = await FollowModel.find({
         followerId: new mongoose.Types.ObjectId(String(userId)),

@@ -29,7 +29,11 @@ export const SnackBars = ({
     return null;
   }
   const theme = useTheme();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+
+  const handleExpandedChange = (id: string) => (expanded: boolean) => {
+    setExpandedIds((prev) => ({ ...prev, [id]: expanded }));
+  };
 
   useEffect(() => {
     setSBTimer();
@@ -53,6 +57,7 @@ export const SnackBars = ({
     >
       <GroupTransition>
         {snackBarMsg.messages.map((msg) => {
+          const isExpanded = Boolean(msg.id && expandedIds[msg.id]);
           return (
             <Transition
               key={msg.id}
@@ -64,7 +69,7 @@ export const SnackBars = ({
                 variant="elevation"
                 component={motion.div}
                 sx={{
-                  maxWidth: isExpanded ? "600px" : "500px",
+                  maxWidth: "460px",
                   [theme.breakpoints.down("sm")]: {
                     width: "100%",
                   },
@@ -85,7 +90,7 @@ export const SnackBars = ({
                     msg.msgStatus !== "ERROR"
                       ? "none"
                       : `1px solid ${theme.palette.error.trans[2]}`,
-                  borderRadius: theme.radius[4],
+                  borderRadius: theme.radius[16],
                   overflow: "hidden",
                   gap: theme.gap(10),
                   "& svg": {
@@ -128,10 +133,16 @@ export const SnackBars = ({
                   {msg.tagline && (
                     <WordTrimmer
                       text={msg.tagline}
-                      wordLimit={8}
-                      onToggleClick={() => setIsExpanded(!isExpanded)}
+                      maxLines={2}
+                      onExpandedChange={
+                        msg.id ? handleExpandedChange(msg.id) : undefined
+                      }
                       style={{
-                        btn: {
+                        targetContent: {
+                          ...theme.typography.text3,
+                          fontWeight: 500,
+                        },
+                        label: {
                           "&:hover": {
                             color:
                               msg.msgStatus !== "ERROR"

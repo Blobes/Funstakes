@@ -4,10 +4,10 @@ import React, { useState, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep, AuthStepName, InputType } from "@repo/core";
 import { DisplayFeedbackUI, Stepper } from "@repo/shared-ui";
-import { Stack } from "@mui/material";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
 import { LoginProps } from "../types";
+import { autoScroll } from "@repo/helpers";
 
 export const Login: React.FC<LoginProps> = ({ style = {} }) => {
   const theme = useTheme();
@@ -29,6 +29,7 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
             style={{
               headline: style?.headline,
               tagline: style?.tagline,
+              //  wrapper: style.wrapper,
             }}
           />
         ),
@@ -48,6 +49,7 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
             style={{
               headline: style?.headline,
               tagline: style?.tagline,
+              // wrapper: style.wrapper,
             }}
           />
         ),
@@ -57,24 +59,37 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
   );
 
   return (
-    <Stack
-      sx={{
-        backgroundColor: theme.palette.gray[0],
-        borderRadius: theme.radius[5],
-        justifyContent: "center",
-        alignItems: "center",
-        gap: theme.gap(10),
-        ...style.container,
-        [theme.breakpoints.down("md")]: {
-          flex: "none",
-          ...style.container?.mdScreen,
+    <Stepper
+      steps={steps}
+      currStep={currStep}
+      setCurrStep={setCurrStep}
+      style={{
+        wrapper: {
+          ...autoScroll().base, // Has height
+          width: "50%",
+          minWidth: 420,
+          padding: theme.boxSpacing(20),
+          alignItems: "center",
+          ...style.wrapper,
+          [theme.breakpoints.down("md")]: {
+            flex: "none",
+            height: "100svh",
+            width: "80%",
+            minWidth: "unset",
+            minHeight: "fit-content",
+            justifyContent: "center",
+            scrollSnapAlign: "start",
+            padding: theme.boxSpacing(20, 10),
+            overflow: "unset",
+            ...style.wrapper?.mdScreen,
+          },
+          [theme.breakpoints.down("sm")]: {
+            width: "100%",
+            ...style.wrapper?.smScreen,
+          },
         },
-        [theme.breakpoints.down("sm")]: {
-          width: style.container?.smScreen,
-        },
+        targetContent: { margin: "auto auto", maxWidth: 420 },
       }}
-    >
-      <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
-    </Stack>
+    />
   );
 };

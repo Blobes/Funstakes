@@ -1,5 +1,5 @@
 import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
-import { UserSettingsModel } from "@repo/database";
+import { USER_SETTINGS_NESTED_FIELDS, UserSettingsModel } from "@repo/database";
 
 export interface IMutedWordsInput {
   userId: string;
@@ -29,7 +29,7 @@ export const executeAddMutedWords = async (
     { userId },
     {
       $addToSet: {
-        "display.contentPreferences.mutedWords": {
+        [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_MUTED_WORDS]: {
           $each: normalizedWords,
         },
       },
@@ -58,7 +58,7 @@ export const removeMutedWords = async (
     { userId },
     {
       $pull: {
-        "display.contentPreferences.mutedWords": {
+        [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_MUTED_WORDS]: {
           $in: normalizedWords,
         },
       },

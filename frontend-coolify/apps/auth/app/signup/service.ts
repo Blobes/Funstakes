@@ -19,8 +19,7 @@ export interface SignupResponse extends ISinglePayload<IUser> {
  */
 export const OnboardingService = () => {
   const syncIdentity = async (payload: {
-    firstName: string;
-    lastName: string;
+    displayName: string;
     username: string;
   }): Promise<ISinglePayload<IUser>> => {
     return await apiClient<ISinglePayload<IUser>>(SERVER_API.updateBasicInfo, {

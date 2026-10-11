@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
-import { GistModel, IMedia, PostCaptionModel, UserModel } from "@repo/database";
+import {
+  GistModel,
+  IMedia,
+  MODERATION_CASE_NESTED_FIELDS,
+  PostCaptionModel,
+  UserModel,
+} from "@repo/database";
 import { FinalizePostReq, IS3Config } from "../../types/general";
 import { hardDeleteMedia } from "../media/hardDelete";
 import { createMediaBatch } from "../media/createBatch";
@@ -217,7 +223,10 @@ export const finalizeGistCreation = async (
           : modResult.status,
       hasSensitiveGraphic: determinedSensitiveGraphic,
       ...(dynamicActiveCaseId
-        ? { "moderationCase.caseId": dynamicActiveCaseId }
+        ? {
+            [MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_ID]:
+              dynamicActiveCaseId,
+          }
         : {}),
     },
     { session, new: true, lean: true },
@@ -419,7 +428,10 @@ export const finalizeGistUpdate = async (
         status: modResult.status,
         hasSensitiveGraphic: determinedSensitiveGraphic,
         ...(dynamicActiveCaseId
-          ? { "moderationCase.caseId": dynamicActiveCaseId }
+          ? {
+              [MODERATION_CASE_NESTED_FIELDS.MODERATION_CASE_ID]:
+                dynamicActiveCaseId,
+            }
           : {}),
       },
     },

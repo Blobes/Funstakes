@@ -1,5 +1,5 @@
 import { AnyBulkWriteOperation, ClientSession, Types } from "mongoose";
-import { ITopicDocument, TopicModel, TopicSourceType } from "@repo/database";
+import { ITopicDocument, TopicModel, ResourceType } from "@repo/database";
 import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { INVALIDATE_CACHE } from "../../constants/invalidators";
@@ -7,7 +7,7 @@ import { INVALIDATE_CACHE } from "../../constants/invalidators";
 export interface CreateTopicsParams {
   topics: string[];
   createdById?: string;
-  createdByType?: TopicSourceType;
+  createdByType?: ResourceType;
 }
 
 export interface CreateTopicsResult {

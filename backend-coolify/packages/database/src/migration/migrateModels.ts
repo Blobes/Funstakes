@@ -1,5 +1,6 @@
 import { DeviceModel } from "../models/entities/device";
 import { GistModel } from "../models/entities/gist";
+import { KycRequestModel } from "../models/entities/kyc";
 import { UserModel } from "../models/entities/user";
 import { UserSettingsModel } from "../models/non-entities/identity/userSettings";
 import { TopicModel } from "../models/non-entities/topic";
@@ -65,6 +66,16 @@ async function executeMigrations(): Promise<void> {
         excludeFieldsFromUnset: [],
       },
       "Sync_DeviceModel_v1",
+    ),
+
+    // Auto-sync User Settings model fields
+    new AutoSyncSchemaFields(
+      KycRequestModel,
+      {
+        sampleSize: 1000,
+        excludeFieldsFromUnset: [],
+      },
+      "Sync_KycRequestModel_v1",
     ),
   ];
   const runner = new MigrationRunner(MONGODB_URI, migrations);

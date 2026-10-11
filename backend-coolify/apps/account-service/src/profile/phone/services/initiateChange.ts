@@ -1,6 +1,5 @@
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import {
-  evaluateNotability,
   genVerificationCode,
   hashCode,
   enqueueOtpTask,
@@ -110,28 +109,12 @@ export const startPhoneChange = async (
     };
   }
 
-  // Recalculate platform notability indicators using incoming carrier signatures
-  const fullName = `${user.firstName} ${user.lastName}`;
-  const notability = await evaluateNotability(
-    fullName,
-    user.email,
-    formattedPhone,
-  );
-
   const code = genVerificationCode();
 
   user.pendingPhoneNumber = formattedPhone;
   user.otpCode = hashCode(code);
   user.otpCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
   user.lastPhoneOtpSentAt = new Date();
-
-  user.meritsVerification = notability.isVIPCandidate;
-  user.isNotable = notability.isVIPCandidate;
-  user.verificationSignals = {
-    hasWikipedia: notability.signals.notableName,
-    isVipEmail: notability.signals.proEmail,
-    isVipPhone: notability.signals.validPhone,
-  };
 
   await user.save();
 
@@ -142,7 +125,7 @@ export const startPhoneChange = async (
         phone: formattedPhone,
         code,
         type: "WHATSAPP",
-        firstName: user.firstName,
+        firstName: user.displayName,
         userIp,
       },
       FUNSTAKES_REDIS_URL,
@@ -153,7 +136,7 @@ export const startPhoneChange = async (
         phone: formattedPhone,
         code,
         type: "SMS",
-        firstName: user.firstName,
+        firstName: user.displayName,
         userIp,
       },
       FUNSTAKES_REDIS_URL,
@@ -169,7 +152,6 @@ export const startPhoneChange = async (
     payload: {
       pendingPhoneNumber: user.pendingPhoneNumber,
       expiresAt: user.otpCodeExpiresAt,
-      meritsVerification: user.meritsVerification,
     },
   };
 };

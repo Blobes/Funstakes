@@ -77,11 +77,11 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
                   ? "flex-end"
                   : "center"
               : "center",
-          ...style?.base?.overlay,
+          ...style?.overlay?.base,
 
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(4, 2),
-            ...style?.smallScreen?.overlay,
+            ...style?.overlay?.smScreen,
           },
         }}
       >
@@ -107,21 +107,21 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
               maxHeight: "100%",
               gap: theme.gap(0),
               backgroundColor: theme.palette.gray[0],
-              borderRadius: theme.radius[3],
+              borderRadius: theme.radius[12],
               overflow: "hidden",
-              width: style?.base?.content?.width ?? "40%",
-              maxWidth: style?.base?.content?.maxWidth ?? "400px",
+              width: style?.targetContent?.base?.width ?? "40%",
+              maxWidth: style?.targetContent?.base?.maxWidth ?? "400px",
               touchAction: "none",
-              ...style?.base?.content,
+              ...style?.targetContent?.base,
 
               [theme.breakpoints.down("md")]: {
                 width: "60%",
                 maxWidth: "350px",
               },
               [theme.breakpoints.down("sm")]: {
-                width: style?.smallScreen?.content?.width ?? "89%",
-                maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
-                ...style?.smallScreen?.content,
+                width: style?.targetContent?.smScreen?.width ?? "89%",
+                maxWidth: style?.targetContent?.smScreen?.maxWidth ?? "100%",
+                ...style?.targetContent?.smScreen,
               },
             }}
           >

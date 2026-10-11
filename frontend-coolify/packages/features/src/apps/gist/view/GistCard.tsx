@@ -13,11 +13,11 @@ import {
   UIMode,
   IGist,
   MediaProps,
-  GenericStyle,
   CACHE_KEYS,
   POST_FEEDBACK,
   useGlobalStore,
   useGistStore,
+  BaseStyleObj,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
 import { DisplayFeedbackUI, TransText } from "@repo/shared-ui";
@@ -33,7 +33,7 @@ import { PostService } from "../../post/postService";
 
 interface GistProps {
   gist: IGist;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   mode?: UIMode;
 }
 

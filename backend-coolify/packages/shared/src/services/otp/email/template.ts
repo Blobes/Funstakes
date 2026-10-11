@@ -26,7 +26,7 @@ export function renderEmailOtpHtml(
           <!-- Headline -->
           <tr>
             <td class="pb-20" align="left">
-              <h1 class="heading-title">Hi ${recipient.firstName},</h1>
+              <h1 class="heading-title">Hi ${recipient.displayName},</h1>
             </td>
           </tr>
 

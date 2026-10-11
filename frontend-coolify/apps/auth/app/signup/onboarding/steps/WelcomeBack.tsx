@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { Stack, Typography, useTheme } from "@mui/material";
-import Image from "next/image";
-import { asset } from "@repo/assets";
-import { AppButton, TransText } from "@repo/shared-ui";
+import { Stack, useTheme } from "@mui/material";
+import { AppButton, AppLogo, TransText } from "@repo/shared-ui";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
@@ -35,18 +33,12 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       }}
     >
       <Stack sx={{ alignItems: "center", gap: theme.gap(12) }}>
-        <Image
-          alt="Welcome Back"
-          src={asset.appLogoSymbol}
-          width={120}
-          height={120}
-          style={{ borderRadius: theme.radius.full }}
-        />
+        <AppLogo />
 
         <Stack sx={{ gap: theme.gap(4) }}>
           <TransText
             {...COMMON_FEEDBACK.welcome_back(
-              authUser?.firstName || "Funstaker",
+              authUser?.displayName || "Funstaker",
             )}
             sx={{ ...theme.typography.h4 }}
           />

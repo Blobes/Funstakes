@@ -2,10 +2,9 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { GalleryProps, MediaGrid, Media } from "@repo/shared-ui";
+import { GalleryProps, MediaGridView, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
-import { applyBGEffects } from "@repo/helpers";
-import { IGist, UIMode } from "@repo/core";
+import { BaseStyleProps, IGist, UIMode } from "@repo/core";
 import { GistMediaView } from "./GistMediaView";
 import { usePopup } from "../../../popups/usePopup";
 
@@ -33,18 +32,21 @@ export const GistMedia = ({
   const theme = useTheme();
   const { openPopup } = usePopup();
 
-  const mediaStyle = useMemo(
+  const mediaStyle: BaseStyleProps = useMemo(
     () => ({
-      container: {
-        base: { borderRadius: theme.radius[3] },
-        smallScreen: { borderRadius: 0 },
-        ...style?.container,
+      wrapper: {
+        base: {
+          borderRadius: theme.radius[12],
+        },
+        smScreen: { borderRadius: 0 },
+        ...style?.wrapper,
       },
-      content: {
+
+      targetContentst: {
         width: "100%",
         height: "100%",
         objectFit: "cover",
-        ...style?.content,
+        ...style?.targetContent,
       },
     }),
     [style],
@@ -91,13 +93,9 @@ export const GistMedia = ({
     <Media
       {...singleMedia}
       includeCustomizations
-      style={{ container: mediaStyle.container }}
+      style={{ wrapper: mediaStyle.wrapper }}
     />
   ) : (
-    <MediaGrid
-      mediaList={mappedList}
-      style={{ ...mediaStyle }}
-      bgEffects={applyBGEffects}
-    />
+    <MediaGridView mediaList={mappedList} style={{ ...mediaStyle }} />
   );
 };

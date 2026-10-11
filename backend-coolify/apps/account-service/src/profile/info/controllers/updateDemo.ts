@@ -1,26 +1,21 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { updateAccountDemoInfo } from "@/profile/info/services/updateDemo";
-
-interface DemoRequest extends IAuthRequest {
-  body: {
-    gender?: string;
-    dateOfBirth?: string;
-    location?: string;
-    relationship?: string;
-  };
-}
+import {
+  IUpdateDemoInfoInput,
+  updateAccountDemoInfo,
+} from "@/profile/info/services/updateDemo";
 
 /**
  * Controller endpoint to modify contextual background identities and clear profile lookup entries.
  */
 export const updateDemoInfo = async (
-  req: DemoRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const authUserId = req.user?.id;
-  const { gender, dateOfBirth, location, relationship } = req.body;
+  const { gender, dateOfBirth, relationship, address } =
+    req.body as IUpdateDemoInfoInput;
 
   if (!authUserId) {
     return res.status(401).json({
@@ -35,8 +30,8 @@ export const updateDemoInfo = async (
       authUserId,
       gender,
       dateOfBirth,
-      location,
       relationship,
+      address,
     });
 
     if (serviceResult.status === "NOT_FOUND") {

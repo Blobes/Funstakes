@@ -34,7 +34,8 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         gap: theme.gap(20),
         width: "100%",
         maxWidth: "400px",
-      }}>
+      }}
+    >
       <Stack sx={{ alignItems: "center", gap: theme.gap(12) }}>
         <SVGWrapper
           src={asset.Illustration2}
@@ -66,7 +67,8 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         onClick={handleStart}
         style={{
           width: "100%",
-        }}>
+        }}
+      >
         <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />
       </AppButton>
 
@@ -77,18 +79,20 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         sx={{ ...theme.typography.text5, color: theme.palette.gray[200] }}
       />
       <Logout
-        containerStyle={{
-          gap: theme.gap(4),
-          hover: {
-            "& svg": { stroke: theme.palette.primary.dark },
+        style={{
+          wrapper: {
+            gap: theme.gap(4),
+            hover: {
+              "& svg": { stroke: theme.palette.primary.dark },
+            },
           },
+          label: {
+            width: "fit-content",
+            textAlign: "center",
+            color: theme.palette.gray[200],
+          },
+          icon: { size: 18 },
         }}
-        textStyle={{
-          width: "fit-content",
-          textAlign: "center",
-          color: theme.palette.gray[200],
-        }}
-        iconStyle={{ size: 18 }}
       />
     </Stack>
   );

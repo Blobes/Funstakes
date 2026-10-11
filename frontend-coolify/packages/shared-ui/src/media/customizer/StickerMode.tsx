@@ -173,7 +173,7 @@ const StickerLibraryDrawer = ({
                         cursor: "pointer",
                         position: "relative",
                         padding: theme.boxSpacing(2),
-                        borderRadius: theme.radius.base,
+                        borderRadius: theme.radius[12],
                         backgroundColor: isSelected
                           ? theme.palette.gray.trans[1]
                           : "transparent",

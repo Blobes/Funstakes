@@ -11,7 +11,7 @@ import {
   CLIENT_ROUTES,
   IPage,
   IUser,
-  GenericStyle,
+  BaseStyleObj,
   useGlobalStore,
   AuthStepName,
   IdentifierType,
@@ -28,11 +28,11 @@ export interface UseFeedbackProps {
   setStep?: (step: AuthStepName) => void;
   setIdentifier?: (identifier: string) => void;
   setInlineMsg?: React.Dispatch<React.SetStateAction<React.ReactNode | null>>;
-  handleSignupClick?: (e: React.MouseEvent) => void;
+  handleAnchorNavigation?: (e: React.MouseEvent, page: IPage) => void;
   handleResetPassClick?: (e: React.MouseEvent<Element, MouseEvent>) => void;
   loginResponse?: LoginResponse;
   checkResponse?: CheckResponse;
-  inlineTxtStyle?: GenericStyle;
+  inlineTxtStyle?: BaseStyleObj;
   theme?: Theme;
   error?: ApiError;
   resolvedType?: string;
@@ -179,7 +179,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
         error,
         resolvedType,
         setInlineMsg,
-        handleSignupClick,
+        handleAnchorNavigation,
         handleResetPassClick,
         inlineTxtStyle,
         theme,
@@ -201,7 +201,9 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
             {resolvedType === "EMAIL" && (
               <AnchorLink
                 href={CLIENT_ROUTES.signup.path}
-                onClick={handleSignupClick}
+                onClick={(e: React.MouseEvent) =>
+                  handleAnchorNavigation?.(e, CLIENT_ROUTES.signup)
+                }
                 style={{
                   marginLeft: theme?.gap(2),
                   ...inlineTxtStyle,

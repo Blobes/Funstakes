@@ -53,7 +53,9 @@ export const NetworkGlitchUI = ({
           icon={
             <SVGWrapper
               src={
-                isServerError ? asset.NotFoundAnimation : asset.networkGlitch
+                isServerError
+                  ? asset.ServerErrorAnimation1
+                  : asset.networkGlitch
               }
               size={130}
               color={theme.palette.gray[200]}

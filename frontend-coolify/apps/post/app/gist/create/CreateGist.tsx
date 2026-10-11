@@ -21,19 +21,20 @@ export const CreateGist = () => {
   if (!authUser) {
     return null;
   }
-  const { firstName } = authUser;
+  const { displayName } = authUser;
   return (
     <Stack
       sx={{
         backgroundColor: theme.palette.gray.trans[1],
-        borderRadius: theme.radius[2],
+        borderRadius: theme.radius[8],
         flexDirection: "column",
         padding: theme.boxSpacing(6),
         gap: theme.gap(10),
         [theme.breakpoints.down("md")]: {
           margin: theme.boxSpacing(6),
         },
-      }}>
+      }}
+    >
       {/* Create field */}
       <Stack
         sx={{
@@ -41,7 +42,8 @@ export const CreateGist = () => {
           alignItems: "flex-start",
           justifyItems: "flex-start",
           gap: theme.gap(2),
-        }}>
+        }}
+      >
         <UserAvatar
           userInfo={authUser}
           style={{
@@ -52,7 +54,7 @@ export const CreateGist = () => {
         <FormControl fullWidth>
           <ResponsiveTextarea
             placeholder={translateTxtString(
-              POST_INPUT.label.create_post(firstName),
+              POST_INPUT.label.create_post(displayName),
             )}
           />
         </FormControl>
@@ -61,10 +63,11 @@ export const CreateGist = () => {
       <Stack
         sx={{
           paddingLeft: theme.boxSpacing(3),
-          borderRadius: theme.radius[2],
+          borderRadius: theme.radius[8],
           flexDirection: "row",
           alignItems: "center",
-        }}>
+        }}
+      >
         <AppButton
           variant="contained"
           style={{
@@ -72,7 +75,8 @@ export const CreateGist = () => {
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
-          }}>
+          }}
+        >
           <Image size={20} />{" "}
           <TransText {...POST_BUTTON_LABELS.add_image} noComponent />
         </AppButton>
@@ -83,7 +87,8 @@ export const CreateGist = () => {
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
-          }}>
+          }}
+        >
           <Play size={20} />{" "}
           <TransText {...POST_BUTTON_LABELS.add_video} noComponent />
         </AppButton>

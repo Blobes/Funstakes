@@ -48,4 +48,5 @@ export const ALLOWED_VERIFICATION_METHODS = {
 
 export const SNACKBAR_DURATION = {
   SECS_6: 6,
+  SECS_15: 15,
 } as const;

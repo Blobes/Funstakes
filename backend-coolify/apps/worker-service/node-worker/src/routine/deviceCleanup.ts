@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { DeviceModel, UserModel } from "@repo/database";
+import { DEVICE_NESTED_FIELDS, DeviceModel, UserModel } from "@repo/database";
 
 /**
  * Background maintenance with a grace period for stale primary devices.
@@ -20,19 +20,25 @@ export const startDeviceCleanupTask = () => {
       // 1. Purge non-primaries, stale grace-period devices, and unverified devices exceeding threshold
       await DeviceModel.deleteMany({
         $or: [
-          // Non-primary devices older than threshold
-          { lastSeenAt: { $lt: thirtyDaysAgo }, isPrimary: { $ne: true } },
+          // Non-primary devices older than threshold (no user has marked it primary)
+          {
+            lastSeenAt: { $lt: thirtyDaysAgo },
+            [DEVICE_NESTED_FIELDS.USERS_IS_PRIMARY]: { $ne: true },
+          },
           // Devices marked as stale that exceeded the grace period
           { isStale: true, lastSeenAt: { $lt: purgeDateWithGrace } },
-          // Unverified devices older than threshold
-          { isVerified: false, createdAt: { $lt: thirtyDaysAgo } },
+          // Unverified devices older than threshold across all assigned metadata entries
+          {
+            createdAt: { $lt: thirtyDaysAgo },
+            [DEVICE_NESTED_FIELDS.USERS_IS_VERIFIED]: { $ne: true },
+          },
         ],
       });
 
-      // 3. Process primary devices that have just hit the 30-day inactivity mark
+      // 2. Process primary devices that have just hit the 30-day inactivity mark
       const ghostCursor = DeviceModel.find({
         lastSeenAt: { $lt: thirtyDaysAgo },
-        isPrimary: true,
+        [DEVICE_NESTED_FIELDS.USERS_IS_PRIMARY]: true,
         isStale: { $ne: true }, // Only process those not already in grace period
       })
         .lean()
@@ -65,40 +71,68 @@ export const startDeviceCleanupTask = () => {
         ghost != null;
         ghost = await ghostCursor.next()
       ) {
-        // Try to find a modern replacement that is still active
-        const replacement = await DeviceModel.findOne({
-          userId: ghost.userId,
-          _id: { $ne: ghost._id },
-          lastSeenAt: { $gte: thirtyDaysAgo },
-        })
-          .sort({ lastSeenAt: -1 })
-          .lean();
+        // Iterate over users attached to ghost device where they marked it primary
+        const primaryUsers = ghost.users.filter((u) => u.isPrimary);
 
-        if (replacement) {
-          // New primary found: promote replacement and queue ghost for immediate deletion
-          userUpdates.push({
-            updateOne: {
-              filter: { _id: ghost.userId },
-              update: { $set: { primaryDeviceId: replacement._id } },
-            },
-          });
+        for (const userMeta of primaryUsers) {
+          const userId = userMeta.userId;
 
-          deviceUpdates.push({
-            updateOne: {
-              filter: { _id: replacement._id },
-              update: { $set: { isPrimary: true, isStale: false } },
-            },
-          });
+          // Try to find a active replacement device for this specific user
+          const replacement = await DeviceModel.findOne({
+            [DEVICE_NESTED_FIELDS.USERS_USER_ID]: userId,
+            _id: { $ne: ghost._id },
+            lastSeenAt: { $gte: thirtyDaysAgo },
+          })
+            .sort({ lastSeenAt: -1 })
+            .lean();
 
+          if (replacement) {
+            // New primary found for user: update user model
+            userUpdates.push({
+              updateOne: {
+                filter: { _id: userId },
+                update: { $set: { primaryDeviceId: replacement._id } },
+              },
+            });
+
+            // Promote user's meta inside replacement device using $ positional operator
+            deviceUpdates.push({
+              updateOne: {
+                filter: {
+                  _id: replacement._id,
+                  [DEVICE_NESTED_FIELDS.USERS_USER_ID]: userId,
+                },
+                update: {
+                  $set: {
+                    [DEVICE_NESTED_FIELDS.USERS_POSITIONAL_IS_PRIMARY]: true,
+                    isStale: false,
+                  },
+                },
+              },
+            });
+
+            // Unlink ghost user metadata entry
+            deviceUpdates.push({
+              updateOne: {
+                filter: { _id: ghost._id },
+                update: { $pull: { users: { userId } } },
+              },
+            });
+          } else {
+            // No active replacement for user: flag device as stale and enter grace period
+            deviceUpdates.push({
+              updateOne: {
+                filter: { _id: ghost._id },
+                update: { $set: { isStale: true } },
+              },
+            });
+          }
+        }
+
+        // Check if ghost device has no user subdocuments left after updates
+        const remainingUsers = ghost.users.length - primaryUsers.length;
+        if (remainingUsers <= 0) {
           devicesToDelete.push(ghost._id);
-        } else {
-          // No active replacement: flag as stale and enter grace period
-          deviceUpdates.push({
-            updateOne: {
-              filter: { _id: ghost._id },
-              update: { $set: { isStale: true } },
-            },
-          });
         }
 
         if (userUpdates.length >= 100 || deviceUpdates.length >= 100) {

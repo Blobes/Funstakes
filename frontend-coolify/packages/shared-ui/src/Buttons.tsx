@@ -5,7 +5,7 @@ import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
 import { crossZoneCheck, debouncedPrefetch, prefetchPage } from "@repo/helpers";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 import { A11y } from "./A11y";
 import { Theme } from "@mui/material/styles";
 
@@ -30,7 +30,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   children?: React.ReactNode;
   size?: ButtonSize;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   overrideStyle?: "full" | "partial";
   colorType?: ButtonColor;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -175,7 +175,7 @@ export const AnchorLink = ({
     transition:
       "background-color 0.3s linear, color 0.2s linear, stroke 0.2s linear",
     [theme.breakpoints.down("md")]: {
-      padding: 0,
+      // padding: 0,
     },
   };
   const mergedStyle =

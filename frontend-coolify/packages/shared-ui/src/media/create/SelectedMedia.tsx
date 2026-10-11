@@ -4,12 +4,16 @@ import React, { useMemo, useCallback } from "react";
 import { Box, IconButton, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X, SlidersHorizontal } from "lucide-react";
-import { applyBGEffects } from "@repo/helpers";
-import { MediaProps, MediaProcessingProgress, COMMON_MEDIA } from "@repo/core";
+import {
+  MediaProps,
+  MediaProcessingProgress,
+  COMMON_MEDIA,
+  BaseStyleProps,
+} from "@repo/core";
 import { ProgressUI } from "../../LoadingUIs";
 import { TransText } from "../../Text";
 import { Media } from "../view/Media";
-import { MediaGrid, MediaScroll } from "../view/MediaGallery";
+import { MediaGridView, MediaSlidesView } from "../view/MediaGallery";
 import { useMediaFileTransform } from "@repo/shared-hooks";
 
 interface SelectedMediaFilesProps {
@@ -51,13 +55,13 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
     onSingleTap: handleSingleTap,
   });
 
-  const mediaStyle = useMemo(
+  const mediaStyle: BaseStyleProps = useMemo(
     () => ({
-      container: {
-        base: { borderRadius: theme.radius[3] },
-        smallScreen: { borderRadius: 0 },
+      wrapper: {
+        base: { borderRadius: theme.radius[12] },
+        smScreen: { borderRadius: 0 },
       },
-      content: {
+      targetContent: {
         width: "100%",
         height: "100%",
         objectFit: "cover",
@@ -119,7 +123,7 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
             variant: isIdle ? "indeterminate" : "determinate",
             size: 24,
           }}
-          style={{ container: { flexShrink: 0 } }}
+          style={{ wrapper: { flexShrink: 0 } }}
         />
         <TransText
           {...COMMON_MEDIA.track_upload_progress(currentProgress)}
@@ -136,109 +140,83 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
   /**
    * Helper utility rendering floating customization/delete actions and processing metrics directly above layout slots.
    */
-  const renderWithActions = (node: React.ReactNode, index: number) => {
-    const file = stagedFiles[index];
-    if (!file) return null;
+  const renderItemOverlay = useCallback(
+    (_media: MediaProps, index: number) => {
+      const file = stagedFiles[index];
+      if (!file) return null;
 
+      return (
+        <>
+          {renderCompressionOverlay(file)}
+
+          {onCustomizeMedia && (
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onCustomizeMedia(file, index);
+              }}
+              sx={{ ...actionButtonStyle, left: 8 }}
+            >
+              <SlidersHorizontal size={16} />
+            </IconButton>
+          )}
+
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveFile(index);
+            }}
+            sx={{ ...actionButtonStyle, right: 8 }}
+          >
+            <X size={16} />
+          </IconButton>
+        </>
+      );
+    },
+    [
+      stagedFiles,
+      onCustomizeMedia,
+      onRemoveFile,
+      actionButtonStyle,
+      processingStates,
+      theme,
+    ],
+  );
+
+  // single file — overlay on a relative box
+  if (stagedFiles.length === 1) {
     return (
       <Box
         sx={{
           position: "relative",
           width: "100%",
-          height: "100%",
-          borderRadius: theme.radius[3],
+          borderRadius: theme.radius[12],
           overflow: "hidden",
         }}
       >
-        {node}
-        {renderCompressionOverlay(file)}
-
-        {/* Customizer Action */}
-        {onCustomizeMedia && (
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              onCustomizeMedia(file, index);
-            }}
-            sx={{
-              ...actionButtonStyle,
-              left: "8px",
-              "&:hover": {
-                ...actionButtonStyle["&:hover"],
-                color: theme.palette.primary.main,
-              },
-            }}
-          >
-            <SlidersHorizontal size={16} />
-          </IconButton>
-        )}
-
-        {/* Delete action */}
-        <IconButton
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemoveFile(index);
-          }}
-          sx={{
-            ...actionButtonStyle,
-            right: "8px",
-            "&:hover": {
-              ...actionButtonStyle["&:hover"],
-              color: theme.palette.error.main,
-            },
-          }}
-        >
-          <X size={16} />
-        </IconButton>
+        <Media
+          {...formattedMediaList[0]}
+          includeCustomizations
+          style={{ wrapper: mediaStyle.wrapper }}
+        />
+        {renderItemOverlay(formattedMediaList[0], 0)}
       </Box>
-    );
-  };
-
-  if (stagedFiles.length === 0) return null;
-
-  if (stagedFiles.length === 1) {
-    return renderWithActions(
-      <Media
-        {...formattedMediaList[0]}
-        includeCustomizations
-        style={{ container: mediaStyle.container }}
-      />,
-      0,
     );
   }
 
   return (
     <Box sx={{ width: "100%" }}>
       {isSmallScreen ? (
-        <MediaScroll
+        <MediaSlidesView
           mediaList={formattedMediaList}
           style={mediaStyle}
-          bgEffects={() => ({
-            ...applyBGEffects(theme),
-            overlay: {
-              children: formattedMediaList.map((_, index) =>
-                renderWithActions(null, index),
-              ),
-            },
-          })}
+          renderItemOverlay={renderItemOverlay}
         />
       ) : (
-        <MediaGrid
-          mediaList={formattedMediaList.map((media, index) => ({
-            ...media,
-            customContainerWrapper: (node: React.ReactNode) =>
-              renderWithActions(node, index),
-          }))}
+        <MediaGridView
+          mediaList={formattedMediaList}
           style={mediaStyle}
-          bgEffects={() => ({
-            ...applyBGEffects(theme),
-            zoom: (selector: string) => ({
-              ...applyBGEffects(theme).zoom(selector),
-              "& .MuiImageListItem-item": {
-                position: "relative",
-              },
-            }),
-          })}
+          renderItemOverlay={renderItemOverlay}
         />
       )}
     </Box>

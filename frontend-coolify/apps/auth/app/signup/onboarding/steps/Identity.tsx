@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { IconButton, Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import {
   AppButton,
   DynamicInput,
@@ -10,13 +10,11 @@ import {
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { useIdentity } from "../hooks/useIdentity";
-import { ChevronLeft } from "lucide-react";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
   AUTH_INPUT,
   AuthStepName,
-  COMMON_BUTTON_LABELS,
   StepperProps,
 } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
@@ -67,19 +65,10 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
       >
         <DynamicInput
           placeholder={translateTxtString(
-            AUTH_INPUT.placeholder.enter_first_name,
+            AUTH_INPUT.placeholder.enter_display_name,
           )}
           label={translateTxtString(AUTH_INPUT.label.first_name)}
-          value={formData.firstName}
-          onChange={handleChange}
-        />
-
-        <DynamicInput
-          placeholder={translateTxtString(
-            AUTH_INPUT.placeholder.enter_last_name,
-          )}
-          label={translateTxtString(AUTH_INPUT.label.last_name)}
-          value={formData.lastName}
+          value={formData.displayName}
           onChange={handleChange}
         />
 
@@ -121,7 +110,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
                 padding: theme.boxSpacing(3, 4),
                 color: theme.palette.gray[200],
                 border: `1px solid ${theme.palette.gray.trans[1]}`,
-                borderRadius: theme.radius[3],
+                borderRadius: theme.radius[12],
                 width: "48px",
                 backgroundColor: theme.fixedColors.pTrans,
               }}

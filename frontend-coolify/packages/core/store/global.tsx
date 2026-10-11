@@ -59,6 +59,8 @@ interface GlobalState {
   setIsSpaLoading: (loading: boolean) => void;
   isCrossZoneLoading: boolean;
   setIsCrossZoneLoading: (value: boolean) => void;
+  headerScrollRef: React.RefObject<HTMLDivElement | null>;
+  setHeaderScrollRef: (ref: React.RefObject<HTMLDivElement | null>) => void;
 
   // --- System/Network State & Setters ---
   networkStatus: NetworkStatus;
@@ -173,6 +175,9 @@ export const useGlobalStore = create<GlobalState>((set) => ({
 
   isCrossZoneLoading: false,
   setIsCrossZoneLoading: (isCrossZoneLoading) => set({ isCrossZoneLoading }),
+
+  headerScrollRef: { current: null },
+  setHeaderScrollRef: (headerScrollRef) => set({ headerScrollRef }),
 
   // --- System/Network State & Setters ---
   networkStatus: "UNKNOWN",

@@ -8,7 +8,7 @@ import { BookmarkButton, BookmarkProps } from "./Bookmark";
 import { ShareButton, ShareProps } from "./Share";
 import { ReplyButton, ReplyProps } from "./Reply";
 import { summarizeNum } from "@repo/helpers";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 import { FollowButton, FollowProps } from "./Follow";
 import { TransText } from "@repo/shared-ui";
 
@@ -29,7 +29,7 @@ export interface EngagementProps {
   hide?: Hide;
   addition?: React.ReactNode;
   variant?: "HORIZONTAL" | "VERTICAL";
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const PostEngagement = ({
@@ -57,7 +57,8 @@ export const PostEngagement = ({
             fontWeight: 700,
             color: theme.palette.gray[200],
             textShadow: "0px 1px 2px rgba(0,0,0,0.5)",
-          }}>
+          }}
+        >
           {summarizeNum(count)}
         </TransText>
       )}
@@ -76,14 +77,16 @@ export const PostEngagement = ({
           padding: isVertical ? theme.boxSpacing(2) : theme.boxSpacing(4, 6),
         },
         ...style,
-      }}>
+      }}
+    >
       {/* Main Action Group */}
       <Stack
         sx={{
           flexDirection: isVertical ? "column" : "row",
           gap: isVertical ? theme.gap(4) : theme.gap(6),
           alignItems: "center",
-        }}>
+        }}
+      >
         {!hide.like &&
           renderAction(
             <LikeButton

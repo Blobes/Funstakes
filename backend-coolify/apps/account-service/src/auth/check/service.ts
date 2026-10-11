@@ -32,7 +32,7 @@ export interface CheckResult {
     accountStatus: AccountStatus;
     userId: string | mongoose.Types.ObjectId;
     username?: string;
-    firstName?: string;
+    displayName?: string;
     email?: string;
     phone?: string;
     hasEnabledMFA?: boolean;
@@ -46,7 +46,7 @@ interface AccountCheckProjection {
   password?: string;
   signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
   username?: string;
-  firstName?: string;
+  displayName?: string;
   email?: string;
   phoneNumber?: string;
   hasEnabledMFA?: boolean;
@@ -64,7 +64,7 @@ const REQUIRED_FIELDS = [
   "password",
   "signedUpWith",
   "username",
-  "firstName",
+  "displayName",
   "email",
   "phoneNumber",
   "hasEnabledMFA",
@@ -84,7 +84,7 @@ const buildUserPayload = (user: AccountCheckProjection) => ({
   accountStatus: user.accountStatus,
   userId: user._id,
   username: user.username,
-  firstName: user.firstName,
+  displayName: user.displayName,
   email: user.email,
   phone: user.phoneNumber,
   hasEnabledMFA: user.hasEnabledMFA,

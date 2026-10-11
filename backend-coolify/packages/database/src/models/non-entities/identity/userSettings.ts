@@ -1,6 +1,9 @@
 import { Model, Schema, model } from "mongoose";
-import { IUserPreferredTopic } from "../../../types/others";
-import { IUserSettingsDocument } from "../../../types/user";
+import {
+  IUserPreferredTopic,
+  IUserSettingsDocument,
+} from "../../../types/others";
+import { USER_SETTINGS_NESTED_FIELDS } from "../../../constants/fields";
 
 /**
  * Schema defining topic preference tracking subdocument.
@@ -120,16 +123,23 @@ const UserSettingsSchema = new Schema<IUserSettingsDocument>(
 // User Settings Schema Indexes
 UserSettingsSchema.index({ userId: 1 }, { unique: true });
 UserSettingsSchema.index(
-  { "privacy.discoverability.recommendToOthers": 1 },
+  {
+    [USER_SETTINGS_NESTED_FIELDS.PRIVACY_DISCOVERABILITY_RECOMMEND_TO_OTHERS]: 1,
+  },
   {
     partialFilterExpression: {
-      "privacy.discoverability.recommendToOthers": true,
+      [USER_SETTINGS_NESTED_FIELDS.PRIVACY_DISCOVERABILITY_RECOMMEND_TO_OTHERS]: true,
     },
   },
 );
+
 UserSettingsSchema.index(
-  { "notifications.quietMode.isEnabled": 1 },
-  { partialFilterExpression: { "notifications.quietMode.isEnabled": true } },
+  { [USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_IS_ENABLED]: 1 },
+  {
+    partialFilterExpression: {
+      [USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_IS_ENABLED]: true,
+    },
+  },
 );
 
 export const UserSettingsModel: Model<IUserSettingsDocument> =

@@ -63,6 +63,9 @@ catalogs:
     cors:
       specifier: ^2.8.5
       version: 2.8.6
+    disposable-email-domain:
+      specifier: ^1.0.81
+      version: 1.0.81
     dotenv:
       specifier: ^16.4.5
       version: 16.6.1
@@ -75,6 +78,9 @@ catalogs:
     franc-min:
       specifier: ^6.2.0
       version: 6.2.0
+    free-email-domains:
+      specifier: ^1.12.14
+      version: 1.12.14
     google-auth-library:
       specifier: ^10.6.2
       version: 10.9.1
@@ -182,12 +188,18 @@ importers:
       cookie-parser:
         specifier: 'catalog:'
         version: 1.4.7
+      disposable-email-domain:
+        specifier: 'catalog:'
+        version: 1.0.81
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
       express:
         specifier: 'catalog:'
         version: 4.22.2
+      free-email-domains:
+        specifier: 'catalog:'
+        version: 1.12.14
       google-auth-library:
         specifier: 'catalog:'
         version: 10.9.1
@@ -521,6 +533,9 @@ importers:
       cors:
         specifier: 'catalog:'
         version: 2.8.6
+      disposable-email-domain:
+        specifier: 'catalog:'
+        version: 1.0.81
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
@@ -530,6 +545,9 @@ importers:
       franc-min:
         specifier: 'catalog:'
         version: 6.2.0
+      free-email-domains:
+        specifier: 'catalog:'
+        version: 1.12.14
       ioredis:
         specifier: 'catalog:'
         version: 5.10.1
@@ -1680,6 +1698,9 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
+  disposable-email-domain@1.0.81:
+    resolution: {integrity: sha512-neCTOqbBNrjyb1TcRgzvrd4mDXFfDk6qX/7+2bwhiyQF979ZhtJu2dx7SeSbyg0rn32dWjJsgXWJQi5F4mnawg==}
+
   dotenv-cli@8.0.0:
     resolution: {integrity: sha512-aLqYbK7xKOiTMIRf1lDPbI+Y+Ip/wo5k3eyp6ePysVaSqbyxjyK3dK35BTxG+rmd7djf5q2UPs4noPNH+cj0Qw==}
     hasBin: true
@@ -1813,6 +1834,10 @@ packages:
 
   franc-min@6.2.0:
     resolution: {integrity: sha512-1uDIEUSlUZgvJa2AKYR/dmJC66v/PvGQ9mWfI9nOr/kPpMFyvswK0gPXOwpYJYiYD008PpHLkGfG58SPjQJFxw==}
+
+  free-email-domains@1.12.14:
+    resolution: {integrity: sha512-6zE7h4avKv4IYd5OiOA9XSf9J96LVEkod8hQ1Q1WlgbUR+fJJWQpHPJHpAjoqpcareeGgTiR+39HZmU2321JYw==}
+    engines: {node: '>= 18'}
 
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
@@ -3642,6 +3667,8 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
+  disposable-email-domain@1.0.81: {}
+
   dotenv-cli@8.0.0:
     dependencies:
       cross-spawn: 7.0.6
@@ -3861,6 +3888,8 @@ snapshots:
   franc-min@6.2.0:
     dependencies:
       trigram-utils: 2.0.1
+
+  free-email-domains@1.12.14: {}
 
   fresh@0.5.2: {}
 

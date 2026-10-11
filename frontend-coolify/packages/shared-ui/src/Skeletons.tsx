@@ -3,18 +3,20 @@
 import React from "react";
 import { Skeleton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 
 type Variant = "text" | "rectangular" | "rounded" | "circular";
+type Animation = "pulse" | "wave";
 
 interface BaseProps {
   quantity?: number;
   variant?: Variant;
+  animation?: Animation;
   bgColor?: string;
   width?: string | number;
   height?: string | number;
   radius?: string | number;
-  containerStyle?: GenericStyle;
+  containerStyle?: BaseStyleObj;
 }
 
 interface PostSkeletonProps extends BaseProps {
@@ -27,6 +29,7 @@ export const PostSkeleton = ({
   quantity = 2,
   bgColor,
   avatar,
+  animation = "pulse",
   authorInfo,
   body,
   containerStyle,
@@ -73,16 +76,19 @@ export const PostSkeleton = ({
             {/* Avatar */}
             <Skeleton
               variant={avatar?.variant || "circular"}
+              animation={animation}
               sx={{ ...avatarStyle }}
             />
             {/* Author info */}
             <Stack sx={{ width: "inherit", gap: theme.gap(3) }}>
               <Skeleton
                 variant={authorInfo?.variant || "rectangular"}
+                animation={animation}
                 sx={{ ...authorInfoStyle }}
               />
               <Skeleton
                 variant={authorInfo?.variant || "rectangular"}
+                animation={animation}
                 sx={{ ...authorInfoStyle }}
               />
             </Stack>
@@ -91,6 +97,7 @@ export const PostSkeleton = ({
           {/* Post Body */}
           <Skeleton
             variant={body?.variant || "rectangular"}
+            animation={animation}
             sx={{ ...bodyStyle }}
           />
         </Stack>
@@ -101,11 +108,13 @@ export const PostSkeleton = ({
 
 export const BoxSkeleton = ({
   variant = "rectangular",
+  animation = "pulse",
   quantity = 2,
   bgColor,
   width,
   height,
   radius,
+  containerStyle,
 }: BaseProps) => {
   const theme = useTheme();
   const style = {
@@ -113,11 +122,17 @@ export const BoxSkeleton = ({
     width: width || "100%",
     height: height || 300,
     radius: radius || 0,
+    ...containerStyle,
   };
   return (
     <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
       {Array.from({ length: quantity }).map((_, index) => (
-        <Skeleton key={index} variant={variant} sx={{ ...style }} />
+        <Skeleton
+          key={index}
+          variant={variant}
+          animation={animation}
+          sx={{ ...style }}
+        />
       ))}
     </Stack>
   );

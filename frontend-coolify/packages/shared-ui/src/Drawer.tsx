@@ -5,7 +5,7 @@ import { Box, IconButton, Stack } from "@mui/material";
 import { X } from "lucide-react";
 import { DrawerProps, OverlayRef } from "@repo/core";
 import { Transition } from "./Transition";
-import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
+import { applyBgEffects, scrollBarStyle } from "@repo/helpers";
 import { useUnifiedOverlay } from "@repo/shared-hooks";
 import { A11y } from "./A11y";
 
@@ -68,8 +68,8 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
           opacity: isOpen ? 1 : 0,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
-          ...applyBGEffects(theme).opaque(isOpen, dragOffset),
-          ...(blurOverlayBG && applyBGEffects(theme).blur(isOpen, dragOffset)),
+          ...applyBgEffects(theme).opaque(isOpen, dragOffset),
+          ...(blurOverlayBG && applyBgEffects(theme).blur(isOpen, dragOffset)),
 
           alignItems:
             transDir === "right"
@@ -84,19 +84,21 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
               : baseDir === "up"
                 ? "flex-end"
                 : "center",
-          ...style?.base?.overlay,
+          ...style?.overlay?.base,
 
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(4, 2),
-            ...style?.smallScreen?.overlay,
+            ...style?.overlay?.smScreen,
           },
-        }}>
+        }}
+      >
         <Transition
           show={isOpen}
           timeout={250}
           type="slide"
           direction={transDir}
-          onExited={handleExited}>
+          onExited={handleExited}
+        >
           <A11y
             {...touchHandlers}
             useCase="dialog"
@@ -112,10 +114,10 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
               maxHeight: "100%",
               gap: theme.gap(0),
               backgroundColor: theme.palette.gray[0],
-              borderRadius: theme.radius[3],
+              borderRadius: theme.radius[12],
               overflow: "hidden",
-              width: style?.base?.content?.width ?? "40%",
-              maxWidth: style?.base?.content?.maxWidth ?? "400px",
+              width: style?.targetContent?.base?.width ?? "40%",
+              maxWidth: style?.targetContent?.base?.maxWidth ?? "400px",
               touchAction: "none",
 
               ...(dragOffset !== 0 && {
@@ -132,19 +134,20 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                 }),
               }),
 
-              ...style?.base?.content,
+              ...style?.targetContent?.base,
 
               [theme.breakpoints.down("md")]: {
-                width: style?.mediumScreen?.content?.width ?? "80%",
-                maxWidth: style?.mediumScreen?.content?.maxWidth ?? "350px",
-                ...style?.mediumScreen?.content,
+                width: style?.targetContent?.mdScreen?.width ?? "80%",
+                maxWidth: style?.targetContent?.mdScreen?.maxWidth ?? "350px",
+                ...style?.targetContent?.mdScreen,
               },
               [theme.breakpoints.down("sm")]: {
-                width: style?.smallScreen?.content?.width ?? "89%",
-                maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
-                ...style?.smallScreen?.content,
+                width: style?.targetContent?.smScreen?.width ?? "89%",
+                maxWidth: style?.targetContent?.smScreen?.maxWidth ?? "100%",
+                ...style?.style?.targetContent?.smScreen,
               },
-            }}>
+            }}
+          >
             {/* Header */}
 
             {showHeader && isMobile && dragInfo.axis === "Y" && (
@@ -171,7 +174,8 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                   padding: theme.boxSpacing(2),
                   ...style?.header,
                   borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                }}>
+                }}
+              >
                 {header && header}
                 {clickToClose && (
                   <IconButton
@@ -179,7 +183,8 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                     aria-controls="close-drawer"
                     aria-haspopup="true"
                     ref={closeRef}
-                    onClick={handleClose}>
+                    onClick={handleClose}
+                  >
                     <X size={22} />
                   </IconButton>
                 )}
@@ -196,7 +201,8 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                 },
                 gap: theme.gap(8),
                 ...(scrollBarStyle(theme) as any),
-              }}>
+              }}
+            >
               {content}
             </Stack>
           </A11y>

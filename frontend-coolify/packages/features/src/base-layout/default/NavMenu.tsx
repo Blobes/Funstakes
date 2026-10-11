@@ -57,8 +57,7 @@ const UserInfo = () => {
 
   if (!authUser) return null;
 
-  const { firstName, lastName, username, followersCount, followingCount } =
-    authUser;
+  const { displayName, username, followersCount, followingCount } = authUser;
   return (
     <Stack>
       <Stack
@@ -70,7 +69,7 @@ const UserInfo = () => {
       >
         <Stack sx={{ gap: theme.gap(0), width: "100%" }}>
           <TransText sx={{ ...theme.typography.text2, fontWeight: "600" }}>
-            {firstName} {lastName}
+            {displayName}
           </TransText>
           <TransText
             sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}

@@ -128,3 +128,8 @@ export const validateAccountStatus = (
 
   return { isRestricted: false };
 };
+
+export const getEmailDomain = (email?: string | null): string | null => {
+  if (!email || !email.includes("@")) return null;
+  return email.split("@")[1]?.toLowerCase().trim() || null;
+};

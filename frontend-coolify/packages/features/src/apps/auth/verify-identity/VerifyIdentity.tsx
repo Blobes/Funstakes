@@ -145,7 +145,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
               color: theme.palette.primary.dark,
               padding: theme.boxSpacing(8),
               cursor: "pointer",
-              borderRadius: theme.radius[2],
+              borderRadius: theme.radius[8],
               backgroundColor: theme.palette.gray.trans[1],
               border: `1px solid transparent`,
               transition: "border 0.2s ease",
@@ -184,7 +184,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
           color: theme.palette.primary.dark,
           background: theme.palette.gray[50],
           padding: theme.boxSpacing(3, 5),
-          borderRadius: theme.radius[2],
+          borderRadius: theme.radius[8],
           textAlign: "center",
           fontWeight: 700,
           position: "fixed",
@@ -214,9 +214,9 @@ export const VerifyIdentity = <P extends TransitPurpose>(
         <Accordion
           items={alternativeMethodItems}
           style={{
-            container: {
+            wrapper: {
               width: "100%",
-              [theme.breakpoints.down("lg")]: { width: "100%" },
+              // [theme.breakpoints.down("lg")]: { width: "100%" },
             },
           }}
         />
@@ -226,19 +226,21 @@ export const VerifyIdentity = <P extends TransitPurpose>(
         <>
           <Divider sx={{ width: "100%", marginY: theme.gap(8) }} />
           <Logout
-            containerStyle={{
-              gap: theme.gap(4),
-              hover: {
-                "& svg": { stroke: theme.palette.primary.dark },
+            style={{
+              wrapper: {
+                gap: theme.gap(4),
+                hover: {
+                  "& svg": { stroke: theme.palette.primary.dark },
+                },
               },
+              label: {
+                ...theme.typography.text3,
+                width: "fit-content",
+                fontWeight: 600,
+                color: theme.palette.gray[200],
+              },
+              icon: { size: 18 },
             }}
-            textStyle={{
-              ...theme.typography.text3,
-              width: "fit-content",
-              fontWeight: 600,
-              color: theme.palette.gray[200],
-            }}
-            iconStyle={{ size: 18 }}
           />
         </>
       )}

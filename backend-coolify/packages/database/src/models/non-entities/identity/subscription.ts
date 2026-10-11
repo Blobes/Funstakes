@@ -1,5 +1,5 @@
 import { Schema, model, Model } from "mongoose";
-import { ISubscriptionDocument } from "../../../types/user";
+import { ISubscriptionDocument } from "../../../types/others";
 
 const SubscriptionSchema = new Schema<ISubscriptionDocument>(
   {

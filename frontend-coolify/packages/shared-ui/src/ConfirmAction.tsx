@@ -3,7 +3,7 @@
 import React, { ReactNode } from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleProps } from "@repo/core";
 import { TransText } from "./Text";
 import { AppButton } from "./Buttons";
 import { ProgressUI } from "./LoadingUIs";
@@ -18,12 +18,7 @@ export interface ActionConfirmationProps {
   onCancel?: () => void;
   confirmBtnColorType?: "primary" | "success" | "error";
   isLoading?: boolean;
-  style?: {
-    icon?: GenericStyle;
-    container?: GenericStyle;
-    headline?: GenericStyle;
-    tagline?: GenericStyle;
-  };
+  style?: BaseStyleProps;
 }
 
 /**
@@ -49,7 +44,9 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
       sx={{
         alignItems: "center",
         justifyContent: "center",
-        ...style?.container,
+        textAlign: "center",
+        color: theme.palette.gray[200],
+        ...style?.wrapper,
       }}
     >
       {icon && icon}
@@ -60,6 +57,7 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
           sx={{
             ...theme.typography.h4,
             textAlign: "center",
+            color: theme.palette.gray[300],
             ...style?.headline,
           }}
         >
@@ -76,7 +74,6 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
             sx={{
               ...theme.typography.text3,
               textAlign: "center",
-              color: theme.palette.gray[200],
               wordBreak: "break-word",
               ...style?.tagline,
             }}

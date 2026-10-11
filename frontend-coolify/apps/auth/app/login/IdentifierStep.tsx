@@ -9,7 +9,6 @@ import {
   ProgressUI,
   DisplayList as CountryList,
   UIGuide as CredentialGuide,
-  SVGWrapper,
   AnchorLink,
   TransText,
   AppLogo,
@@ -27,10 +26,9 @@ import {
 } from "@repo/core";
 import { useIdentifier } from "./hooks/useIdentifier";
 import { LoginProps } from "../types";
-import { asset } from "@repo/assets";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useLogin } from "./hooks/useLogin";
-import { useOAuth } from "../oauth/useOauth";
+import { OAuthProviders } from "../oauth/Providers";
 
 export const IdentifierStep: React.FC<LoginProps> = ({
   setStep,
@@ -43,12 +41,6 @@ export const IdentifierStep: React.FC<LoginProps> = ({
   const { translateTxtString } = useStaticTranslation();
   const { INPUT_GUIDES } = useGuides();
   const { handleResetPassClick } = useLogin({});
-
-  const { handleGoogleRedirectSignIn, handleAppleSignIn, isOAuthLoading } =
-    useOAuth({
-      purpose: "LOGIN",
-      autoPromptGoogle: true,
-    });
 
   const inlineTxtStyle = useMemo(
     () => ({
@@ -73,7 +65,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
     isSubmitDisabled,
     countryMenuRef,
     validateAndSet,
-    handleSignupClick,
+    handleAnchorNavigation,
     inlineMsg,
   } = useIdentifier({
     existingInput,
@@ -83,11 +75,12 @@ export const IdentifierStep: React.FC<LoginProps> = ({
     handleResetPassClick,
   });
 
-  const isGlobalLoading = isAuthLoading || isOAuthLoading;
-
   return (
-    <Stack gap={theme.gap(8)}>
-      <AppLogo color={theme.palette.gray[300]} sx={{ alignSelf: "center" }} />
+    <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
+      <AppLogo
+        color={theme.palette.gray[300]}
+        sx={{ alignSelf: "center", marginBottom: theme.boxSpacing(10) }}
+      />
       <Stack
         gap={theme.gap(8)}
         sx={{
@@ -108,13 +101,25 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           }}
         />
         <TransText
-          {...COMMON_FEEDBACK.user_terms_agreement}
+          {...COMMON_FEEDBACK.user_terms_agreement_login}
           inlineComponents={{
             agreement: (
-              <AnchorLink href="/user-agreement" style={inlineTxtStyle} />
+              <AnchorLink
+                href={CLIENT_ROUTES.terms.path}
+                onClick={(e: React.MouseEvent) =>
+                  handleAnchorNavigation?.(e, CLIENT_ROUTES.terms)
+                }
+                style={inlineTxtStyle}
+              />
             ),
             policy: (
-              <AnchorLink href="/privacy-policy" style={inlineTxtStyle} />
+              <AnchorLink
+                href={CLIENT_ROUTES.privacy.path}
+                onClick={(e: React.MouseEvent) =>
+                  handleAnchorNavigation?.(e, CLIENT_ROUTES.privacy)
+                }
+                style={inlineTxtStyle}
+              />
             ),
           }}
           sx={{
@@ -127,42 +132,12 @@ export const IdentifierStep: React.FC<LoginProps> = ({
         />
       </Stack>
 
-      {/* 3rd party sign in */}
-      <Stack direction="row">
-        <AppButton
-          variant="outlined"
-          onClick={handleGoogleRedirectSignIn}
-          style={{
-            gap: theme.gap(4),
-            width: "100%",
-          }}
-          options={{ disabled: isGlobalLoading }}
-        >
-          <SVGWrapper
-            src={asset.googleLogo}
-            size={20}
-            fallbackUIType="SKELETON"
-          />
-          Google
-        </AppButton>
-        <AppButton
-          variant="outlined"
-          onClick={handleAppleSignIn}
-          style={{
-            gap: theme.gap(4),
-            width: "100%",
-          }}
-          options={{ disabled: isGlobalLoading }}
-        >
-          <SVGWrapper
-            src={asset.appleLogo}
-            size={20}
-            color={theme.palette.gray[300]}
-            fallbackUIType="SKELETON"
-          />
-          Apple
-        </AppButton>
-      </Stack>
+      {/* Third Party Providers */}
+      <OAuthProviders
+        purpose="LOGIN"
+        autoPromptGoogle={true}
+        isAppAuthLoading={isAuthLoading}
+      />
 
       <Divider
         sx={{
@@ -218,7 +193,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
               borderRadius: 0,
               "& svg": { width: "16px", height: "16px" },
             },
-            container: {
+            wrapper: {
               padding: 0,
             },
           }}
@@ -236,7 +211,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           style={{
             width: "100%",
           }}
-          options={{ disabled: isSubmitDisabled || isGlobalLoading }}
+          options={{ disabled: isSubmitDisabled || isAuthLoading }}
         >
           {isAuthLoading ? (
             <ProgressUI options={{ size: 25 }} />
@@ -256,7 +231,9 @@ export const IdentifierStep: React.FC<LoginProps> = ({
             anchor: (
               <AnchorLink
                 href={CLIENT_ROUTES.signup.path}
-                onClick={handleSignupClick}
+                onClick={(e: React.MouseEvent) =>
+                  handleAnchorNavigation?.(e, CLIENT_ROUTES.signup)
+                }
                 style={{
                   ...inlineTxtStyle,
                 }}

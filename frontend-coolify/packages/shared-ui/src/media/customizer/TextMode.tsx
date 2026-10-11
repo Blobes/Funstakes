@@ -88,7 +88,7 @@ export const TextMode = ({
               border: isFocused
                 ? `1.5px dashed ${theme.palette.primary.main}`
                 : "1.5px solid transparent",
-              borderRadius: theme.radius.base,
+              borderRadius: theme.radius[8],
               padding: theme.boxSpacing(1, 3),
               backgroundColor: colorCfg.backgroundColor,
               transition: "border 0.2s ease, background-color 0.2s ease",

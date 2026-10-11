@@ -3,12 +3,12 @@
 import React from "react";
 import { IconButton } from "@mui/material";
 import { MessageCircle } from "lucide-react";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 
 export interface ReplyProps {
   onClick?: () => void;
   size?: number;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const ReplyButton = ({ onClick, size = 24, style }: ReplyProps) => (
@@ -23,7 +23,8 @@ export const ReplyButton = ({ onClick, size = 24, style }: ReplyProps) => (
         background: "none",
       },
       ...style,
-    }}>
+    }}
+  >
     <MessageCircle size={size} />
   </IconButton>
 );

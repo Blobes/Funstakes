@@ -113,7 +113,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
               background: theme.fixedColors.pTrans,
               alignSelf: "center",
               padding: theme.boxSpacing(3, 5),
-              borderRadius: theme.radius[2],
+              borderRadius: theme.radius[8],
               textAlign: "center",
               fontWeight: 700,
             }}
@@ -139,7 +139,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
               detailVisuals={passwordVisualStates}
               containerStyle={{
                 backgroundColor: theme.palette.gray.trans[1],
-                borderRadius: theme.radius[2],
+                borderRadius: theme.radius[8],
               }}
             />
           }

@@ -18,19 +18,20 @@ export const UpdatesCarousel = () => {
   if (!authUser) {
     return null;
   }
-  const { firstName } = authUser;
+  const { displayName } = authUser;
   return (
     <Stack
       sx={{
         backgroundColor: theme.palette.gray.trans[1],
-        borderRadius: theme.radius[2],
+        borderRadius: theme.radius[8],
         flexDirection: "column",
         padding: theme.boxSpacing(6),
         gap: theme.gap(10),
         [theme.breakpoints.down("md")]: {
           margin: theme.boxSpacing(6),
         },
-      }}>
+      }}
+    >
       {/* Create field */}
       <Stack
         sx={{
@@ -38,7 +39,8 @@ export const UpdatesCarousel = () => {
           alignItems: "flex-start",
           justifyItems: "flex-start",
           gap: theme.gap(2),
-        }}>
+        }}
+      >
         <UserAvatar
           userInfo={authUser}
           style={{
@@ -48,7 +50,7 @@ export const UpdatesCarousel = () => {
         />
         <FormControl fullWidth>
           <ResponsiveTextarea
-            placeholder={`${firstName} express yourself today...`}
+            placeholder={`${displayName} express yourself today...`}
           />
         </FormControl>
       </Stack>
@@ -56,10 +58,11 @@ export const UpdatesCarousel = () => {
       <Stack
         sx={{
           paddingLeft: theme.boxSpacing(3),
-          borderRadius: theme.radius[2],
+          borderRadius: theme.radius[8],
           flexDirection: "row",
           alignItems: "center",
-        }}>
+        }}
+      >
         <AppButton
           variant="contained"
           size="small"
@@ -68,7 +71,8 @@ export const UpdatesCarousel = () => {
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
-          }}>
+          }}
+        >
           <Image size={20} />{" "}
           <TransText {...POST_BUTTON_LABELS.add_image} noComponent />
         </AppButton>
@@ -80,7 +84,8 @@ export const UpdatesCarousel = () => {
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
-          }}>
+          }}
+        >
           <Play size={20} />{" "}
           <TransText {...POST_BUTTON_LABELS.add_video} noComponent />
         </AppButton>

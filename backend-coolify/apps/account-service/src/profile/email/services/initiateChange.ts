@@ -1,6 +1,5 @@
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import {
-  evaluateNotability,
   genVerificationCode,
   hashCode,
   enqueueOtpTask,
@@ -9,6 +8,7 @@ import {
   fetchSingleUser,
   checkUserExists,
   checkOtpCooldown,
+  normalizeValue,
 } from "@repo/shared";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 
@@ -33,7 +33,7 @@ interface IInitiateEmailChangeResult {
   transInfo?: TransInfo;
   daysRemaining?: number;
   retryAfter?: number | null;
-  payload?: unknown;
+  payload?: any;
 }
 
 /**
@@ -116,7 +116,7 @@ export const startEmailChange = async (
     }
   }
 
-  const formattedEmail = newEmail.toLowerCase().trim();
+  const formattedEmail = normalizeValue(newEmail);
   if (user.email === formattedEmail) {
     return {
       status: "EMAIL_ALREADY_USED",
@@ -140,14 +140,6 @@ export const startEmailChange = async (
     };
   }
 
-  // Fetch verified profile status indicators from context targets
-  const fullName = `${user.firstName} ${user.lastName}`;
-  const notability = await evaluateNotability(
-    fullName,
-    formattedEmail,
-    user.phoneNumber || undefined,
-  );
-
   const code = genVerificationCode();
   const now = new Date();
 
@@ -155,14 +147,6 @@ export const startEmailChange = async (
   user.otpCode = hashCode(code);
   user.otpCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
   user.lastEmailOtpSentAt = now;
-
-  user.meritsVerification = notability.isVIPCandidate;
-  user.isNotable = notability.isVIPCandidate;
-  user.verificationSignals = {
-    hasWikipedia: notability.signals.notableName,
-    isVipEmail: notability.signals.proEmail,
-    isVipPhone: notability.signals.validPhone,
-  };
 
   await user.save();
 
@@ -172,7 +156,7 @@ export const startEmailChange = async (
       email: formattedEmail,
       code,
       type: "EMAIL",
-      firstName: user.firstName,
+      firstName: user.displayName,
       userIp,
     },
     FUNSTAKES_REDIS_URL,
@@ -184,7 +168,6 @@ export const startEmailChange = async (
     payload: {
       pendingEmail: user.pendingEmail,
       expiresAt: user.otpCodeExpiresAt,
-      meritsVerification: user.meritsVerification,
     },
   };
 };

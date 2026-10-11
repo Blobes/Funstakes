@@ -30,6 +30,8 @@
     "@socket.io/redis-emitter": "catalog:",
     "socket.io": "catalog:",
     "ioredis": "catalog:",
+    "disposable-email-domain": "catalog:",
+    "free-email-domains": "catalog:",
     "@socket.io/redis-adapter": "catalog:"
   },
   "devDependencies": {

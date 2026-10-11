@@ -32,6 +32,8 @@ catalog:
   ioredis: "5.10.1"
   socket.io: "^4.8.1"
   ua-parser-js: "2.0.9"
+  disposable-email-domain: "^1.0.81"
+  free-email-domains: "^1.12.14"
   "fluent-ffmpeg": "^2.1.3"
   "@google-cloud/vision": ^4.3.2
   "@aws-sdk/client-s3": "3.1057.0"

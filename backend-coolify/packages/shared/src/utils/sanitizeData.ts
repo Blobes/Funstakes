@@ -97,8 +97,7 @@ export const toJwtUser = (
     sessionId,
     email: user.email,
     username: user.username,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    displayName: user.displayName,
     roles,
     permissions,
   };

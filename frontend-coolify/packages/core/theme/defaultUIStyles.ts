@@ -2,7 +2,6 @@
 
 import { Components, Theme } from "@mui/material/styles";
 import { CSS_VARS } from "../constants/cssVars";
-import { color } from "@mui/system";
 
 interface BaseStylesContainer {
   components: Components<Omit<Theme, "components">>;
@@ -336,7 +335,7 @@ const defaultUIStyles: BaseStylesContainer = {
           padding: theme.boxSpacing(3, 5),
           backgroundColor: CSS_VARS.color_fixed_gray800,
           color: CSS_VARS.color_fixed_gray50,
-          borderRadius: theme.radius[3],
+          borderRadius: theme.radius[12],
           boxShadow: "var(--mui-shadows-1)",
           maxWidth: 420,
           margin: theme.boxSpacing(0, 6),
@@ -391,7 +390,7 @@ const defaultUIStyles: BaseStylesContainer = {
       styleOverrides: {
         root: ({ theme }) => ({
           backgroundColor: CSS_VARS.color_fixed_primary_trans,
-          borderRadius: theme.radius[4],
+          borderRadius: theme.radius[16],
           boxShadow: "unset",
         }),
       },
@@ -407,7 +406,7 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiPaper: {
       defaultProps: { elevation: 8 },
       styleOverrides: {
-        root: ({ theme }) => ({ borderRadius: theme.radius[4] }),
+        root: ({ theme }) => ({ borderRadius: theme.radius[16] }),
         elevation: () => ({
           backgroundColor: CSS_VARS.color_gray0,
           backgroundImage:
@@ -427,7 +426,7 @@ const defaultUIStyles: BaseStylesContainer = {
       styleOverrides: {
         paper: ({ theme }) => ({
           backgroundColor: CSS_VARS.color_gray0,
-          borderRadius: theme.radius[4],
+          borderRadius: theme.radius[16],
         }),
       },
     },
@@ -478,7 +477,7 @@ const defaultUIStyles: BaseStylesContainer = {
               width: "100%",
               height: "100%",
               padding: theme.boxSpacing(3, 4),
-              borderRadius: theme.radius[1],
+              borderRadius: theme.radius[16],
               transform: "unset",
               pointerEvents: "none",
               opacity: 0,
@@ -509,7 +508,7 @@ const defaultUIStyles: BaseStylesContainer = {
           border: `1px solid ${CSS_VARS.color_gray100}`,
           cursor: "pointer",
           padding: theme.boxSpacing(7, 4, 7, 9),
-          borderRadius: theme.radius[4],
+          borderRadius: theme.radius[16],
           "&:hover": {
             border: `1px solid ${CSS_VARS.color_primary_main}`,
             opacity: 1,
@@ -559,7 +558,7 @@ const defaultUIStyles: BaseStylesContainer = {
               position: "absolute",
               color: CSS_VARS.color_gray200,
               transform: "translate(16px, 7px) scale(0.83)",
-              borderRadius: theme.radius[1],
+              borderRadius: theme.radius[16],
               padding: 0,
               "& .MuiInputLabel-asterisk": {
                 display: "none",
@@ -605,9 +604,9 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiOutlinedInput: {
       styleOverrides: {
         root: ({ theme }) => ({
-          maxWidth: "600px",
+          // maxWidth: "600px",
           minWidth: "150px",
-          borderRadius: theme.radius[4],
+          borderRadius: theme.radius[16],
           border: `1px solid ${CSS_VARS.color_gray_trans_2}`,
           backgroundColor: "transparent",
           padding: theme.boxSpacing(4.5, 5, 4.5, 0),

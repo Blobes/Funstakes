@@ -13,6 +13,7 @@
     "clean": "pnpm -r exec rm -rf .next dist out",
     "clean:workspaces": "pnpm -r exec rm -rf node_modules .next dist out && rm -rf node_modules",
     "trans:extract": "dotenv -e .env.development -- pnpm dlx tsx locale/extractor.ts",
+    "trans:merge": "dotenv -e .env.development -- pnpm dlx tsx locale/merger.ts",
     "trans:translate": "dotenv -e .env.development -- pnpm dlx tsx locale/translator.ts --mode=translate-only",
     "trans:upload": "dotenv -e .env.development -- pnpm dlx tsx locale/translator.ts --mode=upload-only",
     "trans:translate-upload": "dotenv -e .env.development -- pnpm dlx tsx locale/translator.ts --mode=translate-and-upload",

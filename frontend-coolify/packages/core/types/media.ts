@@ -1,7 +1,7 @@
 "use client";
 
 import { Dimensions, IMediaPayload, StorageProvider } from "./payloads/media";
-import { ElementPosition, GenericStyle } from "./ui-props";
+import { BaseStyleProps, ElementPosition, BaseStyleObj } from "./ui-props";
 
 export type CustomizerMode = "TEXT" | "STICKER" | "FILTER";
 export type MediaType = "IMAGE" | "VIDEO" | "GIF";
@@ -72,13 +72,9 @@ export interface IMedia extends IMediaPayload {
   viewMode?: "LIST" | "ISOLATED";
 }
 
-export interface MediaStyle {
-  container?: { base?: GenericStyle; smallScreen?: GenericStyle };
-  content?: GenericStyle;
-}
 export interface MediaProps extends IMedia {
   includeCustomizations?: boolean;
-  style?: MediaStyle;
+  style?: BaseStyleProps;
   onSingleTap?: (media?: IMedia) => void;
   onDoubleTap?: (media?: IMedia) => void;
 }

@@ -8,7 +8,7 @@ interface IFlatDictionary {
 }
 
 /**
- * Recursively flattens a nested object structure into dot-notated string key-value pairs.
+ * Flattens nested translation registries into dot-notated string key-value mappings.
  */
 const flattenObject = (obj: any, prefix = ""): IFlatDictionary => {
   let results: IFlatDictionary = {};
@@ -74,7 +74,7 @@ const flattenObject = (obj: any, prefix = ""): IFlatDictionary => {
 };
 
 /**
- * Reconstructs a deep nested object hierarchy out of dot-notated structural paths.
+ * Reconstructs nested objects from flat dot-notated string key representations.
  */
 const unflattenObject = (data: IFlatDictionary): any => {
   const result: any = {};
@@ -96,80 +96,105 @@ const unflattenObject = (data: IFlatDictionary): any => {
 };
 
 /**
- * Synchronizes key structures between the code registry definition and the translation json template.
+ * Extracts updated and deleted registry keys into updates.json for en:apimessage.
  */
-const syncMessages = (): void => {
-  const jsonFilePath = path.resolve(
+const extractMessageUpdates = (): void => {
+  const localeDirPath = path.resolve(
     process.cwd(),
-    "../frontend-coolify/locale/versions/en/apimessage.json",
+    "../frontend-coolify/locale",
   );
+  const jsonFilePath = path.join(localeDirPath, "versions/en/apimessage.json");
+  const updatesFilePath = path.join(localeDirPath, "versions/updates.json");
 
-  if (!fs.existsSync(jsonFilePath)) {
-    console.error(`Target JSON file not found at path: ${jsonFilePath}`);
-    process.exit(1);
+  if (!fs.existsSync(localeDirPath)) {
+    fs.mkdirSync(localeDirPath, { recursive: true });
   }
 
-  const rawJsonContent = fs.readFileSync(jsonFilePath, "utf-8").trim();
   let existingJsonStructure = {};
-
-  if (rawJsonContent) {
+  if (fs.existsSync(jsonFilePath)) {
     try {
-      existingJsonStructure = JSON.parse(rawJsonContent);
+      const rawJsonContent = fs.readFileSync(jsonFilePath, "utf-8").trim();
+      if (rawJsonContent) {
+        existingJsonStructure = JSON.parse(rawJsonContent);
+      }
     } catch (parseError) {
       console.warn(
-        `[WARNING]: Failed to parse ${jsonFilePath}. Initializing with blank structure.`,
+        `[WARNING]: Failed to parse ${jsonFilePath}. Reading as blank structure.`,
       );
-      existingJsonStructure = {};
+    }
+  }
+
+  let updatesJson: Record<string, any> = {};
+  if (fs.existsSync(updatesFilePath)) {
+    try {
+      const rawUpdates = fs.readFileSync(updatesFilePath, "utf-8").trim();
+      if (rawUpdates) {
+        updatesJson = JSON.parse(rawUpdates);
+      }
+    } catch {
+      updatesJson = {};
     }
   }
 
   const flattenedJson = flattenObject(existingJsonStructure);
   const flattenedRegistry = flattenObject(MESSAGES_REGISTRY);
+
   const updatedKeys: string[] = [];
   const addedKeys: string[] = [];
-  const synchronizedFlatResult: IFlatDictionary = {};
+  const deletedKeys: string[] = [];
+  const diffFlatResult: IFlatDictionary = {};
 
   for (const registryKey in flattenedRegistry) {
     const registryValue = flattenedRegistry[registryKey]!;
     if (registryKey in flattenedJson) {
       if (flattenedJson[registryKey] !== registryValue) {
-        synchronizedFlatResult[registryKey] = registryValue;
+        diffFlatResult[registryKey] = registryValue;
         updatedKeys.push(registryKey);
-      } else {
-        synchronizedFlatResult[registryKey] = flattenedJson[registryKey]!;
       }
     } else {
-      synchronizedFlatResult[registryKey] = registryValue;
+      diffFlatResult[registryKey] = registryValue;
       addedKeys.push(registryKey);
     }
   }
 
-  if (addedKeys.length === 0 && updatedKeys.length === 0) {
+  for (const jsonKey in flattenedJson) {
+    if (!(jsonKey in flattenedRegistry)) {
+      deletedKeys.push(jsonKey);
+    }
+  }
+
+  if (
+    addedKeys.length === 0 &&
+    updatedKeys.length === 0 &&
+    deletedKeys.length === 0
+  ) {
     console.log(
-      "Translation key maps are fully synchronized. No changes needed.",
+      "Registry and locale templates are synchronized. No updates added.",
     );
     return;
   }
 
-  const updatedNestedStructure = unflattenObject(synchronizedFlatResult);
+  updatesJson["en"] = updatesJson["en"] || {};
+
+  if (Object.keys(diffFlatResult).length > 0) {
+    updatesJson["en"]["apimessage"] = unflattenObject(diffFlatResult);
+  }
+
+  if (deletedKeys.length > 0) {
+    updatesJson["en"]["_deletedKeys"] = updatesJson["en"]["_deletedKeys"] || {};
+    updatesJson["en"]["_deletedKeys"]["apimessage"] = deletedKeys;
+  }
+
+  fs.mkdirSync(path.dirname(updatesFilePath), { recursive: true });
   fs.writeFileSync(
-    jsonFilePath,
-    JSON.stringify(updatedNestedStructure, null, 2),
+    updatesFilePath,
+    JSON.stringify(updatesJson, null, 2),
     "utf-8",
   );
 
   console.log(
-    `Synchronization complete: Added ${addedKeys.length} keys, Updated ${updatedKeys.length} altered keys.`,
+    `Extraction complete: Staged ${addedKeys.length} added, ${updatedKeys.length} updated, and ${deletedKeys.length} deleted keys into updates.json. Original en/apimessage.json left untouched until merge.`,
   );
-
-  if (addedKeys.length > 0) {
-    console.log("\n[ADDED KEYS]:");
-    addedKeys.forEach((key) => console.log(`  + ${key}`));
-  }
-  if (updatedKeys.length > 0) {
-    console.log("\n[UPDATED KEYS]:");
-    updatedKeys.forEach((key) => console.log(`  ~ ${key}`));
-  }
 };
 
-syncMessages();
+extractMessageUpdates();

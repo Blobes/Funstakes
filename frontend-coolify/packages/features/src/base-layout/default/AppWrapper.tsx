@@ -6,10 +6,10 @@ import { LeftNav } from "./LeftNav";
 import { useTheme } from "@mui/material/styles";
 import { BottomNav } from "./BottomNav";
 import { RootUIContainer } from "@repo/shared-ui";
-import { AppHeader } from "./Header";
 import { scrollBarStyle } from "@repo/helpers";
 import { useMisc } from "@repo/shared-hooks";
 import { useGlobalStore } from "@repo/core";
+import { AppHeader } from "./Header";
 
 interface WrapperProps {
   children: React.ReactNode;
@@ -35,7 +35,8 @@ export const DefaultWrapper = ({
             gap: theme.gap(0),
             overflowY: "hidden",
             flexDirection: "column",
-          }}>
+          }}
+        >
           {!hideHeader && <AppHeader />}
           <Stack
             sx={{
@@ -46,7 +47,8 @@ export const DefaultWrapper = ({
               flexDirection: "row",
               width: "100%",
               ...scrollBarStyle(theme),
-            }}>
+            }}
+          >
             <LeftNav />
             {children}
           </Stack>
@@ -66,7 +68,8 @@ export const DefaultWrapper = ({
             flexDirection: "column",
             paddingBottom: theme.boxSpacing(23),
             ...scrollBarStyle(theme),
-          }}>
+          }}
+        >
           {!hideHeader && <AppHeader scrollRef={scrollRef} />}
           {children}
           <BottomNav scrollRef={scrollRef} />
@@ -86,7 +89,8 @@ export const DefaultWrapper = ({
               alignItems: "center",
             },
             ...scrollBarStyle(theme),
-          }}>
+          }}
+        >
           {!hideHeader && <AppHeader />}
           {children}
         </Stack>

@@ -50,18 +50,20 @@ export const FilterMode = ({
             key={item.type}
             alignItems="center"
             onClick={() => handleSelectFilter(item.type)}
-            sx={{ cursor: "pointer" }}>
+            sx={{ cursor: "pointer" }}
+          >
             <Box
               sx={{
                 width: 56,
                 height: 56,
-                borderRadius: theme.radius.base,
+                borderRadius: theme.radius[8],
                 overflow: "hidden",
                 border: isSelected
                   ? `2px solid ${theme.palette.primary.main}`
                   : "2px solid transparent",
                 transition: "all 0.2s ease-in-out",
-              }}>
+              }}
+            >
               <img
                 src={mediaUrl}
                 alt={item.label}
@@ -80,7 +82,8 @@ export const FilterMode = ({
                   ? theme.palette.gray[0]
                   : theme.palette.gray[100],
                 marginTop: theme.boxSpacing(1),
-              }}>
+              }}
+            >
               {item.label}
             </TransText>
           </Stack>

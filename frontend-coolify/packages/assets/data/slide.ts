@@ -17,7 +17,7 @@ export const BG_SLIDER_DATA = (
       tagline: translate(COMMON_CAROUSEL.marketing001.slide1_tagline),
       media: {
         _id: "m1",
-        url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+        url: asset.marketingImg1,
         type: "IMAGE",
       },
     },
@@ -38,7 +38,7 @@ export const BG_SLIDER_DATA = (
       tagline: translate(COMMON_CAROUSEL.marketing001.slide3_tagline),
       media: {
         _id: "m3",
-        url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+        url: asset.marketingImg2,
         type: "IMAGE",
       },
     },
@@ -48,7 +48,7 @@ export const BG_SLIDER_DATA = (
       tagline: translate(COMMON_CAROUSEL.marketing001.slide4_tagline),
       media: {
         _id: "m4",
-        url: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
+        url: asset.marketingImg3,
         type: "IMAGE",
       },
     },

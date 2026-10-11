@@ -1,4 +1,4 @@
-import { UserSettingsModel } from "@repo/database";
+import { UserSettingsModel, USER_SETTINGS_NESTED_FIELDS } from "@repo/database";
 import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { ClientSession } from "mongoose";
 
@@ -44,37 +44,44 @@ export const executeDisplaySettingsUpdate = async (
   const updateOps: Record<string, unknown> = {};
 
   if (theme) {
-    updateOps["display.theme"] = theme;
+    updateOps[USER_SETTINGS_NESTED_FIELDS.DISPLAY_THEME] = theme;
   }
 
   if (typeof showSensitiveMedia === "boolean") {
-    updateOps["display.showSensitiveMedia"] = showSensitiveMedia;
+    updateOps[USER_SETTINGS_NESTED_FIELDS.DISPLAY_SHOW_SENSITIVE_MEDIA] =
+      showSensitiveMedia;
   }
 
   if (accessibility) {
     if (typeof accessibility.reduceMotion === "boolean") {
-      updateOps["display.accessibility.reduceMotion"] =
-        accessibility.reduceMotion;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.DISPLAY_ACCESSIBILITY_REDUCE_MOTION
+      ] = accessibility.reduceMotion;
     }
     if (typeof accessibility.highContrast === "boolean") {
-      updateOps["display.accessibility.highContrast"] =
-        accessibility.highContrast;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.DISPLAY_ACCESSIBILITY_HIGH_CONTRAST
+      ] = accessibility.highContrast;
     }
     if (typeof accessibility.fontScale === "number") {
-      updateOps["display.accessibility.fontScale"] = accessibility.fontScale;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.DISPLAY_ACCESSIBILITY_FONT_SCALE] =
+        accessibility.fontScale;
     }
     if (accessibility.autoPlayMedia) {
-      updateOps["display.accessibility.autoPlayMedia"] =
-        accessibility.autoPlayMedia;
+      updateOps[
+        USER_SETTINGS_NESTED_FIELDS.DISPLAY_ACCESSIBILITY_AUTO_PLAY_MEDIA
+      ] = accessibility.autoPlayMedia;
     }
   }
 
   if (localization) {
     if (localization.language) {
-      updateOps["display.localization.language"] = localization.language;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.DISPLAY_LOCALIZATION_LANGUAGE] =
+        localization.language;
     }
     if (localization.currency) {
-      updateOps["display.localization.currency"] = localization.currency;
+      updateOps[USER_SETTINGS_NESTED_FIELDS.DISPLAY_LOCALIZATION_CURRENCY] =
+        localization.currency;
     }
   }
 
@@ -91,7 +98,7 @@ export const executeDisplaySettingsUpdate = async (
     { new: true, upsert: true, runValidators: true, session },
   )
     .select(
-      "display.theme display.showSensitiveMedia display.accessibility display.localization",
+      `${USER_SETTINGS_NESTED_FIELDS.DISPLAY_THEME} ${USER_SETTINGS_NESTED_FIELDS.DISPLAY_SHOW_SENSITIVE_MEDIA} ${USER_SETTINGS_NESTED_FIELDS.DISPLAY_ACCESSIBILITY} ${USER_SETTINGS_NESTED_FIELDS.DISPLAY_LOCALIZATION}`,
     )
     .lean();
 

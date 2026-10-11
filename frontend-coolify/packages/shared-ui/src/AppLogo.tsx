@@ -31,7 +31,7 @@ export const AppLogo = ({
   ) : (
     <SVGWrapper
       src={asset.appLogoSymbol}
-      color={color ?? theme.palette.primary.dark}
+      color={color ?? theme.palette.gray[300]}
       size={size}
       fallbackUIType="SKELETON"
       sx={{

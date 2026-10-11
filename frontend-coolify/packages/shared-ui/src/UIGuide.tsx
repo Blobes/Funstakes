@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getFramerVariants } from "@repo/helpers";
 import {
   COMMON_BUTTON_LABELS,
-  GenericStyle,
+  BaseStyleObj,
   Guide,
   TourGuide,
 } from "@repo/core";
@@ -24,7 +24,7 @@ interface GuideProps {
     icon?: React.ReactElement;
     textColor?: string;
   }[];
-  containerStyle?: GenericStyle;
+  containerStyle?: BaseStyleObj;
 }
 
 /**
@@ -41,7 +41,8 @@ export const UIGuide = ({
   return (
     <Stack
       gap={theme.gap(4)}
-      sx={{ padding: theme.boxSpacing(6), ...containerStyle }}>
+      sx={{ padding: theme.boxSpacing(6), ...containerStyle }}
+    >
       {guides.map((guide) => {
         const hasMultiple = guide.guideDetails.length > 1;
         const useList = hasMultiple && guide.displayAsList;
@@ -66,7 +67,8 @@ export const UIGuide = ({
                 flexDirection: "column",
                 gap: theme.gap(2),
                 listStyle: "none",
-              }}>
+              }}
+            >
               {guide.guideDetails.map((item) => {
                 const matchedVisual = detailVisuals.find(
                   (v) => v.id === item.id,
@@ -92,7 +94,8 @@ export const UIGuide = ({
                         stroke: activeColor,
                         marginTop: theme.gap(1),
                       },
-                    }}>
+                    }}
+                  >
                     {/* Render active status icon or fallback to structural list bullet indicator */}
                     {activeIcon
                       ? activeIcon
@@ -124,7 +127,8 @@ export const UIGuide = ({
                           ...theme.typography.text4,
                           width: "100%",
                           margin: 0,
-                        }}>
+                        }}
+                      >
                         {item.detail}
                       </TransText>
                     ) : (
@@ -186,7 +190,7 @@ export const UserTourGuide = ({
             _id={step.media._id}
             url={step.media.url}
             style={{
-              container: {
+              wrapper: {
                 base: {
                   width: "100%",
                   borderRadius: "8px",
@@ -241,7 +245,8 @@ export const UserTourGuide = ({
           borderRadius: "20px",
           border: `1px solid ${theme.palette.gray.trans[1]}`,
           pointerEvents: "auto",
-        }}>
+        }}
+      >
         <Stack gap={4}>
           <Stepper
             steps={formattedSteps}
@@ -252,13 +257,15 @@ export const UserTourGuide = ({
           <Stack
             direction="row"
             justifyContent="space-between"
-            alignItems="center">
+            alignItems="center"
+          >
             <TransText
               sx={{
                 ...theme.typography.text5,
                 fontWeight: 500,
                 opacity: 0.6,
-              }}>
+              }}
+            >
               {activeIndex + 1} / {steps.length}
             </TransText>
 
@@ -270,7 +277,8 @@ export const UserTourGuide = ({
                   style={{
                     color: theme.palette.gray[200],
                     textTransform: "none",
-                  }}>
+                  }}
+                >
                   <TransText {...COMMON_BUTTON_LABELS.skip} noComponent />
                 </AppButton>
               )}
@@ -280,7 +288,8 @@ export const UserTourGuide = ({
                 onClick={handleNext}
                 style={{
                   width: "100%",
-                }}>
+                }}
+              >
                 <TransText
                   {...COMMON_BUTTON_LABELS.active_view(
                     activeIndex === steps.length - 1 ? "Finish" : "Next",

@@ -4,7 +4,7 @@
 
 @user1ID = 69c574998b204a8d93f5783d
 @user1Email = officialblobes@gmail.con
-@user1Phone = +234805658530
+@user1Phone = +2348057658530
 @authToken = Bearer YOUR_ACCESS_TOKEN_HERE
 @refreshToken = YOUR_REFRESH_TOKEN_HERE
 @deviceId = 66e8b418a2e1e24749f91a12
@@ -100,12 +100,12 @@ Authorization: {{authToken}}
 Content-Type: application/json
 
 ### Send OTP
-POST {{baseUrl}}/auth/otp/send-msg-code
+POST {{baseUrl}}/auth/otp/send
 Content-Type: application/json
 
 {
-  "recipient": "{{user1Email}}",
-  "channel": "EMAIL"
+  "recipient": "8086905260",
+  "messageChannel": "WHATSAPP"
 }
 
 ### Verify OTP

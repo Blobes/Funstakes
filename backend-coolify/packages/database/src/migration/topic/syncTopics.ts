@@ -3,7 +3,7 @@ import mongoose, {
   ClientSession,
   Types,
 } from "mongoose";
-import { SEED_TOPICS } from "../../constants/topics";
+import { SEED_TOPICS } from "../../constants/others";
 import { TopicModel } from "../../models/non-entities/topic";
 import { ITopicDocument } from "../../types/others";
 

@@ -62,7 +62,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
         ...theme.typography.text4,
         width: "100%",
         padding: theme.boxSpacing(4, 5),
-        borderRadius: theme.radius[3],
+        borderRadius: theme.radius[12],
         border: `1px solid ${type === "SUCCESS" ? theme.palette.gray.trans[1] : theme.palette.error.trans[1]}`,
         scrollMarginTop: theme.gap(70),
         display: "flex",

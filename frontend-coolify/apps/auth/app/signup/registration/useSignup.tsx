@@ -8,7 +8,7 @@ import {
   useEmailInputValidation,
   usePhoneInputValidation,
 } from "@repo/shared-hooks";
-import { CLIENT_ROUTES, ApiError } from "@repo/core";
+import { ApiError, IPage } from "@repo/core";
 import { sanitizePhoneNumber } from "@repo/helpers";
 import { SignupService } from "../service";
 import { useSignupFeedback } from "./useFeedback";
@@ -95,12 +95,12 @@ export const useSignup = () => {
   }, [isEmailValid, isPasswordValid, isPhoneValid]);
 
   /**
-   * Navigates user to login route.
+   * Handles hyperlink navigations.
    */
-  const handleLoginClick = useCallback(
-    (e: React.MouseEvent) => {
+  const handleAnchorNavigation = useCallback(
+    (e: React.MouseEvent, page: IPage) => {
       clearInlineMsg();
-      navigateTo(CLIENT_ROUTES.login, { event: e });
+      navigateTo(page, { event: e });
     },
     [navigateTo, clearInlineMsg],
   );
@@ -136,7 +136,7 @@ export const useSignup = () => {
       emailValidity === "INVALID" ||
       phoneValidity === "INVALID",
     inlineMsg,
-    handleLoginClick,
+    handleAnchorNavigation,
     clearInlineMsg,
   };
 };

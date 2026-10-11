@@ -1,14 +1,15 @@
 import {
-  evaluateNotability,
   TransInfo,
   MESSAGES_REGISTRY,
   fetchSingleUser,
+  userSensitiveFields,
+  sanitizeUserResult,
+  fetchExternalPublicFigure,
 } from "@repo/shared";
 
-interface IUpdateBasicInfoInput {
+export interface IUpdateBasicInfoInput {
   authUserId: string;
-  firstName?: string;
-  lastName?: string;
+  displayName?: string;
   about?: string;
   interests?: string[];
   website?: string;
@@ -19,7 +20,7 @@ interface IUpdateBasicInfoResult {
   status: "SUCCESS" | "NOT_FOUND";
   transInfo: TransInfo;
   payload?: unknown;
-  requiresIdVerification?: boolean;
+  isPotentialPublicFigure?: boolean;
 }
 
 /**
@@ -28,15 +29,8 @@ interface IUpdateBasicInfoResult {
 export const updateAccountBasicInfo = async (
   input: IUpdateBasicInfoInput,
 ): Promise<IUpdateBasicInfoResult> => {
-  const {
-    authUserId,
-    firstName,
-    lastName,
-    about,
-    interests,
-    website,
-    occupation,
-  } = input;
+  const { authUserId, displayName, about, interests, website, occupation } =
+    input;
 
   const user = await fetchSingleUser({
     identifier: authUserId,
@@ -50,55 +44,41 @@ export const updateAccountBasicInfo = async (
     };
   }
 
-  // Recalculate background profiling parameters if structural identity metrics mutate
-  let isVIPCandidate = false;
+  let isPotentialPublicFigure = false;
+  if (!user.isOnboarded) {
+    const updatedDisplayName = displayName || user.displayName;
 
-  const isFirstNameChanged =
-    firstName !== undefined && firstName !== user.firstName;
-  const isLastNameChanged =
-    lastName !== undefined && lastName !== user.lastName;
+    const external = await fetchExternalPublicFigure({
+      displayName: updatedDisplayName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+    });
+    const signals = external.data?.signals;
+    const notabilityScore = external.data?.notabilityScore || 0;
+    isPotentialPublicFigure = notabilityScore >= 60 ? true : false;
 
-  if (isFirstNameChanged || isLastNameChanged) {
-    const updatedFirstName = firstName || user.firstName;
-    const updatedLastName = lastName || user.lastName;
-    const fullName = `${updatedFirstName} ${updatedLastName}`;
-
-    const notability = await evaluateNotability(
-      fullName,
-      user.email,
-      user.phoneNumber || undefined,
-    );
-    isVIPCandidate = notability.isVIPCandidate;
-
-    user.meritsVerification = notability.isVIPCandidate;
-    user.isNotable = notability.isVIPCandidate;
-    user.verificationSignals = {
-      hasWikipedia: notability.signals.notableName,
-      isVipEmail: notability.signals.proEmail,
-      isVipPhone: notability.signals.validPhone,
+    user.publicFigureInfo = {
+      isEligible: isPotentialPublicFigure,
+      signals,
     };
   }
 
-  if (firstName) user.firstName = firstName;
-  if (lastName) user.lastName = lastName;
+  if (displayName) user.displayName = displayName;
   if (about !== undefined) user.about = about;
-  if (interests !== undefined) user.interests = interests;
   if (website !== undefined) user.website = website;
   if (occupation !== undefined) user.occupation = occupation;
 
+  // if (interests !== undefined) user.interests = interests; Will update later in the user settings model
+
   await user.save();
 
-  // Fetch lean sanitized profile snapshot directly through shared helper
-  const updatedLeanUser = await fetchSingleUser({
-    identifier: authUserId,
-    flags: { lean: true, includeSensitiveFields: false },
-  });
+  const safeData = sanitizeUserResult(user, userSensitiveFields());
 
   return {
     status: "SUCCESS",
     transInfo:
       MESSAGES_REGISTRY.PROFILE.USER_BASIC_DETAILS_UPDATED_SUCCESSFULLY,
-    payload: updatedLeanUser,
-    requiresIdVerification: isVIPCandidate,
+    payload: safeData,
+    isPotentialPublicFigure,
   };
 };

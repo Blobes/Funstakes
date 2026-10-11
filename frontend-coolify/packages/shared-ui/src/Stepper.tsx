@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GenericStyle, IStep } from "@repo/core";
+import { BaseStyleProps, IStep } from "@repo/core";
 import { IconButton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { BasicTooltip } from "./Tooltips";
@@ -13,7 +13,7 @@ interface StepperProps<T> {
   steps: IStep<T>[];
   currStep: string;
   setCurrStep: (val: any) => void;
-  style?: GenericStyle;
+  style?: BaseStyleProps;
 }
 
 export const Stepper = <T,>({
@@ -35,7 +35,7 @@ export const Stepper = <T,>({
         gap: theme.gap(18),
         width: "100%",
         alignItems: "center",
-        ...style,
+        ...style?.wrapper,
       }}
     >
       <AnimatePresence mode="wait">
@@ -46,7 +46,13 @@ export const Stepper = <T,>({
             ease: "easeInOut",
             xOffset: 10,
           })}
-          style={{ display: "flex", width: "100%", justifyContent: "center" }}
+          style={{
+            display: "flex",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            ...(style.targetContent as any),
+          }}
         >
           {activeStep.element}
         </motion.div>

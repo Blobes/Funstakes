@@ -26,7 +26,6 @@ const startServer = async () => {
     // initUserCleanup()
     // initTopicCleanup();
     // initUserTopicCleanup();
-    // startEligibilityWorker()
 
     appLoader(app);
 

@@ -163,7 +163,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
                   backgroundColor: theme.palette.gray[50],
                   color: theme.palette.gray[300],
                   fontWeight: 500,
-                  borderRadius: theme.radius[1],
+                  borderRadius: theme.radius[16],
                   "& .MuiChip-deleteIcon": {
                     color: theme.palette.error.light,
                     "&:hover": { color: theme.palette.error.main },
@@ -195,7 +195,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
             borderRadius: 0,
             "& svg": { width: "16px", height: "16px" },
           },
-          container: {
+          wrapper: {
             padding: 0,
           },
         }}

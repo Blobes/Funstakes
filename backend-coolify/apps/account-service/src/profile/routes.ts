@@ -12,8 +12,8 @@ import { finalizeEmailChange } from "./email/controllers/finalizeChange";
 import { finalizePhoneChange } from "./phone/controllers/finalizeChange";
 import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { getUserProfile } from "./info/controllers/getProfile";
-import { changeAccountStatus } from "./account/accountStatus";
-import { deleteAccount } from "./account/deleteAccount";
+import { changeAccountStatus } from "../identity/account/accountStatus";
+import { deleteAccount } from "../identity/account/deleteAccount";
 import { initiatePasswordReset } from "./password/controllers/initiateReset";
 import { initiateEmailChange } from "./email/controllers/initiateChange";
 import { initiatePhoneChange } from "./phone/controllers/initiateChange";
@@ -37,8 +37,8 @@ import {
   checkAccountRestriction,
 } from "@repo/security";
 import { COMMUNITY_ROLES, PERMISSIONS, PLATFORM_ROLES } from "@repo/database";
-import { reviewKyc } from "./kyc/controllers/reviewKyc";
-import { submitKyc } from "./kyc/controllers/submitKyc";
+import { reviewKyc } from "../identity/kyc/controllers/reviewKyc";
+import { submitKyc } from "../identity/kyc/controllers/submitKyc";
 
 const router: Router = express.Router();
 

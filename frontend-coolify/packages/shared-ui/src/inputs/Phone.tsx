@@ -179,7 +179,7 @@ export const PhoneInput = ({
               borderRadius: 0,
               "& svg": { width: "16px", height: "16px" },
             },
-            container: {
+            wrapper: {
               padding: 0,
             },
           }}

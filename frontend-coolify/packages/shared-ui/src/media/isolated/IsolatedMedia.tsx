@@ -5,7 +5,7 @@ import { Box, Stack, Fade } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   COMMON_MEDIA,
-  GenericStyle,
+  BaseStyleObj,
   IMedia,
   MediaSourceType,
 } from "@repo/core";
@@ -26,7 +26,7 @@ export interface IsolatedProps {
   isDesktop?: boolean;
   onDoubleTap?: () => void;
   onBackClick?: () => void;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   hideInfo?: boolean;
   initialIndex?: number;
 }
@@ -62,7 +62,7 @@ export const IsolatedMedia = ({
     <MediaRenderer
       key={media._id}
       media={media}
-      style={{ content: { maxHeight: isDesktop ? "80svh" : "60svh" } }}
+      style={{ targetContent: { maxHeight: isDesktop ? "80svh" : "60svh" } }}
     />
   ));
 
@@ -89,7 +89,8 @@ export const IsolatedMedia = ({
         mx: "auto",
         position: "relative",
         ...style,
-      }}>
+      }}
+    >
       <Stack sx={{ flex: 1, width: "100%", position: "relative" }}>
         {/* Immersive Counter Overlay */}
         {mediaList.length > 1 && !hideInfo && (
@@ -104,7 +105,8 @@ export const IsolatedMedia = ({
               px: 1.5,
               py: 0.5,
               borderRadius: 10,
-            }}>
+            }}
+          >
             <TransText
               {...COMMON_MEDIA.gallery_counter(
                 activeIndex + 1,

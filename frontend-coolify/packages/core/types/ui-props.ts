@@ -96,6 +96,56 @@ export interface DynamicTranslateRes {
   translatedText: string;
 }
 
+// ==========================================
+// CENTRALIZED STYLE INTERFACE
+// ==========================================
+export type BaseStyleObj = GenericStyle & {
+  base?: GenericStyle;
+  smScreen?: GenericStyle;
+  mdScreen?: GenericStyle;
+  lgScreen?: GenericStyle;
+  wrapper?: GenericStyle;
+  element?: GenericStyle;
+};
+export interface BaseStyleProps {
+  style?: BaseStyleObj;
+  wrapper?: BaseStyleObj;
+  targetContent?: BaseStyleObj;
+  viewport?: BaseStyleObj;
+
+  // Typography & Headers
+  headline?: BaseStyleObj;
+  tagline?: BaseStyleObj;
+  title?: BaseStyleObj;
+  body?: BaseStyleObj;
+  meta?: BaseStyleObj;
+  label?: BaseStyleObj;
+
+  // Navigation & Interactive Elements
+  item?: BaseStyleObj;
+  link?: BaseStyleObj;
+  icon?: BaseStyleObj;
+  searchBar?: BaseStyleObj;
+  arrowLeft?: BaseStyleObj;
+  arrowRight?: BaseStyleObj;
+  tracker?: BaseStyleObj;
+
+  // Actions & Controls
+  primaryCta?: BaseStyleObj;
+  secondaryCta?: BaseStyleObj;
+
+  // Overlays, Header & Details
+  overlay?: BaseStyleObj;
+  header?: BaseStyleObj;
+  details?: BaseStyleObj;
+
+  state?: {
+    default?: BaseStyleObj;
+    focused?: BaseStyleObj;
+    hover?: BaseStyleObj;
+  };
+}
+
 export interface DynamicTranslateFns {
   translateServiceFn: (
     data: DynamicTranslateReq,
@@ -175,16 +225,10 @@ export interface NavigationProps {
   jumpTo?: () => void;
 }
 
-export interface StepperStyle {
-  container?: GenericStyle;
-  headline?: GenericStyle;
-  tagline?: GenericStyle;
-}
-
 export interface StepperProps<T> extends NavigationProps {
   modalRef?: React.RefObject<OverlayRef>;
   redirectTo?: string;
-  style?: StepperStyle;
+  style?: BaseStyleProps;
   setStep?: (step: T) => void;
   step?: T;
 }
@@ -198,28 +242,12 @@ export interface OverlayRef {
   closeOverlay: () => void;
 }
 
-export interface OverlayStyleProps {
-  base?: {
-    overlay?: GenericStyle;
-    content?: GenericStyle;
-  };
-  smallScreen?: {
-    overlay?: GenericStyle;
-    content?: GenericStyle;
-  };
-  mediumScreen?: {
-    overlay?: GenericStyle;
-    content?: GenericStyle;
-  };
-  header?: GenericStyle;
-}
-
 export interface BaseOverlayProps {
   content: React.ReactNode;
   showHeader?: boolean;
   header?: React.ReactNode;
   onClose?: () => void;
-  style?: OverlayStyleProps;
+  style?: BaseStyleProps;
 }
 
 export interface ModalProps extends BaseOverlayProps {
@@ -327,20 +355,11 @@ export interface FeedbackCTA {
   href?: string;
 }
 
-export interface FeedbackStyle {
-  container?: GenericStyle;
-  headline?: GenericStyle;
-  tagline?: GenericStyle;
-  icon?: GenericStyle;
-  primaryCta?: GenericStyle;
-  secondaryCta?: GenericStyle;
-}
-
 export interface FeedbackProps {
   headline?: React.ReactNode;
   tagline?: React.ReactNode;
   icon?: React.ReactNode;
-  style?: FeedbackStyle;
+  style?: BaseStyleProps;
   primaryCta?: FeedbackCTA;
   secondaryCta?: FeedbackCTA;
 }
@@ -438,4 +457,24 @@ export interface IIdbData<T> {
   data: T;
   savedAt: Date | null;
   lastViewed?: Date | null;
+}
+
+export interface StaticContentBlock {
+  title: ITranslation;
+  paragraphs?: ITranslation[];
+  bullets?: ITranslation[];
+}
+
+export interface StaticContentSection extends StaticContentBlock {
+  id: string;
+  subsections?: StaticContentBlock[];
+}
+
+export type ScrollRefType = React.RefObject<HTMLDivElement | null>;
+export interface ScrollRefProps {
+  scrollRef?: ScrollRefType;
+}
+
+export interface StaticPageProps extends ScrollRefProps {
+  style?: BaseStyleProps;
 }

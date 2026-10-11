@@ -5,12 +5,12 @@ import {
   IAuthRequest,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
-import { TopicSourceType } from "@repo/database";
+import { ResourceType } from "@repo/database";
 
 interface CreateTopicsRequest extends IAuthRequest {
   body: {
     topics: string[];
-    createdByType?: TopicSourceType;
+    createdByType?: ResourceType;
   };
 }
 

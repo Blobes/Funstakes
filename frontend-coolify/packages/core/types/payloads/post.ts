@@ -23,9 +23,7 @@ export type PostType = "GIST" | "STAKE";
 export interface IPostAuthor {
   _id: string;
   username: string | null;
-  firstName: string;
-  lastName: string;
-  fullName: string;
+  displayName: string;
   profileImage: string | null;
   isFollowing?: boolean;
   followsMe?: boolean;

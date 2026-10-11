@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   ApiError,
@@ -8,19 +8,21 @@ import {
   AuthPurposeType,
   COMMON_BUTTON_LABELS,
   SERVER_API,
+  SNACKBAR_DURATION,
   useGlobalStore,
 } from "@repo/core";
 import {
   OAuthExchangeRequest,
   OAuthExchangeResponse,
+  OAuthProvider,
   OAuthService,
 } from "./service";
 import { useLoginFeedback } from "../login/hooks/useFeedback";
 import { useSignupFeedback } from "../signup/registration/useFeedback";
-import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
+import { useMisc, useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import { useSearchParams } from "next/navigation";
 import { usePopup } from "@repo/features";
-import { ConfirmAction } from "@repo/shared-ui";
+import { ConfirmAction, TransText } from "@repo/shared-ui";
 import { UserPlus } from "lucide-react";
 
 interface UseOAuthProps {
@@ -32,10 +34,30 @@ interface UseOAuthProps {
 
 export interface PendingOAuthAction {
   type: "CONFIRM_REGISTRATION" | "CONFIRM_LOGIN";
-  provider: "GOOGLE" | "APPLE";
+  provider: OAuthProvider;
   idToken: string;
   email: string;
 }
+
+const POPUP_WIDTH = 500;
+const POPUP_HEIGHT = 650;
+
+const DISABLE_OAUTH = true;
+
+const openOauthPopupWindow = (url: string, name: string): Window | null => {
+  const left = window.screenX + (window.outerWidth - POPUP_WIDTH) / 2;
+  const top = window.screenY + (window.outerHeight - POPUP_HEIGHT) / 2;
+  const features = [
+    `width=${POPUP_WIDTH}`,
+    `height=${POPUP_HEIGHT}`,
+    `left=${left}`,
+    `top=${top}`,
+    "resizable=yes",
+    "scrollbars=yes",
+    "status=no",
+  ].join(",");
+  return window.open(url, name, features);
+};
 
 /**
  * Orchestrates third-party OAuth provider initialization, One Tap popups, and full-page redirects.
@@ -46,15 +68,16 @@ export const useOAuth = ({
   setMsg,
   autoPromptGoogle = true,
 }: UseOAuthProps = {}) => {
-  const searchParams = useSearchParams();
   const { oauthPopupSignIn } = OAuthService();
   const { handleLoginSuccess, handleLoginError } = useLoginFeedback({});
   const { handleSignupSuccess, handleSignupError } = useSignupFeedback();
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const { closeModal } = useMisc();
+  const { setSBMessage } = useSnackbar();
   const setIsSpaLoading = useGlobalStore((state) => state.setIsSpaLoading);
   const [isSdkReady, setIsSdkReady] = useState(false);
+  const oauthPopupRef = useRef<Window | null>(null);
 
   // Holds pending confirmation details when flow state requires user intent conversion
   const [pendingOAuthAction, setPendingOAuthAction] =
@@ -129,6 +152,7 @@ export const useOAuth = ({
 
     // Reset pending action state and dismiss existing modal context before re-triggering mutation
     setPendingOAuthAction(null);
+
     closeModal();
 
     executeOAuthPopupSignIn({
@@ -136,7 +160,12 @@ export const useOAuth = ({
       idToken,
       purpose: targetPurpose,
     });
-  }, [setPendingOAuthAction, executeOAuthPopupSignIn, closeModal]);
+  }, [
+    setPendingOAuthAction,
+    executeOAuthPopupSignIn,
+    closeModal,
+    pendingOAuthAction,
+  ]);
 
   /**
    * Dismisses pending authorization confirmation state.
@@ -145,6 +174,13 @@ export const useOAuth = ({
     setPendingOAuthAction(null);
     closeModal();
   }, [closeModal]);
+
+  const closeOAuthPopup = useCallback(() => {
+    if (oauthPopupRef.current && !oauthPopupRef.current.closed) {
+      oauthPopupRef.current.close();
+    }
+    oauthPopupRef.current = null;
+  }, []);
 
   // Load Google and Apple Client SDK Scripts dynamically
   useEffect(() => {
@@ -215,28 +251,98 @@ export const useOAuth = ({
   ]);
 
   /**
-   * Triggers full-page Google OAuth authorization redirect.
+   * Opens centralized backend provider OAuth URL in popup.
    */
-  const handleGoogleRedirectSignIn = useCallback(() => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-    // window.open(
-    //   `${backendUrl}${SERVER_API.initiateGoogleOauth}`,
-    //   "_blank",
-    //   "noopener,noreferrer",
-    // );
-    window.location.href = `${backendUrl}${SERVER_API.initiateGoogleOauth}`;
-  }, []);
+  const openOAuthProviderPopup = useCallback(
+    (endpoint: string, popupName: string) => {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+      const url = `${backendUrl}${endpoint}`;
+
+      if (oauthPopupRef.current && !oauthPopupRef.current.closed) {
+        oauthPopupRef.current.focus();
+        return;
+      }
+      const popup = openOauthPopupWindow(url, popupName);
+      if (!popup) {
+        window.location.href = url;
+        return;
+      }
+      oauthPopupRef.current = popup;
+    },
+    [],
+  );
 
   /**
-   * Triggers native Apple Sign In authorization prompt.
+   * Triggers Google sign-in popup flow.
+   */
+  const handleGoogleSignIn = useCallback(() => {
+    openOAuthProviderPopup(
+      SERVER_API.initiateGoogleOauth,
+      "google_oauth_popup",
+    );
+  }, [openOAuthProviderPopup]);
+
+  /**
+   * Triggers Facebook sign-in popup flow.
+   */
+  const handleFacebookSignIn = useCallback(() => {
+    openOAuthProviderPopup(
+      SERVER_API.initiateFacebookOauth,
+      "facebook_oauth_popup",
+    );
+  }, [openOAuthProviderPopup]);
+
+  /**
+   * Triggers GitHub sign-in popup flow.
+   */
+  const handleGitHubSignIn = useCallback(() => {
+    openOAuthProviderPopup(
+      SERVER_API.initiateGithubOauth,
+      "github_oauth_popup",
+    );
+  }, [openOAuthProviderPopup]);
+
+  /**
+   * Triggers X (Twitter) sign-in popup flow.
+   */
+  const handleXSignIn = useCallback(() => {
+    openOAuthProviderPopup(SERVER_API.initiateXOauth, "x_oauth_popup");
+  }, [openOAuthProviderPopup]);
+
+  /**
+   * Triggers LinkedIn sign-in popup flow.
+   */
+  const handleLinkedInSignIn = useCallback(() => {
+    openOAuthProviderPopup(
+      SERVER_API.initiateLinkedinOauth,
+      "linkedin_oauth_popup",
+    );
+  }, [openOAuthProviderPopup]);
+
+  /**
+   * Triggers native Apple Signin authorization in-page popup prompt.
    */
   const handleAppleSignIn = useCallback(async () => {
+    if (DISABLE_OAUTH) {
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.oauth_provider_not_available("Apple"),
+          ),
+          msgStatus: "INFO",
+          duration: SNACKBAR_DURATION.SECS_6,
+        },
+      });
+      return;
+    }
+
     if (!window.AppleID?.auth) return;
 
+    if (!isSdkReady || !window.AppleID?.auth) return;
     window.AppleID.auth.init({
-      clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+      clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
       scope: "name email",
-      redirectURI: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI,
+      redirectURI: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI!,
       usePopup: true,
     });
 
@@ -257,12 +363,12 @@ export const useOAuth = ({
     } catch (error) {
       console.error("Apple Sign-In authorization failed:", error);
     }
-  }, [executeOAuthPopupSignIn, purpose]);
+  }, [executeOAuthPopupSignIn, purpose, isSdkReady]);
 
   /**
    * Maps OAuth error query parameters to localized error feedback messages.
    */
-  const handleOAuthRedirectError = useCallback(
+  const handleOAuthErrorMsg = useCallback(
     (errorCode: string) => {
       const getErrorMessage = (code: string) => {
         switch (code) {
@@ -272,6 +378,12 @@ export const useOAuth = ({
             return translateTxtString(AUTH_FEEDBACK.missing_oauth_id_token);
           case "MERGE_RESTRICTION":
             return translateTxtString(AUTH_FEEDBACK.oauth_provider_conflict);
+          case "OAUTH_CREDENTIAL_UNAVAILABLE":
+            return translateTxtString(
+              AUTH_FEEDBACK.oauth_credential_unavailable,
+            );
+          case "OAUTH_EMAIL_REQUIRED":
+            return translateTxtString(AUTH_FEEDBACK.oauth_email_required);
           case "ACCOUNT_DEACTIVATED":
             return translateTxtString(AUTH_FEEDBACK.account_deactivated);
           case "ACCOUNT_SUSPENDED":
@@ -283,6 +395,14 @@ export const useOAuth = ({
       };
 
       const message = getErrorMessage(errorCode);
+      setSBMessage({
+        msg: {
+          tagline: message,
+          msgStatus: "ERROR",
+          duration: SNACKBAR_DURATION.SECS_15,
+        },
+      });
+
       if (purpose === "REGISTRATION" && setMsg) {
         handleSignupError({ localizedErrMsg: message } as ApiError, setMsg);
       } else {
@@ -292,19 +412,87 @@ export const useOAuth = ({
         });
       }
     },
-    [handleLoginError, handleSignupError, purpose, setMsg, translateTxtString],
+    [
+      handleLoginError,
+      handleSignupError,
+      purpose,
+      setMsg,
+      translateTxtString,
+      setSBMessage,
+    ],
   );
 
-  // Extracting and processing OAuth error query parameters on mount
+  const getAllowedOAuthOrigins = (): string[] => {
+    const origins = new Set<string>();
+    if (typeof window !== "undefined") {
+      origins.add(window.location.origin);
+    }
+    const shell = process.env.NEXT_PUBLIC_SHELL_URL;
+    const api = process.env.NEXT_PUBLIC_API_URL;
+    if (shell) origins.add(new URL(shell).origin);
+    if (api) origins.add(new URL(api).origin);
+    return [...origins];
+  };
+
+  // Listener for backend redirect response
   useEffect(() => {
-    const oauthError = searchParams.get("error");
-    if (!oauthError) return;
-    handleOAuthRedirectError(oauthError);
-    // Cleaning up error query parameter from browser address bar
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.delete("error");
-    window.history.replaceState({}, "", currentUrl.pathname);
-  }, [searchParams, handleOAuthRedirectError]);
+    const allowedOrigins = getAllowedOAuthOrigins();
+
+    const onMessage = (event: MessageEvent) => {
+      if (!allowedOrigins.includes(event.origin)) return;
+
+      const data = event.data;
+      if (!data || data.source !== "funstakes-oauth") return;
+
+      closeOAuthPopup();
+
+      if (data.type === "OAUTH_ERROR") {
+        handleOAuthErrorMsg(data.errorCode || "SERVER_ERROR");
+        return;
+      }
+
+      // Server already set cookies — just route / refresh session
+      if (data.type === "OAUTH_SESSION_SUCCESS") {
+        const path =
+          data.redirectPath || (data.isNewUser ? "/onboarding" : "/");
+        window.location.assign(path);
+        return;
+      }
+
+      // Mirror SPA confirm flows
+      if (data.type === "OAUTH_ACCOUNT_NOT_FOUND" && data.idToken) {
+        setPendingOAuthAction({
+          type: "CONFIRM_REGISTRATION",
+          provider: data.provider || "GOOGLE",
+          idToken: data.idToken,
+          email: data.email || "",
+        });
+        return;
+      }
+
+      if (data.type === "OAUTH_ACCOUNT_EXISTS" && data.idToken) {
+        setPendingOAuthAction({
+          type: "CONFIRM_LOGIN",
+          provider: data.provider || "GOOGLE",
+          idToken: data.idToken,
+          email: data.email || "",
+        });
+        return;
+      }
+
+      // Fallback: SPA-style token exchange (if you ever post idToken only)
+      if (data.type === "OAUTH_SUCCESS" && data.idToken) {
+        executeOAuthPopupSignIn({
+          provider: data.provider || "GOOGLE",
+          idToken: data.idToken,
+          purpose,
+        });
+      }
+    };
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [closeOAuthPopup, executeOAuthPopupSignIn, handleOAuthErrorMsg, purpose]);
 
   /**
    * Opens confirmation popup whenever a pending OAuth action state is set
@@ -328,7 +516,7 @@ export const useOAuth = ({
         <ConfirmAction
           icon={<UserPlus size={32} />}
           headline={translateTxtString(headlineText)}
-          tagline={translateTxtString(taglineText)}
+          tagline={<TransText {...taglineText} />}
           cancelLabel={translateTxtString(COMMON_BUTTON_LABELS.cancel)}
           confirmLabel={translateTxtString(COMMON_BUTTON_LABELS.continue)}
           onConfirm={confirmOAuthAction}
@@ -339,11 +527,15 @@ export const useOAuth = ({
   }, [pendingOAuthAction]);
 
   return {
-    handleGoogleRedirectSignIn,
+    handleGoogleSignIn,
     handleAppleSignIn,
+    handleFacebookSignIn,
+    handleGitHubSignIn,
+    handleXSignIn,
+    handleLinkedInSignIn,
     isOAuthLoading,
     isSdkReady,
-    handleOAuthRedirectError,
+    handleOAuthRedirectError: handleOAuthErrorMsg,
     pendingOAuthAction,
   };
 };

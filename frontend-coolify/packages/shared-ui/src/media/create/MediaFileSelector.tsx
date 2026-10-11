@@ -12,7 +12,7 @@ import {
   FolderLock,
 } from "lucide-react";
 import { motion, MotionStyle } from "framer-motion";
-import { MenuPopup, AppButton, TransText } from "@repo/shared-ui";
+import { MenuPopup, AppButton, TransText, AppImage } from "@repo/shared-ui";
 import {
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
@@ -77,8 +77,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
     zIndex: isOverlay ? 1300 : "auto",
     width: "100%",
     backgroundColor: theme.palette.gray[0],
-    borderTopLeftRadius: theme.radius[4],
-    borderTopRightRadius: theme.radius[4],
+    borderTopLeftRadius: theme.radius[16],
+    borderTopRightRadius: theme.radius[16],
     boxShadow: "0px -4px 20px rgba(0, 0, 0, 0.08)",
     overflow: "hidden",
   };
@@ -89,14 +89,16 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
       sx={{
         width: "100%",
         height: isMaximized && isOverlay ? "100vh" : "auto",
-      }}>
+      }}
+    >
       {!isMaximized ? (
         <motion.div
           drag={allowDrag ? "y" : false}
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0.2, bottom: 0 }}
           onDragEnd={handleDragEnd}
-          style={containerStyles}>
+          style={containerStyles}
+        >
           {allowDrag && (
             <Box
               sx={{
@@ -107,7 +109,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                 alignItems: "center",
                 py: 1,
                 cursor: "grab",
-                borderRadius: theme.radius[2],
+                borderRadius: theme.radius[8],
                 backgroundColor: theme.palette.gray[100],
               }}
             />
@@ -124,21 +126,23 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
               overflowX: "auto",
               scrollbarWidth: "none",
               "&::-webkit-scrollbar": { display: "none" },
-            }}>
+            }}
+          >
             <Box
               onClick={onCameraClick}
               sx={{
                 flexShrink: 0,
                 width: "72px",
                 height: "72px",
-                borderRadius: theme.radius[2],
+                borderRadius: theme.radius[8],
                 backgroundColor: theme.palette.gray[50],
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
                 "&:hover": { backgroundColor: theme.palette.gray[100] },
-              }}>
+              }}
+            >
               <Camera size={24} color={theme.palette.gray[200]} />
             </Box>
 
@@ -149,7 +153,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   flexShrink: 0,
                   width: "72px",
                   height: "72px",
-                  borderRadius: theme.radius[2],
+                  borderRadius: theme.radius[8],
                   backgroundColor: theme.palette.gray.trans[1],
                   border: `1px dashed ${theme.palette.gray[100]}`,
                   display: "flex",
@@ -159,7 +163,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   cursor: "pointer",
                   gap: "4px",
                   "&:hover": { backgroundColor: theme.palette.gray.trans[2] },
-                }}>
+                }}
+              >
                 <FolderLock size={20} color={theme.palette.primary.main} />
                 <TransText
                   {...COMMON_BUTTON_LABELS.request_access}
@@ -186,16 +191,12 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                       flexShrink: 0,
                       width: "72px",
                       height: "72px",
-                      borderRadius: theme.radius[2],
+                      borderRadius: theme.radius[8],
                       overflow: "hidden",
                       cursor: "pointer",
-                    }}>
-                    <Box
-                      component="img"
-                      src={file.url}
-                      alt={file.name}
-                      sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
+                    }}
+                  >
+                    <AppImage src={file.url} alt={file.name} fill />
                     {isSelected && (
                       <Box
                         sx={{
@@ -206,7 +207,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                        }}>
+                        }}
+                      >
                         <CheckCircle2
                           size={20}
                           color={theme.palette.primary.main}
@@ -224,14 +226,15 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   flexShrink: 0,
                   width: "72px",
                   height: "72px",
-                  borderRadius: theme.radius[2],
+                  borderRadius: theme.radius[8],
                   backgroundColor: theme.palette.gray[50],
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
                   "&:hover": { backgroundColor: theme.palette.gray[100] },
-                }}>
+                }}
+              >
                 <GalleryIcon size={24} color={theme.palette.gray[200]} />
               </Box>
             )}
@@ -254,7 +257,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
             flexDirection: "column",
             backgroundColor: theme.palette.gray[0],
             height: isOverlay ? "100vh" : "600px",
-          }}>
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -263,11 +267,13 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
               px: 2,
               py: 1.5,
               borderBottom: `1px solid ${theme.palette.gray[50]}`,
-            }}>
+            }}
+          >
             {showToggleBtn && (
               <IconButton
                 onClick={() => setIsMaximized(false)}
-                sx={{ width: "48px" }}>
+                sx={{ width: "48px" }}
+              >
                 <ArrowLeft size={22} color={theme.palette.gray[300]} />
               </IconButton>
             )}
@@ -284,7 +290,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
               style={{
                 color: theme.palette.gray[300],
                 textTransform: "none",
-              }}>
+              }}
+            >
               {currentFolder?.id === "gallery" ? (
                 <TransText
                   {...COMMON_BUTTON_LABELS.gallery_folder_fallback}
@@ -301,7 +308,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   key={folder.id}
                   onClick={() => handleSelectFolder(folder.id)}
                   selected={folder.id === currentFolder?.id}
-                  sx={{ borderRadius: 1, my: 0.5 }}>
+                  sx={{ borderRadius: 1, my: 0.5 }}
+                >
                   {folder.id === "gallery" ? (
                     <TransText
                       {...COMMON_BUTTON_LABELS.gallery_folder_fallback}
@@ -319,7 +327,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   color: theme.palette.primary.main,
                   borderRadius: 1,
                   my: 0.5,
-                }}>
+                }}
+              >
                 <TransText {...COMMON_BUTTON_LABELS.browse_files} noComponent />
               </MenuItem>
             </MenuPopup>
@@ -329,7 +338,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
               onClick={handleConfirmSelection}
               options={{
                 disabled: selectedFiles.length === 0,
-              }}>
+              }}
+            >
               <TransText
                 {...COMMON_BUTTON_LABELS.add_selected_media}
                 noComponent
@@ -350,7 +360,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   gap: theme.gap(4),
                   textAlign: "center",
                   px: 4,
-                }}>
+                }}
+              >
                 <FolderLock size={48} color={theme.palette.gray[100]} />
                 <TransText
                   {...COMMON_FEEDBACK.file_permission_tagline}
@@ -361,7 +372,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                 />
                 <AppButton
                   variant="contained"
-                  onClick={handleRequestPermission}>
+                  onClick={handleRequestPermission}
+                >
                   <TransText
                     {...COMMON_BUTTON_LABELS.grant_permission}
                     noComponent
@@ -385,20 +397,17 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                           backgroundColor: theme.palette.gray[50],
                           cursor: "pointer",
                           overflow: "hidden",
-                        }}>
-                        <Box
-                          component="img"
+                        }}
+                      >
+                        <AppImage
                           src={file.url}
                           alt={file.name}
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            transition: "transform 0.2s ease-in-out",
-                            "&:hover": { transform: "scale(1.02)" },
+                          fill
+                          style={{
+                            targetContent: {
+                              transition: "transform 0.2s ease-in-out",
+                              "&:hover": { transform: "scale(1.02)" },
+                            },
                           }}
                         />
                         {isSelected && (
@@ -411,7 +420,8 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                            }}>
+                            }}
+                          >
                             <CheckCircle2
                               size={24}
                               color={theme.palette.primary.main}

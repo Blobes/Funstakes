@@ -85,7 +85,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
           width: "100%",
           [theme.breakpoints.down("lg")]: { width: "100%" },
           background: theme.palette.gray.trans[1],
-          borderRadius: theme.radius[3],
+          borderRadius: theme.radius[12],
         }}
       >
         {isLoadingSetup ? (
@@ -109,7 +109,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
                     sx={{
                       width: 160,
                       height: 160,
-                      borderRadius: theme.radius[2],
+                      borderRadius: theme.radius[8],
                       border: `1px solid ${theme.palette.gray[100]}`,
                       padding: theme.boxSpacing(4),
                     }}
@@ -172,7 +172,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
                 }}
                 icon={<SquaresExclude />}
                 style={{
-                  container: {
+                  wrapper: {
                     width: "100%",
                     backgroundColor: "transparent",
                     border: "none",

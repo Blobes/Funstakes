@@ -2,6 +2,7 @@ import { PipelineStage, Types, QueryFilter } from "mongoose";
 import { getPostStaticData } from "../fetch/postData";
 import { UserPreferencesResult } from "./userPrefs";
 import { PostType } from "../../../types/general";
+import { POST_NESTED_FIELDS } from "@repo/database";
 
 export interface ListOptions<TPost = Record<string, unknown>> {
   matchFilter?: QueryFilter<TPost>;
@@ -92,7 +93,7 @@ export const getCandidatePostPipeline = ({
     // Muted Words Regex Exclusion
     if (userPrefs.mutedWords && userPrefs.mutedWords.length > 0) {
       const regexPattern = userPrefs.mutedWords.join("|");
-      baseMatch["latestCaption.caption"] = {
+      baseMatch[POST_NESTED_FIELDS.LATEST_CAPTION] = {
         $not: new RegExp(regexPattern, "i"),
       };
     }
@@ -153,8 +154,15 @@ export const getCandidatePostPipeline = ({
               $cond: [
                 {
                   $and: [
-                    { $isArray: "$location.coordinates" },
-                    { $eq: [{ $size: "$location.coordinates" }, 2] },
+                    { $isArray: `$${POST_NESTED_FIELDS.LOCATION_COORDINATES}` },
+                    {
+                      $eq: [
+                        {
+                          $size: `$${POST_NESTED_FIELDS.LOCATION_COORDINATES}`,
+                        },
+                        2,
+                      ],
+                    },
                   ],
                 },
                 5,

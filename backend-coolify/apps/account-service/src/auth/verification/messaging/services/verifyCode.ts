@@ -1,4 +1,4 @@
-import { DeviceModel } from "@repo/database";
+import { DEVICE_NESTED_FIELDS, DeviceModel } from "@repo/database";
 import {
   ensurePrimaryDevice,
   fetchSingleUser,
@@ -83,8 +83,12 @@ export const executeOtpVerification = async (
   }
 
   const currentDevice = deviceToken
-    ? await DeviceModel.findOne({ userId: user._id, deviceToken }).select("_id")
+    ? await DeviceModel.findOne({
+        deviceToken,
+        [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
+      }).select("_id")
     : null;
+
   await ensurePrimaryDevice(user, currentDevice?._id?.toString());
 
   user.otpCode = null;

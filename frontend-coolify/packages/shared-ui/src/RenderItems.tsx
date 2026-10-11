@@ -4,7 +4,7 @@ import React, { Fragment } from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
-  GenericStyle,
+  BaseStyleObj,
   IMenuItem,
   IPage,
   ITopic,
@@ -24,7 +24,7 @@ export interface RenderListProps<T extends IMenuItem> {
   list: T[];
   listType?: ListType;
   onItemClick?: (item?: IMenuItem & T) => void;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   activeItems?: (string | number)[];
   displayActiveState?: boolean;
 }
@@ -43,7 +43,7 @@ export const RenderItemList = <T extends IMenuItem>({
 
   const { fontSize, fontWeight, color, ...restStyle } = style;
 
-  const itemStyle: GenericStyle = {
+  const itemStyle: BaseStyleObj = {
     display: "flex",
     alignItems: "center",
     flexDirection: "row",
@@ -148,7 +148,7 @@ export const RenderItemList = <T extends IMenuItem>({
 };
 
 interface Default extends IMenuItem {
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   endElement?: React.ReactNode;
 }
 

@@ -26,7 +26,6 @@ import { GistService } from "../gistService";
 import { useTopics } from "../../post/hooks/useTopics";
 import { MediaUploadTracker, ProgressUI } from "@repo/shared-ui";
 import { useSocketListener } from "@repo/shared-hooks";
-import { Box } from "@mui/material";
 
 export interface Content extends StepperProps<PostStepName> {
   caption: string;
@@ -219,7 +218,7 @@ export const useGistContent = ({
             options={{ size: 24 }}
             label={"Analyzing content against system rules..."}
             style={{
-              container: {
+              wrapper: {
                 display: "flex",
                 alignItems: "center",
                 gap: "12px",

@@ -130,7 +130,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
               borderRadius: 0,
               "& svg": { width: "16px", height: "16px" },
             },
-            container: { padding: 0 },
+            wrapper: { padding: 0 },
           }}
           onItemClick={(item) => {
             if (item?.code) {

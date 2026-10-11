@@ -3,11 +3,10 @@
 import React from "react";
 import { Box, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { IBGFadeSlideData } from "@repo/core";
+import { BaseStyleProps, IBGFadeSlideData } from "@repo/core";
 import { NamedProgressBar } from "./Controls";
 import { TransText } from "../Text";
 import { A11y } from "../A11y";
-import { CarouselStyle } from "./Linear";
 import { useBGFadeCarousel } from "@repo/shared-hooks";
 import { VideoMedia } from "../media/view/VideoMedia";
 
@@ -16,7 +15,7 @@ interface BGFadeCarouselProps {
   interval?: number;
   autoPlay?: boolean;
   pauseOnHover?: boolean;
-  style?: CarouselStyle;
+  style?: BaseStyleProps;
   enableEdgeTap?: boolean;
   progressBarPosition?: "top" | "bottom";
   header?: React.ReactNode;
@@ -115,11 +114,11 @@ export const BGFadeCarousel = ({
           flexDirection: "column",
           justifyContent: "space-between",
           overflow: "hidden",
-          borderRadius: theme.radius[6],
+          borderRadius: theme.radius[24],
           flex: "none",
           bgcolor: "#000000",
           cursor: enablePressToHide ? "pointer" : "default",
-          ...style?.container,
+          ...style?.wrapper,
         }}
       >
         {/* Absolute Background Layer Stack */}
@@ -220,11 +219,11 @@ export const BGFadeCarousel = ({
             zIndex: 5,
             width: "100%",
             height: "100%",
-            gap: theme.gap(10),
-            padding: theme.boxSpacing(12),
+            gap: theme.gap(16),
+            padding: theme.boxSpacing(20),
             paddingBottom:
               progressBarPosition === "bottom"
-                ? theme.boxSpacing(14)
+                ? theme.boxSpacing(20)
                 : theme.boxSpacing(38),
           }}
         >

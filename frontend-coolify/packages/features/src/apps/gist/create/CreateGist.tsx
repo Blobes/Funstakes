@@ -116,15 +116,15 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
     <Stack
       sx={{
         backgroundColor: theme.palette.gray[50],
-        borderRadius: theme.radius[5],
+        borderRadius: theme.radius[20],
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
         [theme.breakpoints.down("sm")]: {
           width: "100%",
-          ...style.container?.mobiles,
+          ...style.wrapper?.mobiles,
         },
-        ...style.container,
+        ...style.wrapper,
       }}
     >
       <Stepper steps={steps} currStep={step} setCurrStep={setStep} />

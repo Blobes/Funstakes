@@ -1,54 +1,16 @@
 "use client";
 
 import React from "react";
-import { AppBar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useMisc, usePageScroll } from "@repo/shared-hooks";
 import { asset } from "@repo/assets";
-import Image from "next/image";
-import { SVGWrapper } from "@repo/shared-ui";
+import { BaseHeader, SVGWrapper } from "@repo/shared-ui";
+import { ScrollRefProps } from "@repo/core";
 
-interface AppHeaderProps {
-  scrollRef?: React.RefObject<HTMLElement | null>;
-}
-export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
-  const { isDesktop } = useMisc();
-  const { scrollDir } = usePageScroll(scrollRef);
+export const Header: React.FC<ScrollRefProps> = ({ scrollRef }) => {
   const theme = useTheme();
 
-  /* ---------------------------------- render ---------------------------------- */
   return (
-    <AppBar
-      position="sticky"
-      component="nav"
-      aria-label="Main navigation"
-      role="navigation"
-      sx={{
-        zIndex: 100,
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: theme.gap(6),
-        backdropFilter: "blur(24px)",
-        ...(!isDesktop && {
-          transform:
-            scrollDir === "down" ? "translateY(-100%)" : "translateY(0)",
-          transition: "transform 0.3s ease-in-out",
-        }),
-      }}
-    >
-      {/* Logo */}
-      <Image
-        src={asset.appLogoSymbol}
-        alt="logo"
-        width={34}
-        height={34}
-        style={{
-          borderRadius: `${theme.radius.full}`,
-        }}
-      />
-
+    <BaseHeader scrollRef={scrollRef} hideOnPageScroll>
       {/* Right side elements */}
       <SVGWrapper
         src={asset.OfflineAvatar}
@@ -61,6 +23,6 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
           },
         }}
       />
-    </AppBar>
+    </BaseHeader>
   );
 };

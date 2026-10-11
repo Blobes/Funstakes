@@ -4,6 +4,7 @@ import {
   TransInfo,
   MESSAGES_REGISTRY,
   fetchSingleUser,
+  checkEmailReputation,
 } from "@repo/shared";
 
 interface IEmailChangeInput {
@@ -82,6 +83,10 @@ export const executeEmailChange = async (
   user.lastEmailOtpSentAt = null;
   user.otpCode = null;
   user.otpCodeExpiresAt = null;
+
+  const hasVipEmail = await checkEmailReputation(user.email);
+  (user.publicFigureInfo ??= {}).signals ??= {};
+  user.publicFigureInfo.signals.hasVipEmail = hasVipEmail;
 
   await user.save();
 

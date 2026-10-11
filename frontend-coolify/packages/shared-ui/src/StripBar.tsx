@@ -3,7 +3,7 @@
 import React, { Fragment } from "react";
 import { Box, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 import { TransText } from "./Text";
 
 interface Item {
@@ -13,7 +13,7 @@ interface Item {
 
 interface StripProps {
   items: Item[];
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const Strip = ({ items = [], style = {} }: StripProps) => {
@@ -25,7 +25,8 @@ export const Strip = ({ items = [], style = {} }: StripProps) => {
         flexDirection: "row",
         alignItems: "center",
         ...style,
-      }}>
+      }}
+    >
       {items.map((item, index) => (
         <Fragment key={index}>
           <TransText
@@ -36,7 +37,8 @@ export const Strip = ({ items = [], style = {} }: StripProps) => {
               gap: theme.gap(2),
               color: theme.palette.gray[200],
               textAlign: "center",
-            }}>
+            }}
+          >
             {item.element && item.element}
             {item.text && item.text}
           </TransText>

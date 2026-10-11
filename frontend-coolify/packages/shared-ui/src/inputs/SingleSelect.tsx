@@ -195,7 +195,7 @@ export const SingleSelectInput = ({
         style={{
           item: {
             padding: theme.boxSpacing(4, 6),
-            borderRadius: theme.radius[2],
+            borderRadius: theme.radius[8],
           },
         }}
       />

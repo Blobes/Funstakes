@@ -3,7 +3,8 @@ import {
   ITopicDocument,
   TopicModel,
   UserSettingsModel,
-  TopicSourceType,
+  ResourceType,
+  USER_SETTINGS_NESTED_FIELDS,
 } from "@repo/database";
 import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
@@ -90,9 +91,10 @@ export const syncWithUserViaPostEngagement = async (
     { userId },
     {
       $addToSet: {
-        "display.contentPreferences.preferredTopics": {
-          $each: preferenceTopics,
-        },
+        [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS]:
+          {
+            $each: preferenceTopics,
+          },
       },
     },
     { session, upsert: true },

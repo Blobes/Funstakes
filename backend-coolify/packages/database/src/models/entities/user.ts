@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 import { IUserDocument, IUserModelStatic, QueryConfig } from "../../types/user";
 import { encryptedFieldsPlugin } from "../../helpers/encryptionPlugin";
 import { schemaSyncPlugin } from "../../migration/schemaSyncPlugin";
+import { USER_NESTED_FIELDS } from "../../constants/fields";
 
 /**
  * User Schema Configuration
@@ -23,15 +24,15 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       type: String,
       trim: true,
     },
+    displayName: {
+      type: String,
+      trim: true,
+    },
+    legalName: {
+      type: String,
+      trim: true,
+    },
     password: { type: String, default: null },
-    firstName: {
-      type: String,
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      trim: true,
-    },
     phoneNumber: {
       type: String,
     },
@@ -39,7 +40,15 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     // --- AUTHENTICATION & SECURITY ---
     signedUpWith: {
       type: String,
-      enum: ["EMAIL", "GOOGLE", "APPLE"],
+      enum: [
+        "EMAIL",
+        "GOOGLE",
+        "APPLE",
+        "FACEBOOK",
+        "X_TWITTER",
+        "LINKEDIN",
+        "GITHUB",
+      ],
       default: "EMAIL",
     },
     oAuthId: { type: String, default: null },
@@ -98,25 +107,39 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       default: null,
     },
 
-    // --- VERIFICATION & NOTABILITY ---
-    isKycVerified: { type: Boolean, default: false },
-    isPublicFigure: { type: Boolean, default: false },
-    meritsVerification: { type: Boolean, default: false },
-    isNotable: { type: Boolean, default: false },
-    kycSubmitRequest: {
-      type: Schema.Types.ObjectId,
-      ref: "KycRequest",
-      default: null,
+    // --- ID VERIFICATION & NOTABILITY ---
+    kyc: {
+      kycId: {
+        type: Schema.Types.ObjectId,
+        ref: "KycRequest",
+        default: null,
+      },
+      currentTier: {
+        type: String,
+        enum: ["NONE", "TIER_1", "TIER_2", "TIER_3", "TIER_4"],
+        default: "NONE",
+      },
     },
-    kycReviewStatus: {
-      type: String,
-      enum: ["NONE", "PENDING", "APPROVED", "REJECTED"],
-      default: "NONE",
+    verifiedBadge: {
+      badgeId: {
+        type: Schema.Types.ObjectId,
+        ref: "Badge",
+        default: null,
+      },
+      isEligible: { type: Boolean, default: false },
     },
-    verificationSignals: {
-      hasWikipedia: { type: Boolean, default: false },
-      isVipEmail: { type: Boolean, default: false },
-      isVipPhone: { type: Boolean, default: false },
+    publicFigureInfo: {
+      publicFigureId: {
+        type: Schema.Types.ObjectId,
+        ref: "PublicFigure",
+        default: null,
+      },
+      isEligible: { type: Boolean, default: false },
+      signals: {
+        hasWikipedia: { type: Boolean, default: false },
+        hasVipEmail: { type: Boolean, default: false },
+        hasVipPhone: { type: Boolean, default: false },
+      },
     },
     isAgeVerified: { type: Boolean, default: false },
 
@@ -194,17 +217,17 @@ UserSchema.index({ lastActiveAt: 1 });
 UserSchema.index({ accountStatus: 1 });
 UserSchema.index({ followersCount: 1 });
 UserSchema.index({ postCountWindow: 1 });
-// Verification Workflow Compound Lookup
+// Verification Workflow Compound Lookups
 UserSchema.index({
-  meritsVerification: 1,
-  isPublicFigure: 1,
+  [USER_NESTED_FIELDS.PUBLIC_FIGURE_INFO_IS_NOTABLE]: 1,
+  [USER_NESTED_FIELDS.VERIFIED_BADGE_IS_ELIGIBLE]: 1,
   isEmailVerified: 1,
 });
+UserSchema.index({ [USER_NESTED_FIELDS.KYC_CURRENT_TIER]: 1 });
 // Geospatial Queries for Account Location
-UserSchema.index({ "location.coordinates": "2dsphere" });
+UserSchema.index({ [USER_NESTED_FIELDS.LOCATION_COORDINATES]: "2dsphere" });
 
 // --- Plugin Registrations ---
-// Register schema sync plugin before encryption plugin
 UserSchema.plugin(schemaSyncPlugin);
 // Transparent encryption configuration plugin
 UserSchema.plugin(encryptedFieldsPlugin, {

@@ -15,8 +15,7 @@ export interface AppInfo {
 
 export interface RecipientInfo {
   email: string;
-  firstName?: string;
-  lastName?: string;
+  displayName?: string;
   userIp?: string;
 }
 
@@ -50,8 +49,7 @@ export interface EmailOtpPayload {
 const APP_NAME = "Funstakes";
 const DOMAIN_URL = "https://funstakes.net";
 const SUPPORT_EMAIL = "support@funstakes.net";
-const LOGO_URL =
-  "https://media.funstakes.net/assets/logo-name-tagline-light.png";
+const LOGO_URL = "https://media.funstakes.net/assets/logo-name-light.png";
 
 export const APP_INFO: AppInfo = {
   appName: APP_NAME,
@@ -80,7 +78,7 @@ export function getEmailOtpVariables({
   return {
     recipient: {
       email: recipient.email || "",
-      firstName: recipient.firstName || "Funstaker ",
+      displayName: recipient.displayName || "Funstaker ",
     },
     appInfo: APP_INFO,
     code: {

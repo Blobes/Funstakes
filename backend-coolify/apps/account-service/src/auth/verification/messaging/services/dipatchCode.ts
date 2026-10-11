@@ -13,7 +13,7 @@ import {
   detectIdentifierType,
 } from "@repo/shared";
 
-interface ISendOtpInput {
+export interface ISendOtpInput {
   recipient: string;
   messageChannel?: OtpMessageChannel;
   userAgent: string;
@@ -111,7 +111,7 @@ export const executeOtpDispatch = async (
   if (isEmail) {
     await dispatchEmailCode(
       {
-        recipient: { email: normalized, firstName: user.firstName, userIp },
+        recipient: { email: normalized, displayName: user.displayName, userIp },
         code: newCode,
       },
       emailDispatchTokens,

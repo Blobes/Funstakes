@@ -77,12 +77,15 @@ export const POPUP_CONFIG = ({
         content,
         onClose: closeModal,
         style: {
-          base: {
-            overlay: { padding: theme.boxSpacing(6), display: "none" },
-            content: { height: "100%", borderRadius: "0px" },
+          overlay: {
+            base: { padding: theme.boxSpacing(6), display: "none" },
+            smScreen: {
+              padding: 0,
+              display: "flex",
+            },
           },
-          smallScreen: {
-            overlay: { padding: theme.boxSpacing(0), display: "flex" },
+          targetContent: {
+            base: { height: "100%", borderRadius: 0 },
           },
           header: {
             justifyContent: "space-between",
@@ -99,10 +102,18 @@ export const POPUP_CONFIG = ({
         source: "navbar",
         onClose: closeDrawer,
         style: {
-          base: { overlay: { padding: theme.boxSpacing(6) } },
-          smallScreen: {
-            overlay: { padding: theme.boxSpacing(0) },
-            content: { height: "100%", width: "80%", borderRadius: "0px" },
+          overlay: {
+            base: { padding: theme.boxSpacing(6) },
+            smScreen: {
+              padding: 0,
+            },
+          },
+          targetContent: {
+            smScreen: {
+              height: "100%",
+              width: "80%",
+              borderRadius: 0,
+            },
           },
         },
       },
@@ -116,12 +127,15 @@ export const POPUP_CONFIG = ({
         source: "navbar",
         onClose: closeDrawer,
         style: {
-          base: {
-            overlay: { padding: theme.boxSpacing(6), display: "none" },
-            content: { height: "100%", borderRadius: "0px" },
+          overlay: {
+            base: { padding: theme.boxSpacing(6), display: "none" },
+            smScreen: {
+              padding: 0,
+              display: "flex",
+            },
           },
-          smallScreen: {
-            overlay: { padding: theme.boxSpacing(0), display: "flex" },
+          targetContent: {
+            base: { height: "100%", borderRadius: 0 },
           },
           header: {
             justifyContent: "space-between",

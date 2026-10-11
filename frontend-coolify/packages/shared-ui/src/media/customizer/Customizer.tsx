@@ -31,7 +31,7 @@ const CustomizerContainer = styled(Box)(({ theme }) => ({
   width: "100%",
   height: "600px",
   backgroundColor: theme.palette.common.black,
-  borderRadius: theme.radius.large,
+  borderRadius: theme.radius[12],
   overflow: "hidden",
   display: "flex",
   alignItems: "center",
@@ -126,7 +126,8 @@ export const MediaCustomizer = ({ media, onSave }: MediaCustomizerProps) => {
             ...(isPreview && {
               backgroundColor: theme.palette.gray[0],
             }),
-          }}>
+          }}
+        >
           <TransText
             {...(isPreview
               ? COMMON_BUTTON_LABELS.edit
@@ -144,18 +145,19 @@ export const MediaCustomizer = ({ media, onSave }: MediaCustomizerProps) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-        }}>
+        }}
+      >
         <MediaRenderer
           media={media}
           style={{
-            content: {
+            targetContent: {
               maxHeight: "100%",
               height: "100%",
               width: "100%",
               objectFit: "contain",
               filter: activeFilterStyle,
             },
-            container: {
+            wrapper: {
               base: {
                 width: "100%",
                 height: "100%",
@@ -173,7 +175,8 @@ export const MediaCustomizer = ({ media, onSave }: MediaCustomizerProps) => {
             pointerEvents:
               activeMode === "TEXT" && !isPreview ? "auto" : "none",
             transition: "opacity 0.3s ease",
-          }}>
+          }}
+        >
           <TextMode
             texts={textsOnMedia}
             focusedTextId={focusedTextId}
@@ -190,7 +193,8 @@ export const MediaCustomizer = ({ media, onSave }: MediaCustomizerProps) => {
             pointerEvents:
               activeMode === "STICKER" && !isPreview ? "auto" : "none",
             transition: "opacity 0.3s ease",
-          }}>
+          }}
+        >
           <StickerMode
             stickers={stickersOnMedia}
             focusedStickerId={focusedStickerId}
@@ -245,7 +249,8 @@ export const MediaCustomizer = ({ media, onSave }: MediaCustomizerProps) => {
               left: "50%",
               transform: "translateX(-50%)",
               zIndex: 10,
-            }}>
+            }}
+          >
             <TabUI
               options={[
                 { id: "TEXT", label: "Text" },

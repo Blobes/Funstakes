@@ -5,12 +5,12 @@ import { Stack, SxProps, Theme } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AuthorInfo, AuthorProps } from "./Author";
 import { HeaderActions, ActionsProps } from "./Actions";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 
 export interface PostHeaderProps {
   authorProps: AuthorProps;
   actionProps: ActionsProps;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const PostHeader = ({
@@ -31,7 +31,8 @@ export const PostHeader = ({
           padding: theme.boxSpacing(0, 4),
         },
         ...style,
-      }}>
+      }}
+    >
       <AuthorInfo {...authorProps} />
 
       <HeaderActions

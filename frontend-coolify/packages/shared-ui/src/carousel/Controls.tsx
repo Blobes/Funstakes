@@ -5,7 +5,7 @@ import { Box, IconButton } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
-import { GenericStyle, IBGFadeSlideData } from "@repo/core";
+import { BaseStyleObj, BaseStyleProps, IBGFadeSlideData } from "@repo/core";
 import { TransText } from "../Text";
 
 interface ArrowProps {
@@ -13,10 +13,7 @@ interface ArrowProps {
   onNext: () => void;
   disableLeft?: boolean;
   disableRight?: boolean;
-  style?: {
-    arrowLeft?: GenericStyle;
-    arrowRight?: GenericStyle;
-  };
+  style?: BaseStyleProps;
 }
 export const CarouselArrows = ({
   onPrev,
@@ -60,7 +57,8 @@ export const CarouselArrows = ({
           [theme.breakpoints.down("sm")]: {
             ...(style?.arrowLeft?.smScreen as any),
           },
-        }}>
+        }}
+      >
         <ChevronLeft />
       </IconButton>
       <IconButton
@@ -74,7 +72,8 @@ export const CarouselArrows = ({
           [theme.breakpoints.down("sm")]: {
             ...(style?.arrowRight?.smScreen as any),
           },
-        }}>
+        }}
+      >
         <ChevronRight />
       </IconButton>
     </>
@@ -133,7 +132,8 @@ export const CarouselDots = ({
         py: theme.boxSpacing(2),
         overflow: "hidden",
         flex: "none",
-      }}>
+      }}
+    >
       {Array.from({ length }).map((_, i) => {
         const isActive = i === current;
         const isVisible = i >= startIdx && i <= endIdx;
@@ -168,7 +168,8 @@ export const CarouselDots = ({
               transform: `scale(${dotScale})`,
               transition:
                 "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease",
-            }}>
+            }}
+          >
             {isActive && (
               <Box
                 component={motion.div}
@@ -198,7 +199,7 @@ interface NamedProgressBarProps {
   onGoTo: (i: number) => void;
   interval: number;
   autoPlay: boolean;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 /**
  * Renders textual slider indicators mapped with native underlying progress loading lines.
@@ -225,7 +226,8 @@ export const NamedProgressBar = ({
         pointerEvents: "auto",
         zIndex: 5,
         ...style,
-      }}>
+      }}
+    >
       {slides.map((slide, i) => {
         const isActive = i === current;
         const slideId = slide.media._id || String(i);
@@ -236,28 +238,30 @@ export const NamedProgressBar = ({
             onClick={() => onGoTo(i)}
             sx={{
               width: slide.name ? "fit-content" : "100%",
-              minWidth: 60,
+              // minWidth: 60,
               display: "flex",
               flexDirection: "column",
               gap: theme.gap(3),
               cursor: "pointer",
               position: "relative",
               padding: theme.boxSpacing(1, 3, 3, 3),
-              borderRadius: theme.radius[2],
+              borderRadius: theme.radius[8],
               "&:hover": {
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
               },
-            }}>
+            }}
+          >
             {/* Uniquely scoped via distinct slide identifiers to prevent dictionary compilation collisions */}
             {slide.name && (
               <TransText
                 sx={{
-                  ...theme.typography.text5,
+                  ...theme.typography.text6Caps,
                   fontWeight: 700,
                   letterSpacing: "0.05em",
                   color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.4)",
                   transition: "color 0.3s ease",
-                }}>
+                }}
+              >
                 {slide.name}
               </TransText>
             )}
@@ -271,7 +275,8 @@ export const NamedProgressBar = ({
                 position: "relative",
                 borderRadius: theme.radius.full,
                 overflow: "hidden",
-              }}>
+              }}
+            >
               {isActive && (
                 <Box
                   component={motion.div}

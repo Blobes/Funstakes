@@ -28,6 +28,7 @@ export * from "./src/base-layout/GlobalUIManager";
 export * from "./src/base-layout/default/AppWrapper";
 export * from "./src/base-layout/BaseLayout";
 export * from "./src/base-layout/Providers";
+export * from "./src/base-layout/default/useHeader";
 
 //Post
 // Components

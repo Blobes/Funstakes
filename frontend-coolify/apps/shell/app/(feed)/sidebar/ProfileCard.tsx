@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography, Divider } from "@mui/material";
+import { Stack, Divider, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
-import { UserAvatar, AppButton, TransText } from "@repo/shared-ui";
+import { UserAvatar, AppButton, TransText, AppImage } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
 import { asset } from "@repo/assets";
 import {
@@ -18,34 +18,28 @@ export const ProfileCard = () => {
   const authUser = useGlobalStore((state) => state.authUser);
 
   if (!authUser) return null;
-  const {
-    firstName,
-    lastName,
-    coverImage,
-    email,
-    followersCount,
-    followingCount,
-  } = authUser;
+  const { displayName, coverImage, email, followersCount, followingCount } =
+    authUser;
   return (
     <Stack
       sx={{
         backgroundColor: theme.fixedColors.pTrans,
         alignItems: "center",
         justifyContent: "flex-start",
-        borderRadius: theme.radius[2],
+        borderRadius: theme.radius[8],
         overflow: "hidden",
         height: "fit-content",
         flexShrink: 0,
         flexGrow: 0,
       }}
     >
-      <Image
-        src={coverImage || asset.pic1}
-        width={400}
-        height={130}
-        alt="Image cover"
-        style={{ objectFit: "cover", width: "100%" }}
+      <AppImage
+        src={coverImage || asset.marketingImg1}
+        alt="User profile image cover"
+        prioritize
+        style={{ targetContent: { height: 130, width: "100%" } }}
       />
+
       <UserAvatar
         userInfo={authUser}
         toolTipValue="User profile"
@@ -66,10 +60,9 @@ export const ProfileCard = () => {
           gap: theme.gap(1),
         }}
       >
-        <TransText
-          sx={theme.typography.text1}
-          noWrap={true}
-        >{`${firstName} ${lastName}`}</TransText>
+        <TransText sx={theme.typography.text1} noWrap={true}>
+          {displayName}
+        </TransText>
         <TransText
           component="p"
           noWrap={true}

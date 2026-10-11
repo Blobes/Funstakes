@@ -19,7 +19,9 @@
     "jsonwebtoken": "catalog:",
     "google-auth-library": "catalog:",
     "jwks-rsa": "catalog:",
-    "ioredis": "catalog:"
+    "ioredis": "catalog:",
+    "disposable-email-domain": "catalog:",
+    "free-email-domains": "catalog:"
   },
   "devDependencies": {
     "tsup": "catalog:",

@@ -4,13 +4,13 @@ import React from "react";
 import { IconButton } from "@mui/material";
 import { Bookmark } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 
 export interface BookmarkProps {
   bookmarked: boolean;
   onClick: () => void;
   size?: number;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const BookmarkButton = ({
@@ -33,7 +33,8 @@ export const BookmarkButton = ({
           background: "none",
         },
         ...style,
-      }}>
+      }}
+    >
       <Bookmark
         size={size}
         style={{

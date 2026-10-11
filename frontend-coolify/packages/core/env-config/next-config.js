@@ -46,26 +46,54 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
       },
     },
 
+    images: {
+      remotePatterns: [
+        {
+          protocol: "https",
+          hostname: "images.unsplash.com",
+          pathname: "/**",
+        },
+        {
+          protocol: "https",
+          hostname: "media.funstakes.net",
+          pathname: "/**",
+        },
+      ],
+    },
+
     webpack(config) {
       // Excludes non-source directories from Webpack Watchpack file watching
-      config.watchOptions = {
-        ...config.watchOptions,
-        ignored: [
-          ...(Array.isArray(config.watchOptions?.ignored)
-            ? config.watchOptions.ignored
-            : config.watchOptions?.ignored
-              ? [config.watchOptions.ignored]
-              : []),
-          ...ignoredWatchPatterns,
-        ],
-      };
+      // const prev = config.watchOptions?.ignored;
+      // const prevList = Array.isArray(prev) ? prev : prev != null ? [prev] : [];
+
+      // const ignored = [...prevList, ...ignoredWatchPatterns].filter(
+      //   (entry) =>
+      //     (typeof entry === "string" && entry.trim().length > 0) ||
+      //     entry instanceof RegExp,
+      // );
+
+      // config.watchOptions = {
+      //   ...config.watchOptions,
+      //   ignoredWatchPatterns,
+      // };
+
+      // config.watchOptions = {
+      //   ...config.watchOptions,
+      //   // ignored: [
+      //   //   ...(Array.isArray(config.watchOptions?.ignored)
+      //   //     ? config.watchOptions.ignored
+      //   //     : config.watchOptions?.ignored
+      //   //       ? [config.watchOptions.ignored]
+      //   //       : []),
+      //   //   ...ignoredWatchPatterns,
+      //   // ],
+      // };
 
       // Retains support if building with --webpack flag
       config.module.rules.push({
         test: /\.lottie$/,
         type: "asset/resource",
       });
-
       if (typeof appConfig.webpack === "function") {
         return appConfig.webpack(config);
       }
@@ -84,7 +112,7 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
           headers: [
             {
               key: "Cross-Origin-Opener-Policy",
-              value: "same-origin",
+              value: "same-origin-allow-popups",
             },
             {
               key: "Cross-Origin-Embedder-Policy",

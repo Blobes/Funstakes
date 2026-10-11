@@ -8,7 +8,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { AUTH_INPUT, GenericStyle } from "@repo/core";
+import { AUTH_INPUT, BaseStyleObj } from "@repo/core";
 import { TransText } from "../Text";
 import {
   useOtpInputValidation,
@@ -26,7 +26,7 @@ export interface OtpInputProps {
   label?: string;
   disabled?: boolean;
   autoSubmit?: boolean;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 /**
  * Renders a segmented OTP/verification code input using MUI TextField per cell.
@@ -119,7 +119,7 @@ export const OtpInput = ({
                 width: style?.input.width || 44,
                 height: 50,
                 minWidth: 38,
-                borderRadius: theme.radius[3],
+                borderRadius: theme.radius[12],
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

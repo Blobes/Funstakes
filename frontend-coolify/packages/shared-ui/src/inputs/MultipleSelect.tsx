@@ -283,7 +283,7 @@ export const MultipleSelectInput = ({
             padding: theme.boxSpacing(5, 7),
             borderRadius: 0,
           },
-          container: {
+          wrapper: {
             gap: theme.gap(1),
             padding: theme.boxSpacing(0, 0, 8, 0),
           },

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useContentResizer } from "@repo/shared-hooks";
 import { TransText } from "../../Text";
 
@@ -61,7 +61,8 @@ export const ContentResizer = ({
           key={bar.index}
           flexDirection="row"
           alignItems="center"
-          gap={theme.gap(2)}>
+          gap={theme.gap(2)}
+        >
           {bar.isActive && (
             <TransText
               component="span"
@@ -71,8 +72,9 @@ export const ContentResizer = ({
                 fontWeight: 700,
                 backgroundColor: theme.palette.gray[300],
                 padding: theme.boxSpacing(0.5, 2),
-                borderRadius: theme.radius.base,
-              }}>
+                borderRadius: theme.radius[8],
+              }}
+            >
               {bar.value}px
             </TransText>
           )}

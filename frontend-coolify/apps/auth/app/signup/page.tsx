@@ -6,7 +6,7 @@ import { Signup } from "./registration/Signup";
 import { Stack } from "@mui/material";
 import { asset, BG_SLIDER_DATA } from "@repo/assets";
 import { BGFadeCarousel } from "@repo/shared-ui";
-import { applyBGPattern, autoScroll } from "@repo/helpers";
+import { applyBGPattern } from "@repo/helpers";
 import { useStaticTranslation } from "@repo/shared-hooks";
 
 export default function SignupPage() {
@@ -18,92 +18,48 @@ export default function SignupPage() {
       sx={{
         height: "100%",
         width: "100%",
-        padding: theme.boxSpacing(24),
+        padding: theme.boxSpacing(8),
+        flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
-        minHeight: "fit-content",
-        ...applyBGPattern({ url: asset.bgNoise, opacity: 0.6 }),
+        gap: 0,
+        ...applyBGPattern({ url: asset.bgNoise, opacity: 0.3 }),
+        [theme.breakpoints.up("xl")]: {
+          margin: "auto auto",
+          maxHeight: "56svh",
+          maxWidth: "60svw",
+        },
         [theme.breakpoints.down("md")]: {
-          minHeight: "unset",
+          maxHeight: "unset",
+          overflow: "auto",
+          flexDirection: "column",
           padding: theme.boxSpacing(0),
+          scrollSnapType: "y proximity",
+          scrollbarWidth: "none",
+          "&::-webkit-scrollbar": { display: "none" },
         },
       }}
     >
-      <Stack
-        sx={{
-          width: "70%",
-          height: "85vh",
-          maxHeight: 675,
-          maxWidth: 1100,
-          flexDirection: "row",
-          gap: theme.gap(0),
-          justifyContent: "space-between",
-          background: theme.palette.gray[0],
-          borderRadius: theme.radius[5],
-          overflow: "hidden",
-          boxShadow: `-12px -12px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}, 
-          18px 18px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}`,
-          [theme.breakpoints.only("md")]: {
-            width: "90%",
-          },
-          [theme.breakpoints.down("md")]: {
-            width: "100%",
+      <Signup />
+      <BGFadeCarousel
+        slides={BG_SLIDER_DATA(translateTxtString)}
+        autoPlay
+        pauseOnHover
+        interval={7000}
+        style={{
+          wrapper: {
+            width: "50%",
             height: "100%",
-            maxHeight: "unset",
-            maxWidth: "unset",
-            overflow: "auto",
-            boxShadow: "none",
-            flexDirection: "column",
-            padding: theme.boxSpacing(0),
-            borderRadius: 0,
-            scrollSnapType: "y proximity",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
+            minHeight: 420,
+            borderRadius: theme.radius[20],
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
+              height: "100svh",
+              scrollSnapAlign: "start",
+              borderRadius: 0,
+            },
           },
         }}
-      >
-        <Signup
-          style={{
-            container: {
-              width: "50%",
-              ...autoScroll().base,
-              justifyContent: "flex-start",
-              padding: theme.boxSpacing(18, 20),
-              mdScreen: {
-                height: "100svh",
-                width: "80%",
-                minHeight: "fit-content",
-                justifyContent: "center",
-                flex: "none",
-                scrollSnapAlign: "start",
-                padding: theme.boxSpacing(20, 10),
-                overflow: "unset",
-              },
-              smScreen: {
-                width: "100%",
-              },
-            },
-          }}
-        />
-        <BGFadeCarousel
-          slides={BG_SLIDER_DATA(translateTxtString)}
-          autoPlay
-          pauseOnHover
-          interval={7000}
-          style={{
-            container: {
-              width: "50%",
-              height: "100%",
-              borderRadius: 0,
-              [theme.breakpoints.down("md")]: {
-                width: "100%",
-                height: "100svh",
-                scrollSnapAlign: "start",
-              },
-            },
-          }}
-        />
-      </Stack>
+      />
     </Stack>
   );
 }

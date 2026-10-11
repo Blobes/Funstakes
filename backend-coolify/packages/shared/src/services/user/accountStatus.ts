@@ -5,6 +5,7 @@ import {
   AccountStatusHistoryModel,
   AccountStatus,
   ChangedByType,
+  DEVICE_NESTED_FIELDS,
 } from "@repo/database";
 import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
@@ -41,7 +42,6 @@ export const switchAccountStatus = async (
     suspensionExpiresAt = null,
   } = input;
 
-  //  const userProfile = await UserModel.findById(targetUserId);
   const userProfile = await fetchSingleUser({
     identifier: targetUserId,
     flags: { lean: true, skipFilter: true },
@@ -100,7 +100,7 @@ export const switchAccountStatus = async (
     targetStatus === "INACTIVE"
   ) {
     await DeviceModel.updateMany(
-      { userId: targetUserId },
+      { [DEVICE_NESTED_FIELDS.USERS_USER_ID]: targetUserId },
       { $set: { isPrimary: false, isStale: true } },
     );
     await Promise.all([

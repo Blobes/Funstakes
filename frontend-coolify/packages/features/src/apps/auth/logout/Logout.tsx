@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
 import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
-import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, GenericStyle } from "@repo/core";
+import { BaseStyleProps, AUTH_BUTTON_LABELS, AUTH_FEEDBACK } from "@repo/core";
 import { usePopup } from "../../../popups/usePopup";
 
 export const ComfirmLogout = () => {
@@ -27,17 +27,7 @@ export const ComfirmLogout = () => {
   );
 };
 
-interface LogoutProps {
-  containerStyle?: GenericStyle;
-  textStyle?: GenericStyle;
-  iconStyle?: GenericStyle;
-}
-
-export const Logout = ({
-  containerStyle,
-  textStyle,
-  iconStyle,
-}: LogoutProps) => {
+export const Logout = ({ style }: { style?: BaseStyleProps }) => {
   const theme = useTheme();
   const { openPopup } = usePopup();
 
@@ -50,16 +40,16 @@ export const Logout = ({
         gap: theme.gap(10),
         padding: theme.boxSpacing(0),
         "& svg": {
-          width: iconStyle?.size || 22,
-          height: iconStyle?.size || 22,
+          width: style?.icon?.size || 22,
+          height: style?.icon?.size || 22,
           transform: "scale(-1)",
-          ...iconStyle,
+          ...style?.icon,
         },
         "&:hover": {
           background: "transparent",
-          ...containerStyle?.hover,
+          ...style?.wrapper?.hover,
         },
-        ...containerStyle,
+        ...style?.wrapper,
       }}
     >
       <LogOut />
@@ -73,7 +63,7 @@ export const Logout = ({
           "&:hover": {
             color: theme.palette.primary.dark,
           },
-          ...textStyle,
+          ...style?.label,
         }}
       />
     </AppButton>

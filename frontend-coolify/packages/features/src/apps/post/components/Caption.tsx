@@ -8,7 +8,7 @@ import {
   AUTH_BUTTON_LABELS,
   CACHE_KEYS,
   DynamicTranslateFns,
-  GenericStyle,
+  BaseStyleObj,
   SUPPORTED_ISO_CODES,
   useGlobalStore,
 } from "@repo/core";
@@ -20,7 +20,7 @@ interface DynamicCaptionProps {
   caption: string;
   detectedLanguage?: string;
   transServiceFn: DynamicTranslateFns;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 /**
@@ -118,7 +118,7 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
       <WordTrimmer
         text={visibleText}
         style={{
-          container: {
+          wrapper: {
             padding: theme.boxSpacing(4, 0),
             [theme.breakpoints.down("md")]: {
               padding: theme.boxSpacing(4, 6),
@@ -141,7 +141,8 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
             }}
             options={{
               disabled: isFetching,
-            }}>
+            }}
+          >
             {isFetching ? (
               <>
                 <CircularProgress size={12} color="inherit" sx={{ mr: 1 }} />

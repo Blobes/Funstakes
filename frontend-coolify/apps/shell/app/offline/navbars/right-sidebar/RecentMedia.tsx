@@ -13,12 +13,13 @@ export const RecentMedia = () => {
         backgroundColor: theme.fixedColors.pTrans,
         alignItems: "center",
         justifyContent: "flex-start",
-        borderRadius: theme.radius[2],
+        borderRadius: theme.radius[8],
         overflow: "hidden",
         height: "fit-content",
         flexShrink: 0,
         flexGrow: 0,
-      }}>
+      }}
+    >
       Get all the recently viewed media
     </Stack>
   );

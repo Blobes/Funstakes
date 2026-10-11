@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from "react";
-import { Box, SxProps, Theme } from "@mui/material";
+import { Box } from "@mui/material";
 import { Heart } from "lucide-react";
 import { heartPop, vibrate } from "@repo/helpers";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleObj } from "@repo/core";
 
 interface ElementTapProps {
   children: React.ReactNode;
   onSingleTap: () => void;
   onDoubleTap: () => void;
   iconSize?: number;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 
 export const ElementTap = ({
@@ -139,7 +139,7 @@ export const ElementTap = ({
 export interface DisabledClickWrapperProps {
   children: React.ReactNode;
   onClick?: () => void;
-  style?: GenericStyle;
+  style?: BaseStyleObj;
 }
 /**
  * Wraps disabled UI elements to capture click events despite native browser event suppression.

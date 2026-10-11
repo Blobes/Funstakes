@@ -139,7 +139,7 @@ export const TestMultipleSelectSandbox = () => {
         sx={{
           p: theme.boxSpacing(4),
           backgroundColor: theme.palette.gray.trans[1],
-          borderRadius: theme.radius[2],
+          borderRadius: theme.radius[8],
         }}
       >
         <Typography variant="caption" display="block">

@@ -6,7 +6,7 @@ import {
   MESSAGES_REGISTRY,
   OtpMessageChannel,
 } from "@repo/shared";
-import { executeOtpDispatch } from "../services/dipatchCode";
+import { executeOtpDispatch, ISendOtpInput } from "../services/dipatchCode";
 
 /**
  * Controller endpoint to handle verification code requests.
@@ -16,10 +16,7 @@ export const sendMsgCode = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const { recipient, messageChannel } = req.body as {
-    recipient?: string;
-    messageChannel?: OtpMessageChannel;
-  };
+  const { recipient, messageChannel } = req.body as ISendOtpInput;
 
   if (!recipient) {
     res.status(400).json({

@@ -1,15 +1,17 @@
-// Data types
+// Types
 export * from "./types/user";
 export * from "./types/post";
 export * from "./types/media";
-export * from "./types/device";
 export * from "./types/moderation";
 export * from "./types/others";
 export * from "./types/authorization";
+export * from "./types/kyc";
 
 // Constants
 export * from "./constants/permissions";
 export * from "./constants/roles";
+export * from "./constants/fields";
+export * from "./constants/others";
 
 // Models
 // Permission & Roles
@@ -35,6 +37,8 @@ export * from "./models/non-entities/identity/status";
 export * from "./models/non-entities/authorization/role";
 export * from "./models/non-entities/identity/userSettings";
 export * from "./models/non-entities/identity/subscription";
+export * from "./models/non-entities/identity/publicFigure";
+export * from "./models/entities/badge";
 // Media
 export * from "./models/entities/media";
 // Topic

@@ -22,7 +22,6 @@ export const useAuthVerification = () => {
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
-
   const { translateTxtString } = useStaticTranslation();
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthSharedService();
@@ -79,7 +78,7 @@ export const useAuthVerification = () => {
       }
     },
     enabled: !temporarySession,
-    retry: 2,
+    retry: 3,
     refetchOnWindowFocus: true,
     refetchInterval: 20 * 60 * 1000, // 20 mins
     refetchIntervalInBackground: false,

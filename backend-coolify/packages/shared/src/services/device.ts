@@ -1,4 +1,9 @@
-import { DeviceModel, IDeviceDocument, IUserDocument } from "@repo/database";
+import {
+  DEVICE_NESTED_FIELDS,
+  DeviceModel,
+  IDeviceDocument,
+  IUserDocument,
+} from "@repo/database";
 import { UAParser } from "ua-parser-js";
 import mongoose, { Types } from "mongoose";
 import { cleanDeviceSessions } from "./session";
@@ -6,26 +11,6 @@ import { CACHE_EXPIRY, CACHE_KEYS } from "../constants/cacheKeys";
 import { deleteCache, getOrSetCache } from "./redis/cache/helpers";
 
 const TRUST_WINDOW = 30 * 24 * 60 * 60 * 1000; // 30 days
-
-// /**
-//  * Determines if a device is known and within the trust window.
-//  */
-// export async function evaluateDeviceTrust(
-//   device: IDeviceDocument | null,
-// ): Promise<{
-//   trusted: boolean;
-//   reason?: "NEW_DEVICE" | "STALE_DEVICE";
-// }> {
-//   if (!device || !device.isVerified) {
-//     return { trusted: false, reason: "NEW_DEVICE" };
-//   }
-//   const isStale =
-//     Date.now() - new Date(device.lastSeenAt).getTime() > TRUST_WINDOW;
-//   if (isStale) {
-//     return { trusted: false, reason: "STALE_DEVICE" };
-//   }
-//   return { trusted: true };
-// }
 
 export interface DeviceUsertOptions {
   user: IUserDocument;
@@ -35,8 +20,9 @@ export interface DeviceUsertOptions {
   session?: mongoose.ClientSession;
   markAsVerified?: boolean;
 }
+
 /**
- * Registers or updates a device and ensures a primary anchor exists.
+ * Registers or updates a shared device using atomic array operations.
  */
 export async function upsertDevice(
   options: DeviceUsertOptions,
@@ -52,58 +38,95 @@ export async function upsertDevice(
 
   let device: IDeviceDocument | null = null;
 
-  // 1. Try resolving by explicit targetDeviceId if provided
+  // 1. Try resolving by targetDeviceId if provided
   if (targetDeviceId && mongoose.Types.ObjectId.isValid(targetDeviceId)) {
     device = await DeviceModel.findOne({
       _id: targetDeviceId,
-      userId: user._id,
+      [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
     }).session(session ?? null);
   }
 
-  // 2. Fall back to resolving by deviceToken if no device was found
+  // 2. Fall back to resolving by deviceToken across all registered users
   if (!device && deviceToken) {
-    device = await DeviceModel.findOne({
-      userId: user._id,
-      deviceToken,
-    }).session(session ?? null);
+    device = await DeviceModel.findOne({ deviceToken }).session(
+      session ?? null,
+    );
   }
 
   const parser = new UAParser(userAgent);
   const ua = parser.getResult();
 
   if (!device) {
+    // Atomic creation if physical hardware record does not exist
     const [newDevice] = await DeviceModel.create(
       [
         {
-          userId: user._id,
+          users: [
+            {
+              userId: user._id,
+              isPrimary: false,
+              isVerified: markAsVerified,
+            },
+          ],
           deviceToken,
           userAgent,
           deviceType: ua.device.type || "desktop",
           os: ua.os.name,
           browser: ua.browser.name,
           name: `${ua.os.name || "Unknown"} ${ua.browser.name || "Browser"}`,
+          lastSeenAt: new Date(),
         },
       ],
       { session },
     );
     device = newDevice;
+  } else {
+    // Atomic update using positional and $push operators
+    const hasUser = device.users.some((u) => u.userId.equals(user._id));
+
+    if (!hasUser) {
+      // Add user metadata entry atomically if it doesn't exist
+      device = await DeviceModel.findByIdAndUpdate(
+        device._id,
+        {
+          $push: {
+            users: {
+              userId: user._id,
+              isPrimary: false,
+              isVerified: markAsVerified,
+            },
+          },
+          $set: { lastSeenAt: new Date() },
+        },
+        { new: true, session },
+      );
+    } else {
+      // Update existing user entry positional fields atomically
+      const updateFields: Record<string, any> = {
+        lastSeenAt: new Date(),
+      };
+
+      if (markAsVerified) {
+        updateFields[DEVICE_NESTED_FIELDS.USERS_POSITIONAL_IS_VERIFIED] = true;
+      }
+
+      device = await DeviceModel.findOneAndUpdate(
+        { _id: device._id, [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id },
+        { $set: updateFields },
+        { new: true, session },
+      );
+    }
   }
 
-  device.lastSeenAt = new Date();
-
-  if (markAsVerified) {
-    device.isVerified = true;
+  if (device) {
+    await ensurePrimaryDevice(user, device._id, session);
   }
 
-  await device.save({ session });
-
-  await ensurePrimaryDevice(user, device._id, session);
-
-  return device;
+  return device!;
 }
 
 /**
- * Anchors the user's account to a primary device and revokes sessions on all demoted hardware.
+ * Anchors the user's account to a primary device and demotes other primary devices for this user.
  */
 export async function ensurePrimaryDevice(
   user: IUserDocument,
@@ -111,26 +134,29 @@ export async function ensurePrimaryDevice(
   session?: mongoose.ClientSession,
 ): Promise<void> {
   if (user.primaryDeviceId) {
-    const existingPrimary = await DeviceModel.findById(
-      user.primaryDeviceId,
-    ).session(session ?? null);
-    // If we have a healthy primary anchor, no need to rotate.
+    const existingPrimary = await DeviceModel.findOne({
+      _id: user.primaryDeviceId,
+      users: {
+        $elemMatch: { userId: user._id, isPrimary: true },
+      },
+    }).session(session ?? null);
+
     if (existingPrimary && !existingPrimary.isStale) return;
   }
 
   let primaryCandidate = null;
 
-  // Prioritize the device currently in use.
   if (currentDeviceId) {
     primaryCandidate = await DeviceModel.findOne({
       _id: currentDeviceId,
-      userId: user._id,
+      [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
     }).session(session ?? null);
   }
 
-  // Fallback to the most recent hardware in the registry.
   if (!primaryCandidate) {
-    primaryCandidate = await DeviceModel.findOne({ userId: user._id })
+    primaryCandidate = await DeviceModel.findOne({
+      [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
+    })
       .sort({ lastSeenAt: -1 })
       .session(session ?? null);
   }
@@ -138,10 +164,10 @@ export async function ensurePrimaryDevice(
   if (primaryCandidate) {
     const candidateIdStr = primaryCandidate._id.toString();
 
-    // 1. Find all other devices currently marked as primary (the demotion list).
+    // 1. Find demoted devices for this specific user
     const demotedDevices = await DeviceModel.find({
-      userId: user._id,
-      isPrimary: true,
+      [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
+      [DEVICE_NESTED_FIELDS.USERS_IS_PRIMARY]: true,
       _id: { $ne: primaryCandidate._id },
     })
       .select("_id")
@@ -149,32 +175,40 @@ export async function ensurePrimaryDevice(
 
     const idsToClear = demotedDevices.map((d) => d._id.toString());
 
-    // 2. Revoke all sessions for the old primaries and the new candidate.
-    // We include the candidateIdStr to force a metadata sync in Redis on the next request.
+    // 2. Revoke active sessions
     await cleanDeviceSessions(user._id.toString(), [
       ...idsToClear,
       candidateIdStr,
     ]);
 
-    // 3. Database batch update: Ensure only the candidate is primary.
+    // 3. Demote all existing primary flags for this user atomically using $ positional operator
     await DeviceModel.updateMany(
       {
-        userId: user._id,
-        isPrimary: true,
+        [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
+        [DEVICE_NESTED_FIELDS.USERS_IS_PRIMARY]: true,
         _id: { $ne: primaryCandidate._id },
       },
-      { $set: { isPrimary: false } },
+      { $set: { [DEVICE_NESTED_FIELDS.USERS_POSITIONAL_IS_PRIMARY]: false } },
       { session },
     );
 
-    primaryCandidate.isPrimary = true;
-    primaryCandidate.isStale = false;
-    user.primaryDeviceId = primaryCandidate._id as Types.ObjectId;
+    // 4. Promote candidate device for this user atomically
+    await DeviceModel.updateOne(
+      {
+        _id: primaryCandidate._id,
+        [DEVICE_NESTED_FIELDS.USERS_USER_ID]: user._id,
+      },
+      {
+        $set: {
+          [DEVICE_NESTED_FIELDS.USERS_POSITIONAL_IS_PRIMARY]: true,
+          isStale: false,
+        },
+      },
+      { session },
+    );
 
-    await Promise.all([
-      primaryCandidate.save({ session }),
-      user.save({ session }),
-    ]);
+    user.primaryDeviceId = primaryCandidate._id as Types.ObjectId;
+    await user.save({ session });
   }
 }
 
@@ -182,8 +216,9 @@ interface ValidateDeviceResult {
   isTrusted: boolean;
   reason?: "NEW_DEVICE" | "STALE_DEVICE";
 }
+
 /**
- * Checks the Device Registry (via cache) to see if the device trust is still valid.
+ * Validates device trust using cached subdocument metadata checks.
  */
 export const validateDeviceTrust = async (
   userId: string,
@@ -200,15 +235,19 @@ export const validateDeviceTrust = async (
     async () => {
       if (!deviceToken) return { isTrusted: false };
 
-      const device = await DeviceModel.findOne({ userId, deviceToken });
+      const device = await DeviceModel.findOne({
+        deviceToken,
+        [DEVICE_NESTED_FIELDS.USERS_USER_ID]: userId,
+      });
 
-      // Invalidate cache if device record is missing or mismatched
       if (!device || device._id.toString() !== jwtDeviceId) {
         await deleteCache(cacheKey);
         return { isTrusted: false };
       }
 
-      if (!device.isVerified) {
+      const userMeta = device.users.find((u) => u.userId.toString() === userId);
+
+      if (!userMeta || !userMeta.isVerified) {
         return { isTrusted: false, reason: "NEW_DEVICE" };
       }
 

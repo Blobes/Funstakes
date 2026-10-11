@@ -3,6 +3,7 @@ import {
   UserSettingsModel,
   GistModel,
   TopicModel,
+  USER_SETTINGS_NESTED_FIELDS,
 } from "@repo/database";
 import { pruneDeadTopics, removeTopicsFromUser } from "@repo/shared";
 import cron from "node-cron";
@@ -54,11 +55,14 @@ export const initUserTopicCleanup = () => {
 
       // Query against display.contentPreferences.preferredTopics.lastViewed
       const cursor = UserSettingsModel.find({
-        "display.contentPreferences.preferredTopics.lastViewed": {
-          $lt: fourteenDaysAgo,
-        },
+        [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_LAST_VIEWED]:
+          {
+            $lt: fourteenDaysAgo,
+          },
       })
-        .select("userId display.contentPreferences.preferredTopics")
+        .select(
+          `userId ${USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS}`,
+        )
         .cursor();
 
       let processedUsers = 0;
@@ -136,10 +140,13 @@ export const initDeprecatedTopicSync = () => {
 
         // Update topic titles in UserSettings documents using positional filtering
         const userSettingsUpdateResult = await UserSettingsModel.updateMany(
-          { "display.contentPreferences.preferredTopics.topicId": _id },
+          {
+            [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_TOPIC_ID]:
+              _id,
+          },
           {
             $set: {
-              "display.contentPreferences.preferredTopics.$[elem].title":
+              [`${USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS}.$[elem].title`]:
                 currentTitle,
             },
           },

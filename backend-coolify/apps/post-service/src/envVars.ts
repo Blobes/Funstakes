@@ -1,41 +1,44 @@
 import type { RequestHandler } from "express";
-import { getEnv, IAuthConfig, IS3Config, loadEnv } from "@repo/shared";
+import {
+  ENV_KEYS,
+  getEnv,
+  IAuthConfig,
+  IS3Config,
+  loadEnv,
+} from "@repo/shared";
 import { verifyAuthOptionally, verifyAuthTokens } from "@repo/security";
 
 if (process.env.NODE_ENV !== "production") {
   loadEnv();
 }
-
 /**
  * Core Post Service Environment Variables
  */
 export const env = {
   get NODE_ENV() {
-    return getEnv("NODE_ENV");
+    return getEnv(ENV_KEYS.NODE_ENV);
   },
   get MONGO_URI() {
-    return getEnv("MONGO_URI");
+    return getEnv(ENV_KEYS.MONGO_URI);
   },
   get PORT() {
-    return parseInt(getEnv("POST_PORT", false) || "8081", 10);
+    return parseInt(getEnv(ENV_KEYS.POST_PORT, false) || "8081", 10);
   },
   get SERVICE_URL() {
-    return getEnv("POST_URL");
+    return getEnv(ENV_KEYS.POST_URL);
   },
   get FUNSTAKES_REDIS_URL() {
-    return getEnv("FUNSTAKES_REDIS_URL");
+    return getEnv(ENV_KEYS.FUNSTAKES_REDIS_URL);
   },
 };
 
-/**
- * Authentication Configuration
- */
+// Authentication Configuration
 export const authConfig: IAuthConfig = {
   get ACCESS_TOKEN_SECRET() {
-    return getEnv("JWT_SECRET");
+    return getEnv(ENV_KEYS.JWT_SECRET);
   },
   get REFRESH_TOKEN_SECRET() {
-    return getEnv("REFRESH_TOKEN_SECRET");
+    return getEnv(ENV_KEYS.REFRESH_TOKEN_SECRET);
   },
 };
 
@@ -44,22 +47,22 @@ export const authConfig: IAuthConfig = {
  */
 export const s3Config: IS3Config = {
   get REGION() {
-    return getEnv("CLOUDFLARE_REGION");
+    return getEnv(ENV_KEYS.CLOUDFLARE_REGION);
   },
   get ACCESS_KEY_ID() {
-    return getEnv("CLOUDFLARE_ACCESS_KEY");
+    return getEnv(ENV_KEYS.CLOUDFLARE_ACCESS_KEY);
   },
   get SECRET_ACCESS_KEY() {
-    return getEnv("CLOUDFLARE_SECRET_KEY");
+    return getEnv(ENV_KEYS.CLOUDFLARE_SECRET_KEY);
   },
   get BUCKET_NAME() {
-    return getEnv("CLOUDFLARE_BUCKET_NAME");
+    return getEnv(ENV_KEYS.CLOUDFLARE_BUCKET_NAME);
   },
   get ENDPOINT_URL() {
-    return getEnv("CLOUDFLARE_ENDPOINT_URL");
+    return getEnv(ENV_KEYS.CLOUDFLARE_ENDPOINT_URL);
   },
   get PUBLIC_URL() {
-    return getEnv("CLOUDFLARE_PUBLIC_MEDIA_URL");
+    return getEnv(ENV_KEYS.CLOUDFLARE_PUBLIC_MEDIA_URL);
   },
 };
 
@@ -74,10 +77,7 @@ export const authenticate: RequestHandler = verifyAuthTokens(authConfig);
 export const optionallyAuthenticate: RequestHandler =
   verifyAuthOptionally(authConfig);
 
-/**
- * Legacy Compatibility Exports
- * Maintains support for existing 'import { VAR } from "./config"' patterns.
- */
+// Legacy Compatibility Exports
 export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.PORT;
 export const MONGO_URI = env.MONGO_URI;

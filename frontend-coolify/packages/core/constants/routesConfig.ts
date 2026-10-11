@@ -4,7 +4,7 @@ import { IPage } from "../types/ui-props";
 import { COMMON_BUTTON_LABELS, COMMON_LIST } from "./msgRegistry";
 
 export const CLIENT_ROUTES = {
-  // Web
+  // Platform
   about: { title: COMMON_LIST.nav.about.tValue, path: "/about" },
   pricing: { title: COMMON_LIST.nav.pricing.tValue, path: "/pricing" },
   blogs: { title: COMMON_LIST.nav.blogs.tValue, path: "/blogs" },
@@ -172,7 +172,13 @@ export const SERVER_API = {
   updateOnboarding: `${API_BASE.auth}/onboarding`,
   oauthPopup: `${API_BASE.auth}/oauth/popup`,
   initiateGoogleOauth: `${API_BASE.auth}/oauth/google`,
+  initiateFacebookOauth: `${API_BASE.auth}/oauth/facebook`,
+  initiateGithubOauth: `${API_BASE.auth}/oauth/github`,
+  initiateXOauth: `${API_BASE.auth}/oauth/x`,
+  initiateLinkedinOauth: `${API_BASE.auth}/oauth/linkedin`,
   oauthGoogleCallback: `${API_BASE.auth}/oauth/google/callback`,
+  initiateAppleOauth: `${API_BASE.auth}/oauth/apple`,
+  oauthAppleCallback: `${API_BASE.auth}/oauth/apple/callback`,
   // Device
   getDevices: `${API_BASE.auth}/devices/`,
   setPrimaryDevice: (userId: string) =>

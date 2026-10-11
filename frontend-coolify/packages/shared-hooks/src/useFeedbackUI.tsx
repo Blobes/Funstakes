@@ -80,7 +80,7 @@ export const useDisplayFBConfig = (): Record<
       },
       icon: <Unplug />,
       style: {
-        container: {
+        wrapper: {
           backgroundColor: "transparent",
           border: "none",
           [theme.breakpoints.up("md")]: {
@@ -102,7 +102,7 @@ export const useDisplayFBConfig = (): Record<
       },
       icon: <CloudAlert />,
       style: {
-        container: {
+        wrapper: {
           backgroundColor: "transparent",
           border: "none",
           [theme.breakpoints.up("md")]: {
@@ -117,7 +117,7 @@ export const useDisplayFBConfig = (): Record<
     UNKNOWN: {
       icon: <Milestone />,
       style: {
-        container: {
+        wrapper: {
           backgroundColor: "transparent",
           border: "none",
           gap: theme.gap(6),

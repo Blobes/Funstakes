@@ -35,7 +35,10 @@ export const otpDispatchWorker = () => {
       switch (otpType) {
         case "EMAIL":
           await dispatchEmailCode(
-            { code, recipient: { email: receiver, firstName, userIp } },
+            {
+              code,
+              recipient: { email: receiver, displayName: firstName, userIp },
+            },
             codeDispatchTokens,
           );
           break;

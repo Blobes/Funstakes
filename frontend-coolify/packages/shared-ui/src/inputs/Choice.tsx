@@ -104,7 +104,7 @@ export const ChoiceInput = ({
         width: checkIconSize,
         height: checkIconSize,
         border: `2px solid ${checked ? theme.palette.primary.main : theme.palette.gray[200]}`,
-        borderRadius: type === "check" ? theme.radius[1] : theme.radius.full,
+        borderRadius: type === "check" ? theme.radius[16] : theme.radius.full,
         backgroundColor:
           checked && type !== "radio"
             ? theme.palette.primary.main
@@ -213,7 +213,7 @@ export const ChoiceInput = ({
             disabled={disabled}
             onChange={handleChange}
             sx={{
-              borderRadius: theme.radius[2],
+              borderRadius: theme.radius[8],
               ...controlSx,
             }}
             icon={renderCheckIcon("check")}
@@ -228,9 +228,9 @@ export const ChoiceInput = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        ...style?.container?.base,
+        ...style?.wrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.container?.smallScreen,
+          ...style?.wrapper?.smScreen,
         },
       }}
     >
@@ -239,7 +239,7 @@ export const ChoiceInput = ({
           flexDirection: "row",
           alignItems: "center",
           gap: theme.gap(2),
-          ...style?.content,
+          ...style?.element,
         }}
       >
         <FormControlLabel

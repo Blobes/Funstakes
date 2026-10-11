@@ -2,11 +2,11 @@
 
 import React, { useRef, useState } from "react";
 import { Box } from "@mui/material";
-import { GenericStyle, IMedia } from "@repo/core";
+import { BaseStyleObj, IMedia } from "@repo/core";
 import { Play } from "lucide-react";
 
 interface VideoProps extends IMedia {
-  style?: GenericStyle;
+  style?: BaseStyleObj;
   setIsLoaded?: (loaded: boolean) => void;
   autoPlay?: boolean;
   loop?: boolean;

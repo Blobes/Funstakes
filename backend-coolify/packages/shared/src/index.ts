@@ -25,7 +25,7 @@ export * from "./services/post/feed/reRankFeed";
 export * from "./services/post/fetch/postData";
 export * from "./services/post/fetch/dataLookup";
 // User
-export * from "./services/user/publicStatus";
+export * from "./services/public-figure/publicStatus";
 export * from "./services/user/accountStatus";
 export * from "./services/user/deleteAccount";
 export * from "./services/user/pipelines/singleUser";
@@ -33,6 +33,10 @@ export * from "./services/user/pipelines/userList";
 export * from "./services/user/pipelines/dataLookup";
 export * from "./services/user/retrieve/fetchUser";
 export * from "./services/user/settings";
+// Public Figure
+export * from "./services/public-figure/fetchExternal";
+// KYC
+export * from "./services/kyc/fetch";
 // Media
 export * from "./services/s3";
 export * from "./services/media/createBatch";
@@ -49,13 +53,13 @@ export * from "./services/topic/ai";
 // Moderation
 export * from "./services/moderation/resolveCase";
 export * from "./services/moderation/reportCase";
+export * from "./services/moderation/helpers";
 
 // Routes
 export * from "./utils/status";
 
 // Utility
 export * from "./utils/calculations";
-export * from "./utils/notability";
 export * from "./utils/sanitizeData";
 export * from "./services/post/feed/userPrefs";
 export * from "./utils/hash";
@@ -72,6 +76,7 @@ export * from "./constants/msgRegistry";
 export * from "./constants/others";
 export * from "./constants/cacheKeys";
 export * from "./constants/invalidators";
+export * from "./constants/envKeys";
 
 // Environment config
 export * from "../env-config/corsConfig";

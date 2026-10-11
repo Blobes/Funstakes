@@ -4,20 +4,20 @@ import React from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { CarouselArrows, CarouselDots } from "./Controls";
-import { GenericStyle } from "@repo/core";
+import { BaseStyleProps } from "@repo/core";
 import { useLinearCarousel } from "@repo/shared-hooks";
 
-export interface CarouselStyle {
-  container?: GenericStyle;
-  viewport?: GenericStyle;
-  item?: React.CSSProperties;
-  arrowLeft?: GenericStyle;
-  arrowRight?: GenericStyle;
-}
+// export interface CarouselStyle {
+//   container?: BaseStyleObj;
+//   viewport?: BaseStyleObj;
+//   item?: Base;
+//   arrowLeft?: BaseStyleObj;
+//   arrowRight?: BaseStyleObj;
+// }
 
 export interface CarouselProps {
   items: React.ReactNode[];
-  style?: CarouselStyle;
+  style?: BaseStyleProps;
   showArrows?: boolean;
   autoPlay?: boolean;
   pauseOnHover?: boolean;
@@ -79,8 +79,9 @@ export const LinearCarousel = ({
         gap: theme.gap(5),
         flex: "none",
         userSelect: "none",
-        ...style?.container,
-      }}>
+        ...style?.wrapper,
+      }}
+    >
       <Box
         ref={viewportRef}
         onScroll={handleScroll}
@@ -102,7 +103,8 @@ export const LinearCarousel = ({
             display: "none",
           },
           ...style?.viewport,
-        }}>
+        }}
+      >
         {items.map((item, idx) => (
           <Box
             key={idx}
@@ -120,7 +122,8 @@ export const LinearCarousel = ({
                 width: "70%",
               },
               ...style?.item,
-            }}>
+            }}
+          >
             {item}
           </Box>
         ))}

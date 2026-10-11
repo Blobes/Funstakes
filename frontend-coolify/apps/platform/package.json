@@ -1,0 +1,32 @@
+{
+  "name": "@repo/platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build --webpack",
+    "start": "next start -p 3001"
+  },
+  "dependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@mui/material": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "lucide-react": "catalog:",
+    "@repo/shared-ui": "workspace:*",
+    "@repo/features": "workspace:*",
+    "@repo/shared-hooks": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/core": "workspace:*",
+    "@repo/assets": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}

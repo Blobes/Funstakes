@@ -12,8 +12,7 @@ export const postStaticLookup = (): PipelineStage[] => {
           {
             $project: {
               username: 1,
-              firstName: 1,
-              lastName: 1,
+              displayName: 1,
               profileImage: 1,
             },
           },
