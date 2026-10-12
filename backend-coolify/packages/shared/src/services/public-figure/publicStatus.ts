@@ -1,6 +1,5 @@
 import dns from "node:dns/promises";
-// import { domains as disposableDomains } from "disposable-email-domain";
-// import freeEmailDomains from "free-email-domains";
+
 import type { IPublicFigureBase } from "@repo/database";
 import {
   APP_FREE_EMAIL_LIST,
