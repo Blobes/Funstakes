@@ -62,33 +62,6 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
     },
 
     webpack(config) {
-      // Excludes non-source directories from Webpack Watchpack file watching
-      // const prev = config.watchOptions?.ignored;
-      // const prevList = Array.isArray(prev) ? prev : prev != null ? [prev] : [];
-
-      // const ignored = [...prevList, ...ignoredWatchPatterns].filter(
-      //   (entry) =>
-      //     (typeof entry === "string" && entry.trim().length > 0) ||
-      //     entry instanceof RegExp,
-      // );
-
-      // config.watchOptions = {
-      //   ...config.watchOptions,
-      //   ignoredWatchPatterns,
-      // };
-
-      // config.watchOptions = {
-      //   ...config.watchOptions,
-      //   // ignored: [
-      //   //   ...(Array.isArray(config.watchOptions?.ignored)
-      //   //     ? config.watchOptions.ignored
-      //   //     : config.watchOptions?.ignored
-      //   //       ? [config.watchOptions.ignored]
-      //   //       : []),
-      //   //   ...ignoredWatchPatterns,
-      //   // ],
-      // };
-
       // Retains support if building with --webpack flag
       config.module.rules.push({
         test: /\.lottie$/,

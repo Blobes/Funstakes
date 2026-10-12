@@ -14,15 +14,6 @@ export type WikipediaLookupResult = {
 };
 
 // Build Set once at module load (startup)
-const FREE_DOMAINS = new Set([
-  ...(freeEmailDomains as string[]).map((d) => d.toLowerCase()),
-  ...APP_FREE_EMAIL_LIST,
-]);
-
-const DISPOSABLE_DOMAINS = new Set([
-  ...disposableDomains.map((d) => d.toLowerCase()),
-  ...APP_DISPOSABLE_DOMAINS,
-]);
 
 /**
  * Evaluates domain/email reputation
@@ -32,6 +23,16 @@ export const checkEmailReputation = async (email: string): Promise<boolean> => {
 
   const domain = email.split("@")[1]?.toLowerCase().trim();
   if (!domain) return false;
+
+  const FREE_DOMAINS = new Set([
+    ...(freeEmailDomains as string[]).map((d) => d.toLowerCase()),
+    ...APP_FREE_EMAIL_LIST,
+  ]);
+
+  const DISPOSABLE_DOMAINS = new Set([
+    ...disposableDomains.map((d) => d.toLowerCase()),
+    ...APP_DISPOSABLE_DOMAINS,
+  ]);
 
   // 1) Free / consumer webmail
   if (FREE_DOMAINS.has(domain)) return false;
