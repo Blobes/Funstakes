@@ -1,6 +1,6 @@
 import dns from "node:dns/promises";
 import { domains as disposableDomains } from "disposable-email-domain";
-import freeEmailDomains from "free-email-domains";
+// import freeEmailDomains from "free-email-domains";
 import type { IPublicFigureBase } from "@repo/database";
 import {
   APP_FREE_EMAIL_LIST,
@@ -25,7 +25,7 @@ export const checkEmailReputation = async (email: string): Promise<boolean> => {
   if (!domain) return false;
 
   const FREE_DOMAINS = new Set([
-    ...(freeEmailDomains as string[]).map((d) => d.toLowerCase()),
+    // ...(freeEmailDomains as string[]).map((d) => d.toLowerCase()),
     ...APP_FREE_EMAIL_LIST,
   ]);
 

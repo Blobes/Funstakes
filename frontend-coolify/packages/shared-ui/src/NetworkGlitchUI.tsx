@@ -27,11 +27,36 @@ export const NetworkGlitchUI = ({
   const { translateTxtString } = useStaticTranslation();
 
   useEffect(() => {
-    const refreshTimer = window.setTimeout(() => {
-      window.location.reload();
-    }, AUTO_REFRESH_MS);
+    let refreshTimer: number | null = null;
 
-    return () => window.clearTimeout(refreshTimer);
+    const clearTimer = () => {
+      if (refreshTimer !== null) {
+        window.clearTimeout(refreshTimer);
+        refreshTimer = null;
+      }
+    };
+    const startTimer = () => {
+      clearTimer();
+      refreshTimer = window.setTimeout(() => {
+        window.location.reload();
+      }, AUTO_REFRESH_MS);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startTimer();
+      } else {
+        clearTimer();
+      }
+    };
+
+    if (document.visibilityState === "visible") startTimer();
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      clearTimer();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   return (
