@@ -123,7 +123,7 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
             variant: isIdle ? "indeterminate" : "determinate",
             size: 24,
           }}
-          style={{ wrapper: { flexShrink: 0 } }}
+          style={{ itemWrapper: { flexShrink: 0 } }}
         />
         <TransText
           {...COMMON_MEDIA.track_upload_progress(currentProgress)}
@@ -197,7 +197,7 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
         <Media
           {...formattedMediaList[0]}
           includeCustomizations
-          style={{ wrapper: mediaStyle.wrapper }}
+          style={{ itemWrapper: mediaStyle.itemWrapper }}
         />
         {renderItemOverlay(formattedMediaList[0], 0)}
       </Box>

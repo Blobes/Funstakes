@@ -109,8 +109,7 @@ export type BaseStyleObj = GenericStyle & {
 };
 export interface BaseStyleProps {
   style?: BaseStyleObj;
-  wrapper?: BaseStyleObj;
-  targetContent?: BaseStyleObj;
+  itemWrapper?: BaseStyleObj;
   viewport?: BaseStyleObj;
 
   // Typography & Headers
@@ -123,6 +122,7 @@ export interface BaseStyleProps {
 
   // Navigation & Interactive Elements
   item?: BaseStyleObj;
+  listWrapper?: BaseStyleObj;
   link?: BaseStyleObj;
   icon?: BaseStyleObj;
   searchBar?: BaseStyleObj;
@@ -169,7 +169,9 @@ export interface IMenuItem {
   id?: string;
   title?: string;
   type?: "LINK" | "BUTTON" | "COMPONENT";
-  element?: React.ReactNode;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
+  component?: React.ReactNode;
   url?: string;
   action?: () => void;
 }

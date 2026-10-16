@@ -14,21 +14,21 @@ export const matchPaths = (pathA: string, pageB: string) => {
   );
 };
 
-const normalize = (p: string) => {
+export const normalizePath = (p: string) => {
   const low = p.toLowerCase().trim();
   if (low === "/" || !low) return "/";
-  return low.replace(/\/+$/, "");
+  return low.replace(/\/+$/, "").split("?")[0].split("#")[0];
 };
 /**
  * Determines the primary application zone for a given path based on the registry.
  */
 const getZoneFromRegistry = (path: string): string | null => {
-  const target = normalize(path);
+  const target = normalizePath(path);
   const entry = Object.entries(ROUTES_REGISTRY).find(([key, routes]) => {
     // Skip utility/grouping keys to find the actual hosting app
     if (key === "external" || key === "offline") return false;
 
-    return routes.some((r) => normalize(r) === target);
+    return routes.some((r) => normalizePath(r) === target);
   });
   return entry ? entry[0] : null;
 };
@@ -37,18 +37,19 @@ const getZoneFromRegistry = (path: string): string | null => {
  * or if it can be handled by the current app's SPA router.
  */
 export const crossZoneCheck = (path: string): boolean => {
-  const targetPath = normalize(path);
-  const currentPath = normalize(window.location.pathname);
+  if (typeof window === "undefined") return false;
+  const targetPath = normalizePath(path);
+  const currentPath = normalizePath(window.location.pathname);
 
   // Exit early if paths are effectively identical
   if (targetPath === currentPath) return false;
 
   // Explicit Shell-to-Shell check for the Root
   const isTargetShell = ROUTES_REGISTRY.shell.some(
-    (r) => normalize(r) === targetPath,
+    (r) => normalizePath(r) === targetPath,
   );
   const isCurrentShell = ROUTES_REGISTRY.shell.some(
-    (r) => normalize(r) === currentPath,
+    (r) => normalizePath(r) === currentPath,
   );
   if (isTargetShell && isCurrentShell) return false;
 

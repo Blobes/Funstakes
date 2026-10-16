@@ -15,8 +15,8 @@ import {
   BaseStyleObj,
   IMenuItem,
   ListType,
-  LISTS,
   BaseStyleProps,
+  MESSAGE_LIST,
 } from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
 import { SearchBar } from "./inputs/Search";
@@ -246,26 +246,35 @@ export const DisplayList = <T extends IMenuItem>({
    * Returns localized fallback messaging contextual parameters.
    */
   const feedback = () => {
-    if (isSourceEmpty)
-      return LISTS(translateTxtString).MESSAGES[listName].empty;
+    if (isSourceEmpty) return MESSAGE_LIST(translateTxtString)[listName].empty;
     if (isSearchEmpty)
-      return LISTS(translateTxtString).MESSAGES[listName].noMatch;
+      return MESSAGE_LIST(translateTxtString)[listName].noMatch;
     if (isLoading) return "Fetching list entries...";
     return null;
   };
 
   // Default styles for nav menus
-  const itemStyle: BaseStyleObj = {
-    padding: theme.boxSpacing(4, 6),
-    gap: theme.gap(8),
-    textAlign: "left",
-    width: "100%",
-    "& svg": {
-      width: "20px",
-      height: "20px",
-      flex: "none",
+  const itemStyle: BaseStyleProps = {
+    item: {
+      textAlign: "left",
+      ...style?.item,
     },
-    ...style?.item,
+    itemWrapper: {
+      width: "100%",
+      padding: theme.boxSpacing(4, 6),
+      gap: theme.boxSpacing(8),
+      "& svg": {
+        width: 20,
+        height: 20,
+        flex: "none",
+      },
+      ...style?.itemWrapper,
+    },
+    listWrapper: {
+      gap: theme.gap(6),
+      flexDirection: "column",
+      ...style?.listWrapper,
+    },
   };
 
   return (
@@ -281,7 +290,7 @@ export const DisplayList = <T extends IMenuItem>({
           maxWidth: "unset",
         },
 
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (

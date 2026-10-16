@@ -122,9 +122,9 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
         gap: theme.gap(10),
         [theme.breakpoints.down("sm")]: {
           width: "100%",
-          ...style.wrapper?.mobiles,
+          ...style.itemWrapper?.mobiles,
         },
-        ...style.wrapper,
+        ...style.itemWrapper,
       }}
     >
       <Stepper steps={steps} currStep={step} setCurrStep={setStep} />

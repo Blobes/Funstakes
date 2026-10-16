@@ -20,56 +20,70 @@ import { useHeader, usePopup } from "@repo/features";
 export const Header: React.FC<ScrollRefProps> = ({ scrollRef }) => {
   const theme = useTheme();
   const { openPopup } = usePopup();
-  const { isLoggedIn, isDesktop, authStatus, navigateTo } =
+  const { isLoggedIn, isLoggedOut, isDesktop, navigateTo } =
     useHeader(scrollRef);
 
   const openMobileWebNav = useCallback(
     () =>
       openPopup({
         name: "WEB_MOBILE_MENU",
-        content: <MobileNav style={{ gap: theme.gap(4) }} />,
+        content: <MobileNav />,
       }),
     [openPopup, theme],
   );
 
   return (
-    <BaseHeader
-      scrollRef={scrollRef}
-      logoHref={CLIENT_ROUTES.about.path}
-      onLogoClick={() => navigateTo(CLIENT_ROUTES.about)}
-      hideOnPageScroll
-      style={{
-        paddingLeft: !isDesktop
-          ? theme.boxSpacing(10) + "!important"
-          : undefined,
-      }}
-    >
-      {/* Right controls specific to public marketing view */}
-      {isDesktop && (
-        <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
+    <BaseHeader scrollRef={scrollRef} hideOnPageScroll>
+      {/* Right controls specific to public view */}
+      <Stack
+        sx={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: theme.gap(16),
+          [theme.breakpoints.down("md")]: {
+            gap: theme.gap(8),
+          },
+        }}
+      >
+        {isDesktop && (
           <DesktopNav
             style={{
-              display: { xs: "none", md: "flex", flexDirection: "row" },
-              gap: theme.gap(4),
+              listWrapper: {
+                display: { xs: "none", md: "flex" },
+                gap: theme.gap(4),
+              },
             }}
           />
+        )}
 
-          {isLoggedIn && (
+        {isLoggedIn && (
+          <AppButton
+            variant="outlined"
+            size="small"
+            href={CLIENT_ROUTES.home.path}
+            onClick={() => navigateTo(CLIENT_ROUTES.home)}
+          >
+            <TransText {...COMMON_BUTTON_LABELS.go_to_funstakes} noComponent />
+          </AppButton>
+        )}
+
+        {isLoggedOut && (
+          <Stack
+            sx={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.gap(6),
+            }}
+          >
             <AppButton
               variant="outlined"
               size="small"
-              href={CLIENT_ROUTES.home.path}
-              onClick={() => navigateTo(CLIENT_ROUTES.home)}
+              href={CLIENT_ROUTES.login.path}
+              onClick={() => navigateTo(CLIENT_ROUTES.login)}
             >
-              <TransText
-                {...COMMON_BUTTON_LABELS.go_to_funstakes}
-                noComponent
-              />
+              <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
             </AppButton>
-          )}
-
-          {authStatus === "UNAUTHENTICATED" && (
-            <Stack direction="row" alignItems="center" spacing={theme.gap(0)}>
+            {isDesktop && (
               <AppButton
                 variant="contained"
                 size="small"
@@ -78,25 +92,17 @@ export const Header: React.FC<ScrollRefProps> = ({ scrollRef }) => {
               >
                 <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
               </AppButton>
-              <AppButton
-                variant="outlined"
-                size="small"
-                href={CLIENT_ROUTES.login.path}
-                onClick={() => navigateTo(CLIENT_ROUTES.login)}
-              >
-                <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
-              </AppButton>
-            </Stack>
-          )}
-        </Stack>
-      )}
+            )}
+          </Stack>
+        )}
 
-      {/* Mobile hamburger (logged out only) */}
-      {!isDesktop && (
-        <IconButton onClick={openMobileWebNav} aria-label="Open menu">
-          <Menu />
-        </IconButton>
-      )}
+        {/* Mobile hamburger (logged out only) */}
+        {!isDesktop && (
+          <IconButton onClick={openMobileWebNav} aria-label="Open menu">
+            <Menu style={{ stroke: theme.palette.gray[300] }} />
+          </IconButton>
+        )}
+      </Stack>
     </BaseHeader>
   );
 };

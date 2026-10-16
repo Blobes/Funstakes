@@ -1,24 +1,17 @@
 import { Response, NextFunction } from "express";
 import {
+  CreateTopicsInput,
   executeTopicsCreation,
   forwardError,
   IAuthRequest,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
-import { ResourceType } from "@repo/database";
-
-interface CreateTopicsRequest extends IAuthRequest {
-  body: {
-    topics: string[];
-    createdByType?: ResourceType;
-  };
-}
 
 /**
  * Controller endpoint to handle bulk initialization of missing topics and return topic documents.
  */
 export const createNewTopics = async (
-  req: CreateTopicsRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
@@ -33,7 +26,7 @@ export const createNewTopics = async (
   }
 
   try {
-    const { topics, createdByType = "ADMIN" } = req.body || {};
+    const { topics, createdByType } = req.body as CreateTopicsInput;
 
     const serviceResult = await executeTopicsCreation({
       topics,

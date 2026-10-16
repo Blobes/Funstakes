@@ -62,12 +62,12 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
         gap: theme.gap(10),
         width: "40%",
         maxWidth: 400,
-        ...style.wrapper,
+        ...style.itemWrapper,
         [theme.breakpoints.down("md")]: {
           width: "60%",
           maxWidth: "unset",
           flex: "none",
-          ...style.wrapper?.mdScreen,
+          ...style.itemWrapper?.mdScreen,
         },
         [theme.breakpoints.down("sm")]: {
           width: "100%",
@@ -76,9 +76,8 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
       }}
     >
       <AppLogo
-        size={44}
         color={theme.palette.gray[300]}
-        sx={{ alignSelf: "center" }}
+        style={{ itemWrapper: { alignSelf: "center" } }}
       />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>

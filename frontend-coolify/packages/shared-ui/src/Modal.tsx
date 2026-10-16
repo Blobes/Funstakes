@@ -109,19 +109,19 @@ export const Modal = forwardRef<OverlayRef, ModalProps>(
               backgroundColor: theme.palette.gray[0],
               borderRadius: theme.radius[12],
               overflow: "hidden",
-              width: style?.targetContent?.base?.width ?? "40%",
-              maxWidth: style?.targetContent?.base?.maxWidth ?? "400px",
+              width: style?.itemWrapper?.base?.width ?? "40%",
+              maxWidth: style?.itemWrapper?.base?.maxWidth ?? "400px",
               touchAction: "none",
-              ...style?.targetContent?.base,
+              ...style?.itemWrapper?.base,
 
               [theme.breakpoints.down("md")]: {
                 width: "60%",
                 maxWidth: "350px",
               },
               [theme.breakpoints.down("sm")]: {
-                width: style?.targetContent?.smScreen?.width ?? "89%",
-                maxWidth: style?.targetContent?.smScreen?.maxWidth ?? "100%",
-                ...style?.targetContent?.smScreen,
+                width: style?.itemWrapper?.smScreen?.width ?? "89%",
+                maxWidth: style?.itemWrapper?.smScreen?.maxWidth ?? "100%",
+                ...style?.itemWrapper?.smScreen,
               },
             }}
           >

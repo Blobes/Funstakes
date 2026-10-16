@@ -12,6 +12,7 @@ import {
 } from "@repo/shared-ui";
 import { getSectionStyle, LAST_UPDATED, SECTIONS } from "./content";
 import { asset } from "@repo/assets";
+import { useMisc } from "@repo/shared-hooks";
 
 /**
  * Public Terms of Use / User Agreement page for Funstakes.
@@ -19,6 +20,7 @@ import { asset } from "@repo/assets";
 export default function TermsOfUsePage() {
   const theme = useTheme();
   const { titleSx, bodySx, metaSx } = getSectionStyle(theme);
+  const { isDesktop } = useMisc();
 
   return (
     <Stack
@@ -49,24 +51,21 @@ export default function TermsOfUsePage() {
         sx={{
           flexDirection: "row",
           position: "relative",
-          borderRadius: theme.radius[40],
+          borderRadius: isDesktop ? theme.radius[24] : theme.radius[12],
           overflow: "hidden",
           background: theme.fixedColors.pTrans,
-          height: 400,
+          height: "fit-content",
+          minHeight: isDesktop ? 200 : "fit-content",
           gap: 0,
-          [theme.breakpoints.down("md")]: {
-            flexDirection: "column-reverse",
-            padding: theme.boxSpacing(26, 20),
-          },
         }}
       >
         <Stack
           sx={{
             justifyContent: "center",
             gap: theme.gap(12),
-            padding: theme.boxSpacing(26),
+            padding: theme.boxSpacing(24),
             [theme.breakpoints.down("md")]: {
-              padding: theme.boxSpacing(26, 20),
+              padding: theme.boxSpacing(20),
             },
           }}
         >
@@ -78,19 +77,25 @@ export default function TermsOfUsePage() {
               color: theme.palette.gray[300],
             }}
           />
-          <TransText {...PLATFORM_TERMS_PAGE.page_tagline} sx={bodySx} />
+          <TransText
+            {...PLATFORM_TERMS_PAGE.page_tagline}
+            sx={{ ...bodySx, color: theme.palette.gray[200] }}
+          />
           <TransText
             component="span"
             {...PLATFORM_TERMS_PAGE.last_updated(LAST_UPDATED)}
             sx={metaSx}
           />
         </Stack>
-        <AppImage
-          src={asset.marketingImg2}
-          alt="Terms of use image"
-          fill
-          prioritize
-        />
+
+        {isDesktop && (
+          <AppImage
+            src={asset.marketingImg3}
+            alt="Terms of use image"
+            fill
+            prioritize
+          />
+        )}
       </Stack>
 
       {/* Content section */}

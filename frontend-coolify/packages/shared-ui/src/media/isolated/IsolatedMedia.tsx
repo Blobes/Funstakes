@@ -62,7 +62,7 @@ export const IsolatedMedia = ({
     <MediaRenderer
       key={media._id}
       media={media}
-      style={{ targetContent: { maxHeight: isDesktop ? "80svh" : "60svh" } }}
+      style={{ itemWrapper: { maxHeight: isDesktop ? "80svh" : "60svh" } }}
     />
   ));
 

@@ -22,7 +22,6 @@ const getDomainSets = async () => {
     ((await import("free-email-domains")).default as string[]) ?? [];
   const disposableExtra =
     (await import("disposable-email-domain")).domains ?? [];
-
   freeSet = new Set(
     [...freeExtra, ...APP_FREE_EMAIL_LIST].map((d) => d.toLowerCase()),
   );
@@ -50,38 +49,6 @@ export const checkEmailReputation = async (email: string): Promise<boolean> => {
     return false;
   }
 };
-
-// export const checkEmailReputation = async (email: string): Promise<boolean> => {
-//   if (!email || !email.includes("@")) return false;
-
-//   const domain = email.split("@")[1]?.toLowerCase().trim();
-//   if (!domain) return false;
-
-//   const FREE_DOMAINS = new Set([
-//     ...(freeEmailDomains as string[]).map((d) => d.toLowerCase()),
-//     ...APP_FREE_EMAIL_LIST,
-//   ]);
-
-//   const DISPOSABLE_DOMAINS = new Set(
-//     // ...disposableDomains.map((d) => d.toLowerCase()),
-//     APP_DISPOSABLE_DOMAINS,
-//   );
-
-//   // 1) Free / consumer webmail
-//   if (FREE_DOMAINS.has(domain)) return false;
-
-//   // 2) Disposable / temp-mail (package accepts email or domain)
-//   if (DISPOSABLE_DOMAINS.has(domain)) return false;
-
-//   // 3) Must have MX records
-//   try {
-//     const mx = await dns.resolveMx(domain);
-//     if (!mx?.length) return false;
-//   } catch {
-//     return false;
-//   }
-//   return true;
-// };
 
 /**
  * Checks Wikipedia for a page matching the query and returns title + intro extract when present.

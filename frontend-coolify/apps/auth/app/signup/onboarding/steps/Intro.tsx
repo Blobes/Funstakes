@@ -80,7 +80,7 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
       />
       <Logout
         style={{
-          wrapper: {
+          itemWrapper: {
             gap: theme.gap(4),
             hover: {
               "& svg": { stroke: theme.palette.primary.dark },

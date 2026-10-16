@@ -48,7 +48,7 @@ export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
                 variant: "determinate",
                 size: 24,
               }}
-              style={{ wrapper: { flexShrink: 0 } }}
+              style={{ itemWrapper: { flexShrink: 0 } }}
             />
           </Stack>
         );

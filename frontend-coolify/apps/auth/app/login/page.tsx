@@ -4,13 +4,11 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
-import { applyBGPattern } from "@repo/helpers";
 import { usePopup } from "@repo/features";
 import { TrendingPosts } from "./TrendingPosts";
 import { AUTH_BUTTON_LABELS, useGlobalStore } from "@repo/core";
 import { DisplayFeedbackUI } from "@repo/shared-ui";
 import { useStaticTranslation } from "@repo/shared-hooks";
-import { asset } from "@repo/assets";
 
 export default function LoginPage() {
   const theme = useTheme();
@@ -33,7 +31,6 @@ export default function LoginPage() {
         flexDirection: "row",
         gap: 0,
         alignItems: "center",
-        ...applyBGPattern({ url: asset.bgNoise, opacity: 0.3 }),
         [theme.breakpoints.up("xl")]: {
           margin: "auto auto",
           maxHeight: "56svh",

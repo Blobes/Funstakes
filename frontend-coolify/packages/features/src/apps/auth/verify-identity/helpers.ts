@@ -8,18 +8,6 @@ import {
 import { extractPayloadKeys, getOtpIdentifierType } from "@repo/helpers";
 import { FeedbackInput } from "./useFeedback";
 
-// export type VerificationHandlerFn = (
-//   payload: unknown,
-//   onSuccessCb?: () => void,
-//   accessToken?: string,
-// ) => void;
-
-// export type StrategyHandler<P extends TransitPurpose> = (
-//   payload: TransitPayloadMap[P] | undefined,
-//   onSuccessCb?: () => void,
-//   accessToken?: string,
-// ) => void;
-
 export type VerificationHandlerFn<TPayload = unknown> = (
   payload: TPayload,
   onSuccessCb?: () => void,

@@ -73,7 +73,7 @@ export const ChoiceInput = ({
         sx={{
           width: 28,
           height: 28,
-          borderRadius: theme.radius.full,
+          borderRadius: theme.radius[4],
           backgroundColor: isChecked
             ? theme.palette.primary.dark
             : theme.palette.gray[200],

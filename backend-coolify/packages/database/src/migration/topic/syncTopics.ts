@@ -17,25 +17,33 @@ export interface IRemoveTopicOptions {
 /**
  * Syncs initial topic seeds into MongoDB without resetting aggregated counters.
  */
-export const syncTopics = async (): Promise<void> => {
-  try {
-    const operations: AnyBulkWriteOperation<ITopicDocument>[] = SEED_TOPICS.map(
-      (title) => ({
-        updateOne: {
-          filter: { title },
-          update: {
-            $setOnInsert: {
-              title,
-              userCount: 0,
-              postCount: 0,
-              createdByType: "SYSTEM",
-            },
-          },
-          upsert: true,
-        },
-      }),
-    );
 
+/**
+ * Syncs initial categorized topic seeds into MongoDB without resetting aggregated counters.
+ */
+export const seedTopics = async (): Promise<void> => {
+  try {
+    const operations: AnyBulkWriteOperation<ITopicDocument>[] =
+      SEED_TOPICS.flatMap(({ category, topics }) =>
+        topics.map((title) => ({
+          updateOne: {
+            filter: { title },
+            update: {
+              $setOnInsert: {
+                title,
+                category,
+                userCount: 0,
+                postCount: 0,
+                createdByType: "SYSTEM",
+              },
+              $set: {
+                category,
+              },
+            },
+            upsert: true,
+          },
+        })),
+      );
     const result = await TopicModel.bulkWrite(operations);
     console.log(
       `Topics sync completed. Inserted: ${result.upsertedCount}, Matched existing: ${result.matchedCount}`,
@@ -48,7 +56,6 @@ export const syncTopics = async (): Promise<void> => {
 
 /**
  * Removes or deprecates a topic based on usage metrics.
- *
  * @param title Target topic title to remove (optional if options.topicId is supplied).
  * @param options Configuration options including topicId, target replacement title, and Mongoose session.
  */
@@ -136,7 +143,7 @@ export const removeTopic = async (
  *
  * @param action Execution block containing database actions to run.
  */
-const withDatabaseConnection = async (
+export const withDatabaseConnection = async (
   action: () => Promise<void>,
 ): Promise<void> => {
   const mongoUri = process.env.MONGO_URI;
@@ -162,7 +169,7 @@ const withDatabaseConnection = async (
  */
 export const runSync = async (): Promise<void> => {
   await withDatabaseConnection(async () => {
-    await syncTopics();
+    await seedTopics();
   });
 };
 

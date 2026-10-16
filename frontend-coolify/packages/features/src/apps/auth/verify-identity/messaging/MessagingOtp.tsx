@@ -117,12 +117,12 @@ export const MessagingOtpView = <P extends TransitPurpose>(
         <TransText
           component="h3"
           {...headlineText}
-          sx={{ ...theme.typography.h6, fontWeight: 500, textAlign: "center" }}
+          sx={{ ...theme.typography.h6, textAlign: "center" }}
         />
         <TransText
           {...AUTH_FEEDBACK.otp_code_sent(channelText)}
           style={{
-            ...theme.typography.text3,
+            ...theme.typography.text4,
             color: theme.palette.gray[200],
             textAlign: "center",
           }}

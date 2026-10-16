@@ -1382,7 +1382,7 @@ export const common = {
         tValue: "No matching topics.",
       },
     },
-    nav: {
+    pages: {
       about: { tKey: "common:list_item.nav.about", tValue: "About" },
       blogs: { tKey: "common:list_item.nav.blogs", tValue: "Blogs" },
       bookmarks: {

@@ -114,7 +114,7 @@ export const PageContentTable: React.FC<TableOfContentsProps> = ({
       right: 20,
       boxShadow: `0px 8px 24px -4px ${theme.palette.gray.trans[2]}`,
     }),
-    ...style.wrapper,
+    ...style.itemWrapper,
   };
 
   /**
@@ -184,7 +184,7 @@ export const PageContentTable: React.FC<TableOfContentsProps> = ({
             handleToggleState(expandedState);
           }}
           style={{
-            wrapper: { ...containerStyle },
+            itemWrapper: { ...containerStyle },
             item: { gap: 0, width: isCollapsed ? "min-content" : "100%" },
             header: {
               wrapper: {

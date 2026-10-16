@@ -4,23 +4,10 @@ import React from "react";
 import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
-import { crossZoneCheck, debouncedPrefetch, prefetchPage } from "@repo/helpers";
+import { crossZoneCheck } from "@repo/helpers";
 import { BaseStyleObj } from "@repo/core";
 import { A11y } from "./A11y";
 import { Theme } from "@mui/material/styles";
-
-/**
- * Prefetches cross-zone asset bundles on relevant navigation user intents.
- */
-const handlePrefetch = (
-  href: string,
-  isCrossZone: boolean,
-  onHover = false,
-) => {
-  if (!isCrossZone) return;
-  if (onHover) debouncedPrefetch(href, !!isCrossZone);
-  else prefetchPage(href, isCrossZone);
-};
 
 export type ButtonSize = "x-small" | "small" | "medium" | "large";
 export type ButtonColor = "success" | "error" | "primary";
@@ -37,6 +24,10 @@ interface ButtonProps {
   href?: string;
   options?: any;
   submit?: boolean;
+  prefetch?: boolean;
+  targetBlank?: boolean;
+  target?: string;
+  rel?: string;
 }
 
 const getButtonSize = (size: ButtonSize = "medium", theme: Theme) => {
@@ -80,6 +71,9 @@ export const AppButton = ({
   href,
   options = {},
   submit = false,
+  targetBlank = false,
+  target,
+  rel,
 }: ButtonProps) => {
   const theme = useTheme();
   const btnSize = getButtonSize(size, theme);
@@ -113,6 +107,10 @@ export const AppButton = ({
           ...style,
         };
 
+  const linkTarget = targetBlank ? "_blank" : target;
+  const linkRel =
+    linkTarget === "_blank" ? (rel ?? "noopener noreferrer") : rel;
+
   const buttonProps = {
     variant,
     color: colorType,
@@ -130,9 +128,8 @@ export const AppButton = ({
         <Button
           component={isCrossZone ? "a" : NextLink}
           href={href}
-          onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
-          onMouseDown={() => handlePrefetch(href, isCrossZone)}
-          onTouchStart={() => handlePrefetch(href, isCrossZone)}
+          {...(linkTarget ? { target: linkTarget } : {})}
+          {...(linkRel ? { rel: linkRel } : {})}
           {...buttonProps}
         >
           {children}
@@ -156,9 +153,13 @@ type AnchorLinkProps = Omit<ButtonProps, "variant">;
 export const AnchorLink = ({
   children,
   href,
+  prefetch = true,
   style = {},
   size = "small",
   overrideStyle = "partial",
+  targetBlank = false,
+  target,
+  rel,
   ...rest
 }: AnchorLinkProps) => {
   const theme = useTheme();
@@ -181,20 +182,24 @@ export const AnchorLink = ({
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };
 
-  if (!href) return;
+  if (!href) return null;
   const isCrossZone = crossZoneCheck(href);
+
+  const linkTarget = targetBlank ? "_blank" : target;
+  const linkRel =
+    linkTarget === "_blank" ? (rel ?? "noopener noreferrer") : rel;
 
   return (
     <A11y useCase="interactive">
       <Link
         component={isCrossZone ? "a" : NextLink}
         href={href}
+        {...(!isCrossZone ? { prefetch } : {})}
+        {...(linkTarget ? { target: linkTarget } : {})}
+        {...(linkRel ? { rel: linkRel } : {})}
         sx={{
           ...mergedStyle,
         }}
-        onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
-        onMouseDown={() => handlePrefetch(href, isCrossZone)}
-        onTouchStart={() => handlePrefetch(href, isCrossZone)}
         {...rest}
       >
         {children}

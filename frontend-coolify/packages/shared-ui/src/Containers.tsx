@@ -9,13 +9,15 @@ import {
   StaticContentBlock,
   StaticContentSection,
 } from "@repo/core";
-import { autoScroll, scrollBarStyle } from "@repo/helpers";
+import { applyBGPattern, autoScroll, scrollBarStyle } from "@repo/helpers";
 import { TransText } from "@repo/shared-ui";
+import { asset } from "@repo/assets";
 
 interface RootContainerUIProps extends ScrollRefProps {
   children: React.ReactNode;
   style?: BaseStyleObj;
   shouldScroll?: boolean;
+  applyBgPattern?: boolean;
 }
 
 export interface ContentBlockProps {
@@ -38,6 +40,7 @@ export const RootUIContainer = ({
   style,
   shouldScroll = false,
   scrollRef,
+  applyBgPattern = true,
 }: RootContainerUIProps) => {
   const theme = useTheme();
 
@@ -47,6 +50,7 @@ export const RootUIContainer = ({
   }, []);
 
   const combinedStyle: BaseStyleObj = {
+    ...(applyBGPattern && applyBGPattern({ url: asset.bgNoise, opacity: 0.3 })),
     position: "fixed",
     height: "100svh",
     width: "100%",

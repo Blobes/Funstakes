@@ -12,6 +12,7 @@ import {
   TransText,
   CustomizedMediaRenderer,
   MediaRenderer,
+  AppImage,
 } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack } from "@mui/material";
@@ -206,7 +207,7 @@ export const TrendingPosts = ({ style }: { style?: BaseStyleObj }) => {
         alignItems: "center",
         justifyContent: "center",
         gap: theme.gap(16),
-        paddingBottom: theme.boxSpacing(5),
+        paddingBottom: isLoading ? 0 : theme.boxSpacing(5),
         margin: "0 auto",
         backgroundColor: theme.fixedColors.pTrans,
         overflow: "hidden",
@@ -222,14 +223,11 @@ export const TrendingPosts = ({ style }: { style?: BaseStyleObj }) => {
       }}
     >
       {isLoading ? (
-        <PostSkeleton
-          quantity={1}
-          bgColor={theme.palette.gray.trans.overlay(0.08)}
-          body={{ height: "100%" }}
-          containerStyle={{
-            height: "100%",
-            padding: theme.boxSpacing(5, 5, 2, 5),
-          }}
+        <AppImage
+          src={asset.marketingImg3}
+          alt="Trending posts placeholder"
+          fill
+          prioritize
         />
       ) : carouselItems.length > 0 ? (
         <LinearCarousel

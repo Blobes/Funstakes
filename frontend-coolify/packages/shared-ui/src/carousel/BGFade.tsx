@@ -118,7 +118,7 @@ export const BGFadeCarousel = ({
           flex: "none",
           bgcolor: "#000000",
           cursor: enablePressToHide ? "pointer" : "default",
-          ...style?.wrapper,
+          ...style?.itemWrapper,
         }}
       >
         {/* Absolute Background Layer Stack */}

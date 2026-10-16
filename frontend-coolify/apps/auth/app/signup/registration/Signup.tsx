@@ -83,7 +83,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         padding: theme.boxSpacing(18),
         alignItems: "center",
         flexDirection: "column",
-        ...(style?.wrapper as any),
+        ...(style?.itemWrapper as any),
         [theme.breakpoints.down("md")]: {
           height: "100svh",
           width: "80%",
@@ -93,12 +93,12 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           scrollSnapAlign: "start",
           padding: theme.boxSpacing(20, 10),
           overflow: "unset",
-          ...style.wrapper?.mdScreen,
+          ...style.itemWrapper?.mdScreen,
         },
         [theme.breakpoints.down("sm")]: {
           width: "100%",
           minWidth: "unset",
-          ...style.wrapper?.smScreen,
+          ...style.itemWrapper?.smScreen,
         },
       }}
     >
@@ -112,7 +112,12 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
       >
         <AppLogo
           color={theme.palette.gray[300]}
-          sx={{ alignSelf: "center", marginBottom: theme.boxSpacing(8) }}
+          style={{
+            itemWrapper: {
+              alignSelf: "center",
+              marginBottom: theme.boxSpacing(8),
+            },
+          }}
         />
         <Stack
           gap={theme.gap(4)}

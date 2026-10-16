@@ -4,12 +4,12 @@ import {
   IAuthRequest,
   MESSAGES_REGISTRY,
   executeAiTopicsResolution,
-  ResolveAiTopicParams,
+  ResolveAiTopicInput,
 } from "@repo/shared";
 
 interface ResolveAiSuggestedTopicsRequest extends IAuthRequest {
   body: {
-    resolutions: ResolveAiTopicParams[];
+    resolutions: ResolveAiTopicInput[];
   };
 }
 

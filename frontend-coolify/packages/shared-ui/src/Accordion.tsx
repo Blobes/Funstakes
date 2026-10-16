@@ -98,7 +98,7 @@ export const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
     };
 
     return (
-      <Stack sx={{ width: "100%", gap: theme.gap(4), ...style?.wrapper }}>
+      <Stack sx={{ width: "100%", gap: theme.gap(4), ...style?.itemWrapper }}>
         {items.map((item) => {
           const expandedState = isExpanded(item.id);
 

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { TopicModel } from "@repo/database";
 import { POST_STRATEGIES } from "../helpers/postStrategies";
 import {
   executeTopicsFetch,
@@ -78,15 +77,20 @@ export const handleFetchTopics = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const serviceResult = await executeTopicsFetch({});
+    const serviceResult = await executeTopicsFetch({ fetchAll: true });
 
-    const topicNames = (serviceResult.payload || []).map(
+    const topicNames = (serviceResult.payload.topicDocs || []).map(
       (t: { title: string }) => t.title,
     );
+    const validCategories = serviceResult.payload.categories || [];
 
-    res.status(200).json({ success: true, topics: topicNames });
+    res.status(200).json({
+      success: true,
+      topics: topicNames,
+      categories: validCategories,
+    });
   } catch (error: any) {
     console.error(`Failed to fetch topics for Go worker: ${error.message}`);
-    res.status(500).json({ success: false, topics: [] });
+    res.status(500).json({ success: false, topics: [], categories: [] });
   }
 };

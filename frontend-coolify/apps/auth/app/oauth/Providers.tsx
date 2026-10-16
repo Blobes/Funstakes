@@ -74,7 +74,7 @@ export const OAuthProviders: React.FC<OAuthProvidersProps> = ({
     {
       key: "linkedin",
       onClick: handleLinkedInSignIn,
-      icon: asset.linkedinLogo,
+      icon: asset.linkedInLogo,
     },
     {
       key: "github",

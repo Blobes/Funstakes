@@ -185,7 +185,7 @@ export const GlobalUIManager = ({
         <ProgressUI
           type="linear"
           style={{
-            wrapper: {
+            itemWrapper: {
               position: "fixed",
               top: 0,
               left: 0,

@@ -3,21 +3,22 @@ import {
   AiSuggestedTopicModel,
   IAiSuggestedTopicDocument,
   PostModelType,
+  TopicCategory,
   TopicModel,
 } from "@repo/database";
-import { TransInfo } from "../../types/general";
+import { ITopic, TransInfo } from "../../types/general";
 import { INVALIDATE_CACHE } from "../../constants/invalidators";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { CACHE_KEYS } from "../../constants/cacheKeys";
 import { getOrSetCache } from "../redis/cache/helpers";
 
-export interface SubmitAiTopicsParams {
-  topics: string[];
+export interface SubmitAiTopicsInput {
+  topics: ITopic[];
   relatedPostId?: string;
   relatedPostType?: PostModelType;
 }
 
-export interface ResolveAiTopicParams {
+export interface ResolveAiTopicInput {
   suggestedTopicId: string;
   action: "ACCEPT" | "DECLINE";
 }
@@ -31,7 +32,7 @@ export interface ResolveAiTopicResult {
   } | null;
 }
 
-export interface GetAiSuggestedTopicsParams {
+export interface GetAiSuggestedTopicsInput {
   status?: "PENDING" | "ACCEPTED" | "DECLINED";
   relatedPostType?: PostModelType;
   query?: string;
@@ -57,7 +58,7 @@ export interface GetAiSuggestedTopicsResult {
  * Fetches AI suggested topics based on status, filter parameters, and pagination with direct Redis caching.
  */
 export const executeAiTopicsFetch = async (
-  params: GetAiSuggestedTopicsParams = {},
+  params: GetAiSuggestedTopicsInput = {},
   session?: ClientSession,
 ): Promise<GetAiSuggestedTopicsResult> => {
   const {
@@ -132,7 +133,7 @@ export const executeAiTopicsFetch = async (
  * Adds AI-suggested topics to the pending suggestions collection.
  */
 export const executeAiTopicsSubmission = async (
-  params: SubmitAiTopicsParams,
+  params: SubmitAiTopicsInput,
   session?: ClientSession,
 ): Promise<void> => {
   const { topics, relatedPostId, relatedPostType = "Gist" } = params;
@@ -142,9 +143,19 @@ export const executeAiTopicsSubmission = async (
     return;
   }
 
-  const uniqueTitles = [
-    ...new Set(topics.map((t) => t.trim().toLowerCase())),
-  ].filter((title) => title.length > 0);
+  // Deduplicate incoming topics by title while preserving category mapping
+  const uniqueTopicsMap = new Map<string, TopicCategory>();
+  topics.forEach((t) => {
+    const trimmedTitle = t.keyword.trim();
+    if (trimmedTitle.length > 0) {
+      const lowerTitle = trimmedTitle.toLowerCase();
+      if (!uniqueTopicsMap.has(lowerTitle)) {
+        uniqueTopicsMap.set(lowerTitle, t.category);
+      }
+    }
+  });
+
+  const uniqueTitles = Array.from(uniqueTopicsMap.keys());
 
   if (uniqueTitles.length === 0) {
     return;
@@ -154,21 +165,23 @@ export const executeAiTopicsSubmission = async (
     ? new Types.ObjectId(relatedPostId)
     : undefined;
 
-  const ops: AnyBulkWriteOperation<IAiSuggestedTopicDocument>[] =
-    uniqueTitles.map((title) => ({
-      updateOne: {
-        filter: { title, status: "PENDING" },
-        update: {
-          $setOnInsert: {
-            title,
-            ...(parsedPostId ? { relatedPostId: parsedPostId } : {}),
-            relatedPostType,
-            status: "PENDING",
-          },
+  const ops: AnyBulkWriteOperation<IAiSuggestedTopicDocument>[] = Array.from(
+    uniqueTopicsMap.entries(),
+  ).map(([title, category]) => ({
+    updateOne: {
+      filter: { title, status: "PENDING" },
+      update: {
+        $setOnInsert: {
+          title,
+          category,
+          ...(parsedPostId ? { relatedPostId: parsedPostId } : {}),
+          relatedPostType,
+          status: "PENDING",
         },
-        upsert: true,
       },
-    }));
+      upsert: true,
+    },
+  }));
 
   await AiSuggestedTopicModel.bulkWrite(ops, { session });
 };
@@ -194,7 +207,7 @@ export const executeAiTopicsRemoval = async (
  * Resolves AI suggested topics in bulk by approving non-existing topics into the main topics collection or declining them.
  */
 export const executeAiTopicsResolution = async (
-  resolutions: ResolveAiTopicParams[],
+  resolutions: ResolveAiTopicInput[],
   session?: ClientSession,
 ): Promise<ResolveAiTopicResult> => {
   if (!resolutions || !Array.isArray(resolutions) || resolutions.length === 0) {

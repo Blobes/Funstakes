@@ -81,7 +81,7 @@ export const AppImage = ({
           height: fill ? "100%" : height,
           bgcolor: theme.palette.gray.trans[1],
           borderRadius: theme.radius[12],
-          ...style?.wrapper,
+          ...style?.itemWrapper,
         }}
       >
         <FileWarning size={40} />
@@ -124,7 +124,7 @@ export const AppImage = ({
         height: fill ? "100%" : undefined,
         overflow: fill ? "hidden" : undefined,
         lineHeight: 0,
-        "& img": style?.targetContent,
+        "& img": style?.itemWrapper,
       }}
     >
       {showPlaceholder && !loaded && (

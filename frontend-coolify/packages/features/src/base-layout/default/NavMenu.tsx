@@ -14,7 +14,13 @@ import {
 import { summarizeNum } from "@repo/helpers";
 import { SlidersHorizontal, WalletMinimal } from "lucide-react";
 import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
-import { LISTS, MenuRef, POST_FEEDBACK, useGlobalStore } from "@repo/core";
+import {
+  CREATE_POST_LIST,
+  NAV_LISTS,
+  MenuRef,
+  POST_FEEDBACK,
+  useGlobalStore,
+} from "@repo/core";
 import { Logout } from "../../apps/auth/logout/Logout";
 import { useCreatePost } from "../../apps/post/hooks/useCreatePost";
 import { CREATE_POST } from "../../apps/post/constants";
@@ -26,7 +32,7 @@ export const HeaderDesktopNav = ({
 }) => {
   const theme = useTheme();
   const { translateTxtString } = useStaticTranslation();
-  const { USER_NAV_LIST } = LISTS(translateTxtString);
+  const { USER_TOP_NAV_LIST } = NAV_LISTS(translateTxtString);
   const { closeDrawer } = useMisc();
 
   return (
@@ -42,7 +48,7 @@ export const HeaderDesktopNav = ({
     >
       <DisplayList
         menuRef={menuRef}
-        list={USER_NAV_LIST}
+        list={USER_TOP_NAV_LIST}
         onItemClick={closeDrawer}
       />
     </Stack>
@@ -121,7 +127,7 @@ const UserInfo = () => {
 
 export const HeaderMobileNav = ({}) => {
   const theme = useTheme();
-  const { USER_NAV_LIST } = LISTS();
+  const { USER_TOP_NAV_LIST } = NAV_LISTS();
   const menuRef = useRef<MenuRef>(null);
   const { closeDrawer } = useMisc();
 
@@ -131,25 +137,34 @@ export const HeaderMobileNav = ({}) => {
       <Divider />
       <Stack gap={theme.gap(10)}>
         <RenderItemList
-          list={USER_NAV_LIST}
+          list={USER_TOP_NAV_LIST}
           onItemClick={() => {
             menuRef.current?.closeMenu();
             closeDrawer();
           }}
           displayActiveState={false}
           style={{
-            ...theme.typography.text2,
-            gap: theme.gap(10),
-            padding: 0,
-            background: "transparent",
-            width: "100%",
-            "&:hover": {
-              background: "transparent",
-              color: theme.palette.primary.dark + "!important",
+            item: {
+              textAlign: "left",
+              ...theme.typography.text2,
             },
-            "& svg": {
-              width: "22px",
-              height: "22px",
+            itemWrapper: {
+              width: "100%",
+              gap: theme.gap(10),
+              padding: 0,
+              background: "transparent",
+              "&:hover": {
+                background: "transparent",
+                color: theme.palette.primary.dark + "!important",
+              },
+              "& svg": {
+                width: 22,
+                height: 22,
+              },
+            },
+            listWrapper: {
+              gap: theme.gap(6),
+              flexDirection: "column",
             },
           }}
         />
@@ -175,7 +190,6 @@ export const CreatePostMenuDesktop = ({
   postRef: React.RefObject<MenuRef | null>;
 }) => {
   const theme = useTheme();
-  const { CREATE_POST_LIST } = LISTS();
   const { openCreatePost } = useCreatePost();
 
   return (
@@ -191,7 +205,7 @@ export const CreatePostMenuDesktop = ({
     >
       <DisplayList
         menuRef={postRef}
-        list={CREATE_POST_LIST}
+        list={CREATE_POST_LIST()}
         onItemClick={(item) => {
           if (!item?.title) return;
           const lookupKey =

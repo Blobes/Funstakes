@@ -4,7 +4,12 @@ import React, { useRef } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import { CircleQuestionMark, Keyboard, X } from "lucide-react";
-import { ICountryItem, LISTS, ListType, useGlobalStore } from "@repo/core";
+import {
+  COUNTRY_LIST,
+  ICountryItem,
+  ListType,
+  useGlobalStore,
+} from "@repo/core";
 import { DisplayList as CountryList } from "../Menu";
 import {
   usePhoneInputValidation,
@@ -43,7 +48,6 @@ export const PhoneInput = ({
   style,
 }: PhoneInputProps) => {
   const theme = useTheme();
-  const { COUNTRY_LIST } = LISTS();
   const currLang = useGlobalStore((state) => state.currentLanguage);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -167,7 +171,7 @@ export const PhoneInput = ({
       {includeCountryCode && (
         <CountryList<ICountryItem>
           menuRef={countryMenuRef}
-          list={COUNTRY_LIST}
+          list={COUNTRY_LIST()}
           listName={ListType.COUNTRY}
           showSearchBar
           heightThreshold={64}
@@ -179,7 +183,7 @@ export const PhoneInput = ({
               borderRadius: 0,
               "& svg": { width: "16px", height: "16px" },
             },
-            wrapper: {
+            itemWrapper: {
               padding: 0,
             },
           }}

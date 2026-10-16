@@ -4,7 +4,7 @@ import React from "react";
 import { DrawerProps, ModalProps } from "@repo/core";
 import { ComfirmLogout } from "../apps/auth/logout/Logout";
 import { Theme } from "@mui/material/styles";
-import { DisplayFeedbackUI } from "@repo/shared-ui";
+import { AppLogo, DisplayFeedbackUI } from "@repo/shared-ui";
 import { ConfirmSessionTermination } from "../apps/auth/verify-identity/Session";
 
 export type PopupName =
@@ -84,7 +84,7 @@ export const POPUP_CONFIG = ({
               display: "flex",
             },
           },
-          targetContent: {
+          itemWrapper: {
             base: { height: "100%", borderRadius: 0 },
           },
           header: {
@@ -100,20 +100,24 @@ export const POPUP_CONFIG = ({
       drawer: {
         content,
         source: "navbar",
+        header: <AppLogo size={28} />,
         onClose: closeDrawer,
         style: {
-          overlay: {
-            base: { padding: theme.boxSpacing(6) },
-            smScreen: {
-              padding: 0,
+          overlay: { base: { justifyContent: "flex-start" } },
+          item: { base: { padding: theme.boxSpacing(8, 4) } },
+          itemWrapper: {
+            mdScreen: {
+              width: "fit-content",
             },
-          },
-          targetContent: {
             smScreen: {
               height: "100%",
-              width: "80%",
+              width: "100%",
               borderRadius: 0,
             },
+          },
+          header: {
+            padding: theme.boxSpacing(8, 4, 4, 10),
+            justifyContent: "space-between",
           },
         },
       },
@@ -134,7 +138,7 @@ export const POPUP_CONFIG = ({
               display: "flex",
             },
           },
-          targetContent: {
+          itemWrapper: {
             base: { height: "100%", borderRadius: 0 },
           },
           header: {

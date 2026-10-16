@@ -19,7 +19,6 @@ import {
   STORAGE_KEYS,
   useGlobalStore,
   IPage,
-  SNACKBAR_DURATION,
   BaseVerificationPayload,
 } from "@repo/core";
 import { useCachedData, usePage, useSnackbar } from "@repo/shared-hooks";

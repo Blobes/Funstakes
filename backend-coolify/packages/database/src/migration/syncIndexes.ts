@@ -31,6 +31,7 @@ import { TopicModel } from "../models/non-entities/topic";
 import { RelationTupleModel } from "../models/non-entities/authorization/relation";
 import { SubscriptionModel } from "../models/non-entities/identity/subscription";
 import { SecurityQuestionModel } from "../models/entities/securityQuestions";
+import { OrganizationModel } from "../models/entities/organization";
 
 const MONGO_URI = process.env.MONGO_URI || "";
 
@@ -56,6 +57,7 @@ async function syncIndexes(): Promise<void> {
     await StakeModel.syncIndexes();
     await KycRequestModel.syncIndexes();
     await MediaModel.syncIndexes();
+    await OrganizationModel.syncIndexes();
 
     // Non Entity Models
     await PermissionModel.syncIndexes();

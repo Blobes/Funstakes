@@ -6,6 +6,7 @@ export * from "./types/moderation";
 export * from "./types/others";
 export * from "./types/authorization";
 export * from "./types/kyc";
+export * from "./types/publicFigure";
 
 // Constants
 export * from "./constants/permissions";
@@ -44,7 +45,8 @@ export * from "./models/entities/media";
 // Topic
 export * from "./models/non-entities/topic";
 export * from "./models/non-entities/logs";
-
+// Organization
+export * from "./models/entities/organization";
 export * from "./models/entities/securityQuestions";
 
 export * from "./migration/topic/syncTopics";

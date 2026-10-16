@@ -1,21 +1,22 @@
-import { TopicModel } from "@repo/database";
+import { ITopicDocument, TopicCategory, TopicModel } from "@repo/database";
 import crypto from "crypto";
-import { TransInfo } from "../../types/general";
+import { ITopic, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { CACHE_KEYS } from "../../constants/cacheKeys";
 import { getOrSetCache } from "../redis/cache/helpers";
 
 export interface LookupTopicsInput {
-  keyword?: string;
+  topic?: ITopic;
   alreadySelected?: string[];
   page?: number;
   limit?: number;
+  fetchAll?: boolean;
 }
 
 export interface LookupTopicsResult {
   status: "SUCCESS";
   transInfo: TransInfo;
-  payload: any[];
+  payload: { topicDocs: ITopicDocument[]; categories?: TopicCategory[] };
   metaData: {
     totalDocs: number;
     totalPages: number;
@@ -27,16 +28,22 @@ export interface LookupTopicsResult {
 
 /**
  * Executes paginated calculations across cache lookups and indexed database queries to evaluate matches for topic categories.
- *
  * @param input - Operational parameters including keyword, exclusions, page, and limit.
  * @returns Paginated topic search results with metadata.
  */
 export const executeTopicsFetch = async (
   input: LookupTopicsInput = {},
 ): Promise<LookupTopicsResult> => {
-  const { keyword, alreadySelected = [], page = 1, limit = 20 } = input;
+  const {
+    topic,
+    alreadySelected = [],
+    page = 1,
+    limit = 20,
+    fetchAll = false,
+  } = input;
   const skip = (page - 1) * limit;
-  const cleanKeyword = keyword ? keyword.trim() : "";
+  const cleanKeyword = topic?.keyword ? topic.keyword.trim() : "";
+  const cleanCategory = topic?.category ? topic.category.trim() : "";
 
   const sanitizedExclusions = alreadySelected
     .map((item) => item?.trim())
@@ -47,17 +54,23 @@ export const executeTopicsFetch = async (
     .update([...sanitizedExclusions].sort().join(","))
     .digest("hex");
 
-  const cacheKey = CACHE_KEYS.TOPICS_LOOKUP(
-    cleanKeyword,
-    exclusionHash,
+  const cacheKey = CACHE_KEYS.TOPICS_LOOKUP({
+    keyword: cleanKeyword,
+    category: cleanCategory,
+    excludedHash: exclusionHash,
     page,
     limit,
-  );
+    fetchAll,
+  });
 
-  const { topics, totalCount } = await getOrSetCache(
+  const { topics, totalCount, categories } = await getOrSetCache(
     cacheKey,
     async () => {
       const filter: Record<string, any> = {};
+
+      if (cleanCategory !== "") {
+        filter.category = cleanCategory;
+      }
 
       if (sanitizedExclusions.length > 0) {
         filter.title = { $nin: sanitizedExclusions };
@@ -68,6 +81,21 @@ export const executeTopicsFetch = async (
           ...filter.title,
           $regex: cleanKeyword,
           $options: "i",
+        };
+      }
+
+      if (fetchAll) {
+        const [data, distinctCategories] = await Promise.all([
+          TopicModel.find(filter).lean(),
+          TopicModel.distinct("category", filter),
+        ]);
+        const validCategories = distinctCategories.filter(
+          (c): c is TopicCategory => Boolean(c),
+        );
+        return {
+          topics: data,
+          totalCount: data.length,
+          categories: validCategories,
         };
       }
 
@@ -86,34 +114,19 @@ export const executeTopicsFetch = async (
     300,
   );
 
-  const totalPages = Math.ceil(totalCount / limit) || 1;
-  const hasNextPage = page < totalPages;
+  const totalPages = fetchAll ? 1 : Math.ceil(totalCount / limit) || 1;
+  const hasNextPage = fetchAll ? false : page < totalPages;
 
   return {
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_FETCHED_SUCCESS,
-    payload: topics ?? [],
+    payload: { topicDocs: topics ?? [], categories },
     metaData: {
       totalDocs: totalCount,
       totalPages,
       currentPage: page,
-      limit,
+      limit: fetchAll ? totalCount : limit,
       hasNextPage,
     },
   };
 };
-
-// /**
-//  * Retrieves all registered topic titles from the database sorted by usage count.
-//  */
-// export const getActiveDBTopics = async (
-//   session?: ClientSession,
-// ): Promise<string[]> => {
-//   const topics = await TopicModel.find({})
-//     .session(session || null)
-//     .select("title")
-//     .sort({ postCount: -1 })
-//     .lean();
-
-//   return topics.map((t) => t.title);
-// };

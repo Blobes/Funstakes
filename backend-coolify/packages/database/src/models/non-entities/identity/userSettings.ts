@@ -15,6 +15,20 @@ const PreferredTopicSchema = new Schema<IUserPreferredTopic>(
       ref: "Topic",
       required: true,
     },
+    category: {
+      type: String,
+      enum: [
+        "Tech & Science",
+        "Business & Finance",
+        "Entertainment & Culture",
+        "Lifestyle & Community",
+        "Education & Growth",
+        "Sports & Betting",
+        "Society & World",
+        "General",
+      ],
+      default: "General",
+    },
     title: {
       type: String,
       required: true,
@@ -120,8 +134,10 @@ const UserSettingsSchema = new Schema<IUserSettingsDocument>(
   { timestamps: true },
 );
 
-// User Settings Schema Indexes
+// Primary User Lookup Index
 UserSettingsSchema.index({ userId: 1 }, { unique: true });
+
+// --- Privacy & Discoverability Indexes ---
 UserSettingsSchema.index(
   {
     [USER_SETTINGS_NESTED_FIELDS.PRIVACY_DISCOVERABILITY_RECOMMEND_TO_OTHERS]: 1,
@@ -132,7 +148,14 @@ UserSettingsSchema.index(
     },
   },
 );
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.PRIVACY_IS_PRIVATE_ACCOUNT]: 1,
+});
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.PRIVACY_DIRECT_MESSAGING]: 1,
+});
 
+// --- Notification Preferences & Quiet Mode Indexes ---
 UserSettingsSchema.index(
   { [USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_QUIET_MODE_IS_ENABLED]: 1 },
   {
@@ -141,6 +164,43 @@ UserSettingsSchema.index(
     },
   },
 );
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_PUSH_ENABLED]: 1,
+});
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.NOTIFICATIONS_EMAIL_DIGEST]: 1,
+});
+
+// --- Display & Localization Indexes ---
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_LOCALIZATION_LANGUAGE]: 1,
+});
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_THEME]: 1,
+});
+
+// --- Content Preferences & Muted Words Multikey Indexes ---
+UserSettingsSchema.index(
+  { [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_MUTED_WORDS]: 1 },
+  { sparse: true },
+);
+
+// --- Preferred Topics Multikey & Compound Indexes ---
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_TOPIC_ID]: 1,
+});
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_CATEGORY]: 1,
+});
+UserSettingsSchema.index({
+  userId: 1,
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_TOPIC_ID]: 1,
+});
+UserSettingsSchema.index({
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_CATEGORY]: 1,
+  [USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_LAST_VIEWED]:
+    -1,
+});
 
 export const UserSettingsModel: Model<IUserSettingsDocument> =
   model<IUserSettingsDocument>(

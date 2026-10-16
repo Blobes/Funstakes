@@ -138,7 +138,7 @@ export const SnackBars = ({
                         msg.id ? handleExpandedChange(msg.id) : undefined
                       }
                       style={{
-                        targetContent: {
+                        itemWrapper: {
                           ...theme.typography.text3,
                           fontWeight: 500,
                         },

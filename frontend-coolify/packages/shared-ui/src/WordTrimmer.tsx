@@ -66,7 +66,7 @@ export const WordTrimmer = ({
     el.style.overflow = prevOverflow;
     el.style.webkitLineClamp = prevClamp;
     el.style.removeProperty("-webkit-box-orient");
-  }, [text, maxLines, style?.targetContent]);
+  }, [text, maxLines, style?.itemWrapper]);
 
   if (!text) return null;
 
@@ -111,7 +111,9 @@ export const WordTrimmer = ({
         };
 
   return (
-    <Stack sx={{ width: "100%", alignItems: "flex-start", ...style?.wrapper }}>
+    <Stack
+      sx={{ width: "100%", alignItems: "flex-start", ...style?.itemWrapper }}
+    >
       <Box
         onClick={isInteractive ? handleToggle : undefined}
         sx={{
@@ -128,7 +130,7 @@ export const WordTrimmer = ({
           component={component}
           sx={{
             ...theme.typography.text4,
-            ...style?.targetContent,
+            ...style?.itemWrapper,
             color: "inherit",
             wordBreak: "break-word",
             whiteSpace: "pre-wrap",

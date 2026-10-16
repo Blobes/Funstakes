@@ -17,6 +17,7 @@ import {
   delay,
   getCookie,
   crossZoneCheck,
+  normalizePath,
 } from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
@@ -92,6 +93,17 @@ export const usePage = () => {
   const navigateTo = useCallback(
     async (page: IPage, options: NavigateOptions = {}) => {
       const { type = "push", savePage = true, event } = options;
+      const targetPath = normalizePath(page.path);
+      const currentPath = normalizePath(pathname);
+
+      // Already on this page → no loader, no router work
+      if (targetPath === currentPath) {
+        if (event) event.preventDefault();
+        setIsSpaLoading(false);
+        setIsCrossZoneLoading(false);
+        return;
+      }
+
       const isCrossZone = crossZoneCheck(page.path);
       const isExternalRoute = !isInRouteRegistry(page.path);
 

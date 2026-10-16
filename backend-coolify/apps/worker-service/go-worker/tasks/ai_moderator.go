@@ -40,7 +40,9 @@ type SchemaProperty struct {
 }
 
 type SchemaArrayItems struct {
-	Type string `json:"type"`
+	Type       string                 `json:"type,omitempty"`
+	Properties map[string]interface{} `json:"properties,omitempty"`
+	Required   []string               `json:"required,omitempty"`
 }
 
 type SchemaArrayProperty struct {
@@ -75,9 +77,14 @@ type OpenRouterRequest struct {
 }
 
 /**
- * Returns the structural validation JSON schema format compliant with OpenRouter specification standards.
+ * Generates the structural validation JSON schema format dynamically utilizing DB categories.
  */
-func getModerationResponseSchema() *ResponseFormatSchemaWrapper {
+func getModerationResponseSchema(validCategories []string) *ResponseFormatSchemaWrapper {
+	categoryProp := SchemaProperty{Type: "string"}
+	if len(validCategories) > 0 {
+		categoryProp.Enum = validCategories
+	}
+
 	return &ResponseFormatSchemaWrapper{
 		Name:   "content_moderation_response",
 		Strict: true,
@@ -113,7 +120,14 @@ func getModerationResponseSchema() *ResponseFormatSchemaWrapper {
 				"perceivedTopics": SchemaArrayProperty{
 					Type: "array",
 					Items: SchemaArrayItems{
-						Type: "string",
+						Type: "object",
+						Properties: map[string]interface{}{
+							"title": SchemaProperty{
+								Type: "string",
+							},
+							"category": categoryProp,
+						},
+						Required: []string{"title", "category"},
 					},
 				},
 			},
@@ -123,9 +137,9 @@ func getModerationResponseSchema() *ResponseFormatSchemaWrapper {
 }
 
 /**
- * Initializes a new instance of the OpenRouter moderation processor with active database topics awareness.
+ * Initializes a new instance of OpenRouter moderator with dynamic DB topic names and categories.
  */
-func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []string, fallbackModels []string, existingDBTopics []string) (*Moderator, error) {
+func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []string, fallbackModels []string, existingDBTopics []string, validCategories []string) (*Moderator, error) {
 	textCriticalJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityCritical])
 	textModerateJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityModerate])
 	textLowJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityLow])
@@ -139,6 +153,11 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 		existingTopicsFormatted = strings.Join(existingDBTopics, ", ")
 	}
 
+	validCategoriesFormatted := "General"
+	if len(validCategories) > 0 {
+		validCategoriesFormatted = strings.Join(validCategories, ", ")
+	}
+
 	systemInstructionText := fmt.Sprintf(`
 		Role: Senior Content Safety & Taxonomy Discovery Engine.
 
@@ -147,6 +166,9 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 		- Do NOT include conversational text prefixes or suffixes.
 
 		EXISTING SYSTEM TOPICS IN DATABASE:
+		[%s]
+
+		VALID SYSTEM TOPIC CATEGORIES FROM DATABASE:
 		[%s]
 
 		CORE OPERATION MODES (Look at the "Mode:" variable passed in the prompt):
@@ -173,11 +195,12 @@ func NewOpenRouterModerator(ctx context.Context, apiKey string, primaryModels []
 		  1. Evaluate post content and choose between 1 to 3 matching topics strictly from the "EXISTING SYSTEM TOPICS IN DATABASE" list. Populate these inside "extractedTopics".
 		  2. If the perceived topics in the post are SIGNIFICANTLY DIFFERENT from every topic listed in the database, set "extractedTopics" to ["General & Off-Topic"].
 		  3. NEVER add unlisted or newly generated topics to "extractedTopics".
-		  4. If you perceive new or refined topic ideas that are not in the database list, place them inside "perceivedTopics" as suggestions (1 to 3 items, max 2 words each).
+		  4. If you perceive new or refined topic ideas that are not in the database list, place them inside "perceivedTopics" as objects containing "title" (1 to 3 items, max 2 words each) and "category" (must strictly be one from the "VALID SYSTEM TOPIC CATEGORIES FROM DATABASE" list).
 		  5. If no new topics are suggested, leave "perceivedTopics" as an empty array [].
 		- If mode is MODERATE_ONLY, leave both "extractedTopics" and "perceivedTopics" empty arrays.
 		`,
 		existingTopicsFormatted,
+		validCategoriesFormatted,
 		textCriticalJSON, textModerateJSON, textLowJSON,
 		mediaCriticalJSON, mediaModerateJSON, mediaLowJSON,
 	)
@@ -198,9 +221,8 @@ func (gm *Moderator) Close() {}
 
 /**
  * Evaluates full post content packages using OpenRouter's multimodal routing pipelines.
- * Rotates through models in sequential chunks of 3 if primary routing paths fail.
  */
-func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModData, mediaTarget []MediaInput, mode string) (ValidationResult, error) {
+func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModData, mediaTarget []MediaInput, mode string, validCategories []string) (ValidationResult, error) {
 	if len(gm.primaryModels) == 0 {
 		return ValidationResult{}, fmt.Errorf("no primary operational models supplied to infrastructure config")
 	}
@@ -283,7 +305,7 @@ func (gm *Moderator) AIContentModerator(ctx context.Context, payload *PostModDat
 			Seed:        42,
 			ResponseFormat: OpenRouterResponseFormat{
 				Type:       "json_schema",
-				JsonSchema: getModerationResponseSchema(),
+				JsonSchema: getModerationResponseSchema(validCategories),
 			},
 		}
 

@@ -3,14 +3,12 @@ import {
   executeTopicsFetch,
   forwardError,
   IAuthRequest,
+  LookupTopicsInput,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
 
 interface LookupRequest extends IAuthRequest {
-  body: {
-    keyword?: string;
-    alreadySelected?: string[];
-  };
+  body: LookupTopicsInput;
   query: {
     page?: string;
     limit?: string;
@@ -25,7 +23,7 @@ export const getTopics = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { keyword, alreadySelected } = req.body || {};
+  const { topic, alreadySelected } = req.body || {};
   const userId = req.user?.id;
   const page = parseInt(req.query?.page as string, 10) || 1;
   const limit = parseInt(req.query?.limit as string, 10) || 20;
@@ -40,7 +38,7 @@ export const getTopics = async (
 
   try {
     const serviceResult = await executeTopicsFetch({
-      keyword,
+      topic,
       alreadySelected,
       page,
       limit,
@@ -49,7 +47,7 @@ export const getTopics = async (
     return res.status(200).json({
       status: "SUCCESS",
       ...serviceResult.transInfo,
-      payload: serviceResult.payload,
+      payload: serviceResult.payload.topicDocs,
       metaData: serviceResult.metaData,
     });
   } catch (error: any) {

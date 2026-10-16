@@ -5,8 +5,8 @@ import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   BaseStyleObj,
+  BaseStyleProps,
   IMenuItem,
-  IPage,
   ITopic,
   ListType,
   POST_INFO,
@@ -15,7 +15,6 @@ import { matchPaths, summarizeNum } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
 import { TransText } from "./Text";
-import { usePage } from "@repo/shared-hooks";
 
 /**
  * Props for the reusable nav renderer
@@ -24,9 +23,11 @@ export interface RenderListProps<T extends IMenuItem> {
   list: T[];
   listType?: ListType;
   onItemClick?: (item?: IMenuItem & T) => void;
-  style?: BaseStyleObj;
+  style?: BaseStyleProps;
   activeItems?: (string | number)[];
   displayActiveState?: boolean;
+  hidePrefixes?: boolean;
+  hideSuffixes?: boolean;
 }
 
 export const RenderItemList = <T extends IMenuItem>({
@@ -36,20 +37,20 @@ export const RenderItemList = <T extends IMenuItem>({
   style = {},
   activeItems = [],
   displayActiveState = true,
+  hidePrefixes = false,
+  hideSuffixes = false,
 }: RenderListProps<T>) => {
   const theme = useTheme();
   const pathname = usePathname();
-  const { navigateTo } = usePage();
 
-  const { fontSize, fontWeight, color, ...restStyle } = style;
-
-  const itemStyle: BaseStyleObj = {
+  // Base container layout styles for each wrapper item
+  const itemWrapperStyle: BaseStyleObj = {
     display: "flex",
     alignItems: "center",
     flexDirection: "row",
     cursor: "pointer",
     gap: theme.gap(3),
-    padding: theme.boxSpacing(2, 6),
+    padding: theme.boxSpacing(2, 4),
     borderRadius: theme.radius.full,
     transition: "all 0.2s ease",
     textDecoration: "none",
@@ -57,14 +58,21 @@ export const RenderItemList = <T extends IMenuItem>({
       backgroundColor: theme.palette.gray.trans[1],
       outline: "none",
     },
-    title: {
-      ...theme.typography.text3,
-      fontSize: (fontSize ?? theme.typography.text3.fontSize) + "!important",
-      fontWeight: (fontWeight ?? "600") + "!important",
-      color: (color ?? theme.palette.gray[300]) + "!important",
-      "&:hover": { textDecoration: "none", ...restStyle["&:hover"] },
+    ...style?.itemWrapper,
+    [theme.breakpoints.down("sm")]: {
+      ...style.itemWrapper?.smScreen,
     },
-    ...restStyle,
+  };
+
+  // Typography styles for child text elements
+  const itemStyle: BaseStyleObj = {
+    ...theme.typography.text3,
+    fontWeight: 500,
+    color: theme.palette.gray[300],
+    ...style.item,
+    smScreen: {
+      ...style.item?.smScreen,
+    },
   };
 
   const checkIsActive = (item: T): boolean => {
@@ -86,24 +94,31 @@ export const RenderItemList = <T extends IMenuItem>({
           <TopicItem
             title={item.title}
             postCount={(item as T & ITopic).postCount}
-            element={item.element}
-            style={itemStyle.title}
+            prefix={item.prefix}
+            style={itemStyle}
           />
         );
       default:
         return (
-          <DefaultItem
+          <BaseItem
             title={item.title}
-            element={item.element}
-            endElement={(item as any).endElement}
-            style={itemStyle.title}
+            prefix={!hidePrefixes ? item.prefix : undefined}
+            suffix={!hideSuffixes ? item.suffix : undefined}
+            style={itemStyle}
           />
         );
     }
   };
 
   return (
-    <>
+    <Stack
+      sx={{
+        gap: theme.gap(4),
+        minHeight: "fit-content",
+        flexDirection: "row",
+        ...style?.listWrapper,
+      }}
+    >
       {list.map((item, index) => {
         const isLink = item.type === "LINK" || (!item.type && item.url);
         const isActive = isLink
@@ -111,77 +126,90 @@ export const RenderItemList = <T extends IMenuItem>({
           : checkIsActive(item);
 
         const handleClick = () => {
-          if (isLink) {
-            navigateTo({
-              title: item.title ?? "",
-              path: item.url ?? "",
-            } as IPage);
-          }
-          if (item.action) item.action();
-          if (onItemClick) (onItemClick as (item: IMenuItem) => void)(item);
+          item.action?.();
+          onItemClick?.(item);
         };
 
         if (item.type === "COMPONENT")
-          return <Fragment key={index}>{item.element}</Fragment>;
+          return <Fragment key={index}>{item.component}</Fragment>;
 
         const Wrapper = (isLink ? AnchorLink : Stack) as React.ElementType;
 
         return (
           <Wrapper
             key={index}
-            {...(isLink ? { url: item.url ?? "" } : {})}
+            {...(isLink ? { href: item.url ?? "" } : {})}
             onClick={handleClick}
             sx={{
               backgroundColor:
                 displayActiveState && isActive
                   ? theme.palette.gray.trans[1]
                   : "transparent",
-              ...itemStyle,
+              ...itemWrapperStyle,
             }}
           >
             {renderItem(item)}
           </Wrapper>
         );
       })}
-    </>
-  );
-};
-
-interface Default extends IMenuItem {
-  style?: BaseStyleObj;
-  endElement?: React.ReactNode;
-}
-
-const DefaultItem = ({ title, element, endElement, style }: Default) => {
-  return (
-    <Stack
-      sx={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
-        gap: 1.5,
-      }}
-    >
-      <Stack
-        sx={{ flexDirection: "row", alignItems: "center", gap: 1.5, flex: 1 }}
-      >
-        {element && element}
-        {title && <TransText sx={{ ...style }}>{title}</TransText>}
-      </Stack>
-      {endElement && endElement}
     </Stack>
   );
 };
 
-const TopicItem = ({ title, element, style, postCount }: Default & ITopic) => {
+interface BaseItemProps extends IMenuItem {
+  style?: BaseStyleObj;
+}
+const BaseItem = ({ title, prefix, suffix, style }: BaseItemProps) => {
   const theme = useTheme();
   return (
     <>
-      <DefaultItem
+      <Stack
+        sx={{
+          //  width: "100%",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: style?.gap ?? theme.gap(4),
+          flex: 1,
+          [theme.breakpoints.down("sm")]: {
+            gap: style?.smScreen?.gap,
+          },
+        }}
+      >
+        {prefix}
+        {title && (
+          <TransText
+            sx={{
+              ...style,
+              [theme.breakpoints.down("sm")]: {
+                ...style?.smScreen,
+              },
+            }}
+          >
+            {title}
+          </TransText>
+        )}
+      </Stack>
+      {suffix}
+    </>
+  );
+};
+
+const TopicItem = ({
+  title,
+  prefix: element,
+  style,
+  postCount,
+}: BaseItemProps & ITopic) => {
+  const theme = useTheme();
+  return (
+    <>
+      <BaseItem
         title={title}
-        element={element}
-        style={{ width: "100%", ...style }}
+        prefix={element}
+        style={{
+          title: { width: "100%", ...style?.item },
+          itemWrapper: { ...style?.itemWrapper },
+        }}
       />
       {postCount && (
         <TransText

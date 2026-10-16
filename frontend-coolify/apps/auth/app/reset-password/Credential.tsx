@@ -17,8 +17,8 @@ import {
   AUTH_FEEDBACK,
   AUTH_INPUT,
   COMMON_BUTTON_LABELS,
+  COUNTRY_LIST,
   ICountryItem,
-  LISTS,
   ListType,
 } from "@repo/core";
 import { ArrowLeft } from "lucide-react";
@@ -37,7 +37,6 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const { COUNTRY_LIST } = LISTS();
   const { translateTxtString } = useStaticTranslation();
   const { INPUT_GUIDES } = useGuides();
 
@@ -118,7 +117,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
         />
         <CountryList<ICountryItem>
           menuRef={countryMenuRef}
-          list={COUNTRY_LIST}
+          list={COUNTRY_LIST()}
           listName={ListType.COUNTRY}
           showSearchBar
           stickToScreen={false}
@@ -130,7 +129,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
               borderRadius: 0,
               "& svg": { width: "16px", height: "16px" },
             },
-            wrapper: { padding: 0 },
+            itemWrapper: { padding: 0 },
           }}
           onItemClick={(item) => {
             if (item?.code) {

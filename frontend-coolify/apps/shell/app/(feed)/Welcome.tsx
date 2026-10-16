@@ -9,13 +9,13 @@ import {
   CLIENT_ROUTES,
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
-  LISTS,
+  NAV_LISTS,
 } from "@repo/core";
 
 export const Welcome = () => {
   const { navigateTo } = usePage();
   const { translateTxtString } = useStaticTranslation();
-  const { FOOTER_NAV_LIST } = LISTS(translateTxtString);
+  const { FOOTER_NAV_LIST } = NAV_LISTS(translateTxtString);
   const theme = useTheme();
 
   return (

@@ -91,12 +91,9 @@ export const verifyAuthOptionally = (config: IAuthConfig): RequestHandler => {
       token = req.headers.authorization.split(" ")[1];
     }
 
-    // ✅ Ensure device token consistency
     const deviceToken = getOrSetDeviceToken(req, res);
 
-    if (!token) {
-      return next();
-    }
+    if (!token) return next();
 
     try {
       const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET) as IJwtUser;

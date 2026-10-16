@@ -4,9 +4,8 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Signup } from "./registration/Signup";
 import { Stack } from "@mui/material";
-import { asset, BG_SLIDER_DATA } from "@repo/assets";
+import { BG_SLIDER_DATA } from "@repo/assets";
 import { BGFadeCarousel } from "@repo/shared-ui";
-import { applyBGPattern } from "@repo/helpers";
 import { useStaticTranslation } from "@repo/shared-hooks";
 
 export default function SignupPage() {
@@ -22,7 +21,6 @@ export default function SignupPage() {
         flexDirection: "row",
         alignItems: "center",
         gap: 0,
-        ...applyBGPattern({ url: asset.bgNoise, opacity: 0.3 }),
         [theme.breakpoints.up("xl")]: {
           margin: "auto auto",
           maxHeight: "56svh",
@@ -46,7 +44,7 @@ export default function SignupPage() {
         pauseOnHover
         interval={7000}
         style={{
-          wrapper: {
+          itemWrapper: {
             width: "50%",
             height: "100%",
             minHeight: 420,

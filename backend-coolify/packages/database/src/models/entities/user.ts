@@ -107,6 +107,62 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       default: null,
     },
 
+    // ACCOUNT ASSOCIATION & AFFILIATION
+    accountRepresentation: {
+      repType: {
+        type: String,
+        enum: [
+          "UNKNOWN",
+          "PERSONAL", // normal individual
+          "FAN", // fan of a public figure / brand
+          "PARODY", // satire / parody
+          "COMMENTARY", // news, critique, commentary
+          "ROLEPLAY", // fictional / RP (if you allow it)
+          "ORGANIZATION", // brand / org (if not covered elsewhere)
+        ],
+        default: "UNKNOWN",
+      },
+      pendingRepType: {
+        type: String,
+        enum: [
+          "PERSONAL",
+          "FAN",
+          "PARODY",
+          "COMMENTARY",
+          "ROLEPLAY",
+          "ORGANIZATION",
+        ],
+        default: null,
+      },
+      subjectLabel: { type: String, default: null, trim: true }, // e.g. "Fan of Jane Doe"
+      disclosureAcceptedAt: { type: Date, default: null }, // User acknowledged policy when picking non-PERSONAL
+    },
+
+    affiliation: {
+      organizationId: {
+        type: Schema.Types.ObjectId,
+        ref: "Organization",
+        default: null,
+      },
+      status: {
+        type: String,
+        enum: ["PENDING", "VERIFIED", "INACTIVE", "REJECTED"],
+        default: null,
+      },
+      role: {
+        type: String,
+        enum: ["EMPLOYEE", "MEMBER", "CONTRACTOR", "FOUNDER", "OTHER"],
+        default: null,
+      },
+      orgEmail: {
+        type: String,
+        default: null,
+        lowercase: true,
+        trim: true,
+      },
+      verifiedAt: { type: Date, default: null },
+    },
+
     // --- ID VERIFICATION & NOTABILITY ---
     kyc: {
       kycId: {
@@ -156,11 +212,22 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     postCountWindow: { type: Number, default: 0 },
 
     // --- PROFILE DETAILS ---
-    gender: { type: String, default: null },
+    gender: { type: String, enum: ["MALE", "FEMALE", "OTHER"], default: null },
     dateOfBirth: { type: String, default: null },
     about: { type: String, default: null },
     occupation: { type: String, default: null },
-    relationship: { type: String, default: null },
+    relationship: {
+      type: String,
+      enum: [
+        "SINGLE",
+        "IN_A_RELATIONSHIP",
+        "MARRIED",
+        "DIVORCED",
+        "WIDOWED",
+        "OTHER",
+      ],
+      default: null,
+    },
     website: { type: String, default: null },
     address: { type: String, default: null },
 
@@ -224,6 +291,17 @@ UserSchema.index({
   isEmailVerified: 1,
 });
 UserSchema.index({ [USER_NESTED_FIELDS.KYC_CURRENT_TIER]: 1 });
+
+// Organization Affiliation Compound Indexes
+UserSchema.index({
+  [USER_NESTED_FIELDS.AFFILIATION_ID]: 1,
+  [USER_NESTED_FIELDS.AFFILIATION_STATUS]: 1,
+});
+UserSchema.index(
+  { [USER_NESTED_FIELDS.AFFILIATION_ORG_EMAIL]: 1 },
+  { sparse: true },
+);
+
 // Geospatial Queries for Account Location
 UserSchema.index({ [USER_NESTED_FIELDS.LOCATION_COORDINATES]: "2dsphere" });
 

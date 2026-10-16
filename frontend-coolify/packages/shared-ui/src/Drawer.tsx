@@ -86,8 +86,12 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                 : "center",
           ...style?.overlay?.base,
 
-          [theme.breakpoints.down("md")]: {
-            padding: theme.boxSpacing(4, 2),
+          [theme.breakpoints.between("sm", "md")]: {
+            padding: theme.boxSpacing(4),
+            ...style?.overlay?.mdScreen,
+          },
+          [theme.breakpoints.down("sm")]: {
+            padding: 0,
             ...style?.overlay?.smScreen,
           },
         }}
@@ -103,6 +107,7 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
             {...touchHandlers}
             useCase="dialog"
             isOpen={isOpen}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
             onClose={() => {
               handleClose({} as React.MouseEvent);
             }}
@@ -116,10 +121,10 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
               backgroundColor: theme.palette.gray[0],
               borderRadius: theme.radius[12],
               overflow: "hidden",
-              width: style?.targetContent?.base?.width ?? "40%",
-              maxWidth: style?.targetContent?.base?.maxWidth ?? "400px",
+              width: style?.itemWrapper?.base?.width ?? "40%",
+              maxWidth: style?.itemWrapper?.base?.maxWidth ?? "400px",
+              minWidth: style?.itemWrapper?.base?.minWidth ?? "250px",
               touchAction: "none",
-
               ...(dragOffset !== 0 && {
                 transform:
                   dragInfo.axis === "X"
@@ -134,17 +139,17 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                 }),
               }),
 
-              ...style?.targetContent?.base,
+              ...style?.itemWrapper?.base,
 
-              [theme.breakpoints.down("md")]: {
-                width: style?.targetContent?.mdScreen?.width ?? "80%",
-                maxWidth: style?.targetContent?.mdScreen?.maxWidth ?? "350px",
-                ...style?.targetContent?.mdScreen,
+              [theme.breakpoints.between("sm", "md")]: {
+                width: style?.itemWrapper?.mdScreen?.width ?? "80%",
+                maxWidth: style?.itemWrapper?.mdScreen?.maxWidth ?? "350px",
+                ...style?.itemWrapper?.mdScreen,
               },
               [theme.breakpoints.down("sm")]: {
-                width: style?.targetContent?.smScreen?.width ?? "89%",
-                maxWidth: style?.targetContent?.smScreen?.maxWidth ?? "100%",
-                ...style?.style?.targetContent?.smScreen,
+                width: style?.itemWrapper?.smScreen?.width ?? "90%",
+                maxWidth: style?.itemWrapper?.smScreen?.maxWidth ?? "100%",
+                ...style?.itemWrapper?.smScreen,
               },
             }}
           >
@@ -173,7 +178,7 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                   gap: theme.gap(2),
                   padding: theme.boxSpacing(2),
                   ...style?.header,
-                  borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+                  //  borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
                 }}
               >
                 {header && header}
@@ -196,11 +201,13 @@ export const Drawer = forwardRef<OverlayRef, DrawerProps>(
                 height: "100%",
                 overflowY: "auto",
                 padding: theme.boxSpacing(10),
+                ...style?.item?.base,
                 [theme.breakpoints.up("md")]: {
                   padding: theme.boxSpacing(14),
+                  ...style?.item?.mdScreen,
                 },
                 gap: theme.gap(8),
-                ...(scrollBarStyle(theme) as any),
+                ...scrollBarStyle(theme),
               }}
             >
               {content}

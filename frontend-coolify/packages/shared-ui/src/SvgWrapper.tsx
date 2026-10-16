@@ -28,7 +28,7 @@ export const SVGWrapper = ({
   src,
   color,
   size = 44,
-  fbSize = 44,
+  fbSize,
   preserveColor = false,
   loop = true,
   autoplay = true,
@@ -41,6 +41,8 @@ export const SVGWrapper = ({
   const [isLottie, setIsLottie] = useState(false);
   const [isAnimationSettled, setIsAnimationSettled] = useState(false);
   const theme = useTheme();
+
+  const fallbackSize = fbSize ?? size ?? 44;
 
   const url = typeof src === "object" ? src.src : src;
 
@@ -108,8 +110,8 @@ export const SVGWrapper = ({
       return (
         <Box
           sx={{
-            width: fbSize,
-            height: fbSize,
+            width: fallbackSize,
+            height: fallbackSize,
             padding: theme.boxSpacing(4),
             backgroundColor: theme.palette.gray.trans[1],
             borderRadius: theme.radius.full,
@@ -124,8 +126,8 @@ export const SVGWrapper = ({
       <BoxSkeleton
         variant="circular"
         quantity={1}
-        width={fbSize}
-        height={fbSize}
+        width={fallbackSize}
+        height={fallbackSize}
       />
     );
   };

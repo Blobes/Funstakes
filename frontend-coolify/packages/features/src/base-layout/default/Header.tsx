@@ -35,7 +35,6 @@ export const AppHeader: React.FC<ScrollRefProps> = ({ scrollRef }) => {
     authStatus,
     menuRef,
     handleNotification,
-    handleLogo,
     handleAvatar,
     navigateTo,
     authUser,
@@ -46,8 +45,6 @@ export const AppHeader: React.FC<ScrollRefProps> = ({ scrollRef }) => {
   return (
     <BaseHeader
       scrollRef={scrollRef}
-      logoHref={CLIENT_ROUTES.home.path}
-      onLogoClick={handleLogo}
       searchBar={isDesktop && isLoggedIn ? <SearchBar /> : undefined}
       hideOnPageScroll={isDesktop ? false : true}
     >
@@ -73,12 +70,12 @@ export const AppHeader: React.FC<ScrollRefProps> = ({ scrollRef }) => {
             userInfo={authUser}
             toolTipValue="Open menu"
             style={{
-              width: "34px",
-              height: "34px",
+              width: 34,
+              height: 34,
               marginLeft: "unset!important",
               [theme.breakpoints.down("md")]: {
-                width: "28px",
-                height: "28px",
+                width: 28,
+                height: 28,
               },
             }}
             onClick={(event: React.MouseEvent<HTMLElement>) =>
@@ -88,7 +85,7 @@ export const AppHeader: React.FC<ScrollRefProps> = ({ scrollRef }) => {
                   header: (
                     <UserAvatar
                       userInfo={authUser}
-                      style={{ width: "35px", height: "35px" }}
+                      style={{ width: 35, height: 35 }}
                     />
                   ),
                   content: <HeaderMobileNav />,
@@ -98,7 +95,6 @@ export const AppHeader: React.FC<ScrollRefProps> = ({ scrollRef }) => {
           />
         </>
       )}
-
       {isLoggedIn && isDesktop && (
         <>
           <CreatePostMenuDesktop postRef={createPostRef} />

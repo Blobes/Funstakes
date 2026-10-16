@@ -20,7 +20,7 @@ export default async function RootLayout({
   return (
     <BaseLayout>
       <GlobalUIManager>
-        <RootUIContainer shouldScroll={true}>{children}</RootUIContainer>
+        <RootUIContainer shouldScroll>{children}</RootUIContainer>
       </GlobalUIManager>
     </BaseLayout>
   );

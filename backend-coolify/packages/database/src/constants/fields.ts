@@ -36,6 +36,11 @@ export const USER_NESTED_FIELDS = {
   KYC_ID: "kyc.kycId",
   KYC_CURRENT_TIER: "kyc.currentTier",
 
+  // Affilation
+  AFFILIATION_ID: "affiliation.organizationId",
+  AFFILIATION_STATUS: "affiliation.status",
+  AFFILIATION_ORG_EMAIL: "affiliation.orgEmail",
+
   // --- VERIFIED BADGE ---
   VERIFIED_BADGE_ID: "verifiedBadge.badgeId",
   VERIFIED_BADGE_IS_ELIGIBLE: "verifiedBadge.isEligible",
@@ -173,6 +178,8 @@ export const USER_SETTINGS_NESTED_FIELDS = {
     "display.contentPreferences.preferredTopics",
   DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_TOPIC_ID:
     "display.contentPreferences.preferredTopics.topicId",
+  DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_CATEGORY:
+    "display.contentPreferences.preferredTopics.category",
   DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_TITLE:
     "display.contentPreferences.preferredTopics.title",
   DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS_ADDED_BY:

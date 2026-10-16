@@ -6,16 +6,32 @@ import {
   QueryOptions,
   QueryFilter,
 } from "mongoose";
-import {
-  AccountStatus,
-  ILocation,
-  IPublicFigureSignals,
-  ITotpData,
-  OAuthProvider,
-} from "./others";
+import { AccountStatus, ILocation, ITotpData, OAuthProvider } from "./others";
 import { KycTierType } from "./kyc";
+import { IPublicFigureSignals } from "./publicFigure";
 
 export type AccountVisibility = "PRIVATE" | "PUBLIC";
+export type AccountRepType =
+  | "UNKNOWN"
+  | "PERSONAL"
+  | "FAN"
+  | "PARODY"
+  | "COMMENTARY"
+  | "ROLEPLAY"
+  | "ORGANIZATION";
+
+export type UserAffiliationRole =
+  | "EMPLOYEE"
+  | "MEMBER"
+  | "CONTRACTOR"
+  | "FOUNDER"
+  | "OTHER";
+
+export type UserAffiliationStatus =
+  | "PENDING"
+  | "VERIFIED"
+  | "INACTIVE"
+  | "REJECTED";
 
 /**
  * Interface defining user models.
@@ -80,12 +96,34 @@ export interface IUserDocument extends Document {
   statusReason?: string;
   statusChangedBy?: Types.ObjectId | null;
 
+  // --- ACCOUNT REPRESENTATION ---
+  accountRepresentation?: {
+    repType?: AccountRepType;
+    pendingRepType?: AccountRepType | null;
+    subjectLabel?: string | null; // The label of the subject of the account representation, e.g. "John Doe"
+    disclosureAcceptedAt: string | null; // Date the user accepted the disclosure terms
+  };
+  affiliation?: {
+    organizationId?: Types.ObjectId | null;
+    status?: UserAffiliationStatus | null;
+    role?: UserAffiliationRole | null;
+    orgEmail?: string | null; // work email used for OTP
+    verifiedAt?: Date | null;
+  };
+
   // --- PROFILE DETAILS ---
-  gender?: string | null;
+  gender?: "MALE" | "FEMALE" | "OTHER" | null;
   dateOfBirth?: string | null;
   about?: string | null;
   occupation?: string | null;
-  relationship?: string | null;
+  relationship?:
+    | "SINGLE"
+    | "IN_A_RELATIONSHIP"
+    | "MARRIED"
+    | "DIVORCED"
+    | "WIDOWED"
+    | "OTHER"
+    | null;
   website?: string | null;
 
   // --- PROFILE ASSETS ---
@@ -97,7 +135,7 @@ export interface IUserDocument extends Document {
   onboardingStep?: string | null;
 
   // --- ACCOUNT LOCATION & USER ADDRESS ---
-  location?: ILocation | null; // Computed by system
+  location?: ILocation | null; // Computed by system dynamically
   address?: string | null; // Provided by user
 
   // --- METRICS & PREFERENCES ---

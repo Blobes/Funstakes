@@ -54,6 +54,8 @@ export * from "./services/topic/ai";
 export * from "./services/moderation/resolveCase";
 export * from "./services/moderation/reportCase";
 export * from "./services/moderation/helpers";
+// Organization
+export * from "./services/organization/herlpers";
 
 // Routes
 export * from "./utils/status";

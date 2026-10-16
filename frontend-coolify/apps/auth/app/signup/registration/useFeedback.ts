@@ -61,11 +61,11 @@ export const useSignupFeedback = () => {
             transitKey: STORAGE_KEYS.AUTH_TRANSIT,
             dispatchOnload: false,
           });
+          return;
         }
 
         setAccountStatus("NOT_ONBOARDED");
         await navigateTo(CLIENT_ROUTES.onboarding);
-
         return;
       }
     },

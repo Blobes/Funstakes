@@ -39,14 +39,14 @@ export const GistMedia = ({
           borderRadius: theme.radius[12],
         },
         smScreen: { borderRadius: 0 },
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       },
 
       targetContentst: {
         width: "100%",
         height: "100%",
         objectFit: "cover",
-        ...style?.targetContent,
+        ...style?.itemWrapper,
       },
     }),
     [style],
@@ -93,7 +93,7 @@ export const GistMedia = ({
     <Media
       {...singleMedia}
       includeCustomizations
-      style={{ wrapper: mediaStyle.wrapper }}
+      style={{ itemWrapper: mediaStyle.itemWrapper }}
     />
   ) : (
     <MediaGridView mediaList={mappedList} style={{ ...mediaStyle }} />

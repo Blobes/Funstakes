@@ -4,6 +4,20 @@ import { ITopicDocument, IAiSuggestedTopicDocument } from "../../types/others";
 const TopicSchema = new Schema<ITopicDocument>(
   {
     title: { type: String, required: true },
+    category: {
+      type: String,
+      enum: [
+        "Tech & Science",
+        "Business & Finance",
+        "Entertainment & Culture",
+        "Lifestyle & Community",
+        "Education & Growth",
+        "Sports & Betting",
+        "Society & World",
+        "General",
+      ],
+      default: "General",
+    },
     oldTitle: { type: String, default: null },
     userCount: { type: Number, required: true, default: 0 },
     postCount: { type: Number, required: true, default: 0 },
@@ -38,6 +52,7 @@ export const TopicModel: Model<ITopicDocument> = model<ITopicDocument>(
 const AiSuggestedTopicSchema = new Schema<IAiSuggestedTopicDocument>(
   {
     title: { type: String, required: true, trim: true, lowercase: true },
+    category: { type: String, default: null },
     relatedPostType: {
       type: String,
       enum: ["Gist", "Stake"],

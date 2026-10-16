@@ -4,7 +4,6 @@ import {
   getClientIp,
   getOrSetDeviceToken,
   MESSAGES_REGISTRY,
-  OtpMessageChannel,
 } from "@repo/shared";
 import { executeOtpDispatch, ISendOtpInput } from "../services/dipatchCode";
 
@@ -64,13 +63,10 @@ export const sendMsgCode = async (
     });
   } catch (error: unknown) {
     console.error("[sendCode] Error:", error);
-    // const errorObj = error as { statusCode?: number; status?: number };
-    // const statusCode = errorObj?.statusCode || errorObj?.status || 500;
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
-      // statusCode,
     );
   }
 };

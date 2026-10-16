@@ -33,7 +33,7 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       }}
     >
       <Stack sx={{ alignItems: "center", gap: theme.gap(12) }}>
-        <AppLogo />
+        <AppLogo linkable={false} />
 
         <Stack sx={{ gap: theme.gap(4) }}>
           <TransText

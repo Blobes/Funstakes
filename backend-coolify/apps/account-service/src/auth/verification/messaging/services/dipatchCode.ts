@@ -11,6 +11,7 @@ import {
   dispatchSmsOtp,
   checkOtpCooldown,
   detectIdentifierType,
+  normalizeValue,
 } from "@repo/shared";
 
 export interface ISendOtpInput {
@@ -43,7 +44,7 @@ export const executeOtpDispatch = async (
   input: ISendOtpInput,
 ): Promise<ISendOtpResult> => {
   const { recipient, messageChannel, userIp } = input;
-  const normalized = recipient.toLowerCase().trim();
+  const normalized = normalizeValue(recipient.toLowerCase());
 
   if (!messageChannel) {
     return {

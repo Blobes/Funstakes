@@ -108,7 +108,7 @@ export default function VerificationPage() {
         minHeight: "fit-content",
       }}
     >
-      {(transitEntries && transitEntries.length > 0) || !shouldRestrict ? (
+      {transitEntries.length > 0 || !shouldRestrict ? (
         <>
           {/* App Logo & Back Button */}
           <Stack
@@ -159,7 +159,7 @@ export default function VerificationPage() {
                 <ArrowLeft size={isMobile ? 22 : 26} />
               </IconButton>
             </BasicTooltip>
-            <AppLogo size={isMobile ? 36 : 40} />
+            <AppLogo linkable={false} size={isMobile ? 32 : 40} />
           </Stack>
 
           {/* Verification UI View */}

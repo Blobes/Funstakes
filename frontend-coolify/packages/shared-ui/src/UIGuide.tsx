@@ -124,7 +124,7 @@ export const UIGuide = ({
                       <TransText
                         component="p"
                         sx={{
-                          ...theme.typography.text4,
+                          ...theme.typography.text5,
                           width: "100%",
                           margin: 0,
                         }}
@@ -190,7 +190,7 @@ export const UserTourGuide = ({
             _id={step.media._id}
             url={step.media.url}
             style={{
-              wrapper: {
+              itemWrapper: {
                 base: {
                   width: "100%",
                   borderRadius: "8px",

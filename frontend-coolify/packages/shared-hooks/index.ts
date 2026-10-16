@@ -23,7 +23,7 @@ export * from "./src/useLoading";
 export * from "./src/input/useValMsg";
 export * from "./src/input/useDynamic";
 export * from "./src/input/usePassword";
-export * from "./src/input/usePhoneField";
+export * from "./src/input/usePhone";
 export * from "./src/input/useOtp";
 export * from "./src/input/useEmail";
 export * from "./src/input/useSelect";

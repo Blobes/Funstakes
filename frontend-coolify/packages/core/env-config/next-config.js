@@ -18,18 +18,6 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
   const isShell = appName === "shell";
   const assetPrefix = isShell ? undefined : `/${appName}-assets`;
 
-  // Standard list of directories to ignore across watchers
-  const ignoredWatchPatterns = [
-    "**/.git/**",
-    "**/node_modules/**",
-    "**/.next/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/.turbo/**",
-    "../../apps/*/.next/**",
-    "../../../backend-coolify/**",
-  ];
-
   return {
     ...appConfig,
     output: isProduction ? "standalone" : undefined,

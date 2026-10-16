@@ -218,7 +218,7 @@ export const useGistContent = ({
             options={{ size: 24 }}
             label={"Analyzing content against system rules..."}
             style={{
-              wrapper: {
+              itemWrapper: {
                 display: "flex",
                 alignItems: "center",
                 gap: "12px",

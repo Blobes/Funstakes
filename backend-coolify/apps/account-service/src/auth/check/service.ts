@@ -8,6 +8,7 @@ import {
   normalizeValue,
   transformToASCII,
   TransInfo,
+  detectIdentifierType,
 } from "@repo/shared";
 
 export type CheckPurpose = "REGISTRATION" | "LOGIN" | "PASSWORD_RESET";
@@ -97,13 +98,16 @@ const buildUserPayload = (user: AccountCheckProjection) => ({
 export const executeAccountCheck = async (
   input: CheckInput,
 ): Promise<CheckResult> => {
-  const { identifierType: type, identifier, purpose = "REGISTRATION" } = input;
+  const { identifierType, identifier, purpose = "REGISTRATION" } = input;
+
+  const formattedValue = normalizeValue(identifier);
+  const detectedIdType = identifierType || detectIdentifierType(formattedValue);
 
   if (!identifier) {
     const errorMapping =
-      type === "EMAIL"
+      detectedIdType === "EMAIL"
         ? MESSAGES_REGISTRY.AUTH.EMAIL_REQUIRED
-        : type === "PHONE_NUMBER"
+        : detectedIdType === "PHONE_NUMBER"
           ? MESSAGES_REGISTRY.AUTH.PHONE_REQUIRED
           : MESSAGES_REGISTRY.AUTH.USERNAME_REQUIRED;
 
@@ -116,7 +120,7 @@ export const executeAccountCheck = async (
   const existingUser = await fetchSingleUser<AccountCheckProjection>({
     identifier,
     select: REQUIRED_FIELDS,
-    flags: { identifierType: type, skipFilter: true },
+    flags: { identifierType: detectedIdType, skipFilter: true },
   });
 
   // Helper handling third-party provider check restrictions
@@ -140,7 +144,7 @@ export const executeAccountCheck = async (
   };
 
   // ── PHONE CHECK PIPELINE ──────────────────────────────────────────────────
-  if (type === "PHONE_NUMBER") {
+  if (detectedIdType === "PHONE_NUMBER") {
     if (purpose === "REGISTRATION") {
       return {
         status: "SUCCESS",
@@ -193,7 +197,7 @@ export const executeAccountCheck = async (
   }
 
   // ── EMAIL CHECK PIPELINE ──────────────────────────────────────────────────
-  if (type === "EMAIL") {
+  if (detectedIdType === "EMAIL") {
     if (purpose === "REGISTRATION") {
       return {
         status: "SUCCESS",
@@ -283,7 +287,6 @@ export const executeAccountCheck = async (
     };
   }
 
-  const formattedValue = normalizeValue(identifier);
   const baseCanonical = transformToASCII(formattedValue);
   const suggestions: string[] = [];
   const suggestionRegex = new RegExp(`^${baseCanonical}\\d*$`, "i");

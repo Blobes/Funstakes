@@ -1464,6 +1464,38 @@ export const MESSAGES_REGISTRY = {
     },
   },
 
+  ORGANIZATION: {
+    ACCOUNT_TOO_NEW: {
+      i18nKey: "organization.account_too_new",
+      message:
+        "Account must be at least 7 days old to register an organization.",
+    },
+    PREMIUM_REQUIRED: {
+      i18nKey: "organization.premium_required",
+      message: "An active Premium or Enterprise subscription is required.",
+    },
+    DOMAIN_INVALID: {
+      i18nKey: "organization.domain_invalid",
+      message: "Enter a valid company domain (not a free email provider).",
+    },
+    DOMAIN_TAKEN: {
+      i18nKey: "organization.domain_taken",
+      message: "An organization with this domain already exists.",
+    },
+    ALREADY_PENDING: {
+      i18nKey: "organization.already_pending",
+      message: "You already have an organization pending review.",
+    },
+    SUBMITTED_FOR_REVIEW: {
+      i18nKey: "organization.submitted_for_review",
+      message: "Organization submitted for review.",
+    },
+    CREATED: {
+      i18nKey: "organization.created",
+      message: "Organization created.",
+    },
+  },
+
   PROFILE: {
     ACCOUNT_DEACTIVATED: {
       i18nKey: "profile.account_deactivated",
@@ -1477,7 +1509,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "profile.demographic_information_updated_successfully",
       message: "Demographic information updated successfully.",
     },
-
     MISSING_NAMES: {
       i18nKey: "profile.missing_names",
       message: "Please provide a display or at least a valid legal name.",

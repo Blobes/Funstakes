@@ -85,6 +85,11 @@ async function sendGlobalSms(
     throw createDomainError(errInfo.message, errInfo.i18nKey, 500);
   }
 
+  // Ensure E.164 format with leading +
+  const formattedPhoneNumber = phoneNumber.startsWith("+")
+    ? phoneNumber
+    : `+${phoneNumber}`;
+
   const response = await fetch("https://api.telnyx.com/v2/messages", {
     method: "POST",
     headers: {
@@ -93,7 +98,7 @@ async function sendGlobalSms(
     },
     body: JSON.stringify({
       messaging_profile_id: senderId,
-      to: phoneNumber,
+      to: formattedPhoneNumber,
       text: `${code} is your verification code. Valid for 10 minutes.`,
     }),
   });
@@ -117,7 +122,7 @@ export async function dispatchSmsOtp(
   recipient: IPhoneRecipient,
   dispatchConfig: IPhoneDispatchTokens,
 ): Promise<Record<string, unknown>> {
-  const recipientPhone = recipient.phoneNumber.trim().replace(/^\+/, "");
+  const recipientPhone = recipient.phoneNumber.trim();
 
   if (recipient?.userIp) {
     await enforceOtpRateLimit({
@@ -125,8 +130,6 @@ export async function dispatchSmsOtp(
       userIp: recipient.userIp,
     });
   }
-
-  const formattedRecipient = { ...recipient, phoneNumber: recipientPhone };
 
   // Strictly check if dispatching is permitted for this country code
   const isDispatchPermitted = ALLOWED_SMS_COUNTRIES.some((prefix) =>
@@ -141,6 +144,8 @@ export async function dispatchSmsOtp(
   const isAfricanPhone = AFRICAN_PHONE_CODES.some((prefix) =>
     recipientPhone.startsWith(prefix.replace(/^\+/, "")),
   );
+
+  const formattedRecipient = { ...recipient, phoneNumber: recipientPhone };
 
   if (isAfricanPhone) {
     try {

@@ -48,39 +48,22 @@ type DependencyContext struct {
 	StorageClient    *StorageClient
 }
 
-type ModerationReport struct {
-	Status              PostStatus       `json:"status"`
-	Severity            Severity         `json:"severity"`
-	RuleViolated        string           `json:"ruleViolated"`
-	ExtractedTopics     []string         `json:"extractedTopics"`
-	NewTopicsFromAi     []string         `json:"newTopicsFromAi,omitempty"`
-	TopicsSource        UserTopicAddedBy `json:"topicsSource,omitempty"`
-	Reason              string           `json:"reason"`
-	NeedsReview         bool             `json:"needsReview"`
-	HasSensitiveGraphic bool             `json:"hasSensitiveGraphic"`
+type AISuggestedTopic struct {
+	Title    string `json:"title"`
+	Category string `json:"category"`
 }
 
-// type ValidationResult struct {
-// 	IsFlagged           bool
-// 	IsUnsure            bool
-// 	RuleViolated        string
-// 	Severity            Severity
-// 	ViolationSource     string
-// 	HasSensitiveGraphic bool
-// 	Reason              string
-// 	ExtractedTopics     []string
-// 	WasSampled          bool
-// }
-
-// type AIResponseFormat struct {
-// 	IsFlagged         bool     `json:"isFlagged"`
-// 	RuleViolated      string   `json:"ruleViolated"`
-// 	Severity          string   `json:"severity"`
-// 	ViolationSource   string   `json:"violationSource"`
-// 	Reason            string   `json:"reason"`
-// 	Confidence        float64  `json:"confidence"`
-// 	ExtractedKeywords []string `json:"extractedKeywords"`
-// }
+type ModerationReport struct {
+	Status              PostStatus         `json:"status"`
+	Severity            Severity           `json:"severity"`
+	RuleViolated        string             `json:"ruleViolated"`
+	ExtractedTopics     []string           `json:"extractedTopics"`
+	NewTopicsFromAi     []AISuggestedTopic `json:"newTopicsFromAi,omitempty"`
+	TopicsSource        UserTopicAddedBy   `json:"topicsSource,omitempty"`
+	Reason              string             `json:"reason"`
+	NeedsReview         bool               `json:"needsReview"`
+	HasSensitiveGraphic bool               `json:"hasSensitiveGraphic"`
+}
 
 type ValidationResult struct {
 	IsFlagged           bool
@@ -91,7 +74,7 @@ type ValidationResult struct {
 	HasSensitiveGraphic bool
 	Reason              string
 	ExtractedTopics     []string
-	PerceivedTopics     []string
+	PerceivedTopics     []AISuggestedTopic
 	WasSampled          bool
 }
 
@@ -103,7 +86,7 @@ type AIResponseFormat struct {
 	Reason          string   `json:"reason"`
 	Confidence      float64  `json:"confidence"`
 	ExtractedTopics []string `json:"extractedTopics"`
-	PerceivedTopics []string `json:"perceivedTopics"`
+	PerceivedTopics []AISuggestedTopic
 }
 
 const (

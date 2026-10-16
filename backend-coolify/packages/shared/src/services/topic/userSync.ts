@@ -39,7 +39,8 @@ export const executeUserTopicsSync = async (
 
   const userSettings = await fetchUserSettings({
     userId,
-    select: "display.contentPreferences.preferredTopics",
+    select:
+      USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS,
     session,
   });
 
@@ -114,7 +115,8 @@ export const executeUserTopicsSync = async (
 
   const updatedSettingsResult = await fetchUserSettings({
     userId,
-    select: "display.contentPreferences.preferredTopics",
+    select:
+      USER_SETTINGS_NESTED_FIELDS.DISPLAY_CONTENT_PREFERENCES_PREFERRED_TOPICS,
     session,
   });
 

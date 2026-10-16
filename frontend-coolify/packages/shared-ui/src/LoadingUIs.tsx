@@ -86,7 +86,7 @@ export const ProgressUI = (props: ProgressProps) => {
         background: theme.palette.gray.trans[1],
         borderRadius: theme.radius.full,
         overflow: "hidden",
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       {renderProgress()}
@@ -120,14 +120,14 @@ export const PageLoaderUI = () => {
         gap: theme.gap(18),
       }}
     >
-      <AppLogo size={40} />
+      <AppLogo size={40} linkable={false} />
       <ProgressUI
         type="linear"
         options={{
           variant: "indeterminate",
         }}
         style={{
-          wrapper: {
+          itemWrapper: {
             width: 50,
             height: 5,
           },
@@ -151,7 +151,7 @@ export const SplashUI = () => {
         gap: theme.gap(10),
       }}
     >
-      <AppLogo withName size={200} />
+      <AppLogo withName size={200} linkable={false} />
       <ProgressUI
         type="linear"
         options={{ variant: "indeterminate" }}

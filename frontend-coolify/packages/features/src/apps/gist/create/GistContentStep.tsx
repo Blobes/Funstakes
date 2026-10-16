@@ -195,7 +195,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
             borderRadius: 0,
             "& svg": { width: "16px", height: "16px" },
           },
-          wrapper: {
+          itemWrapper: {
             padding: 0,
           },
         }}

@@ -46,7 +46,7 @@ export const ConfirmAction: React.FC<ActionConfirmationProps> = ({
         justifyContent: "center",
         textAlign: "center",
         color: theme.palette.gray[200],
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       {icon && icon}

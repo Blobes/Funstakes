@@ -5,7 +5,7 @@ import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AnchorLink } from "./Buttons";
 import { Fragment } from "react";
-import { IMenuItem, IPage } from "@repo/core";
+import { IMenuItem } from "@repo/core";
 import { LanguageSelector } from "./Localize";
 import { usePage } from "@repo/shared-hooks";
 
@@ -37,6 +37,7 @@ export const Footer = ({ navList }: footerProps) => {
           <AnchorLink
             size="x-small"
             href={item.url ?? "#"}
+            prefetch={false}
             onClick={() => {
               if (item.title && item.url)
                 navigateTo({ title: item.title, path: item.url });

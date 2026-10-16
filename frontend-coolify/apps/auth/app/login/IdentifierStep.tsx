@@ -20,8 +20,8 @@ import {
   CLIENT_ROUTES,
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
+  COUNTRY_LIST,
   ICountryItem,
-  LISTS,
   ListType,
 } from "@repo/core";
 import { useIdentifier } from "./hooks/useIdentifier";
@@ -37,7 +37,6 @@ export const IdentifierStep: React.FC<LoginProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const { COUNTRY_LIST } = LISTS();
   const { translateTxtString } = useStaticTranslation();
   const { INPUT_GUIDES } = useGuides();
   const { handleResetPassClick } = useLogin({});
@@ -79,7 +78,12 @@ export const IdentifierStep: React.FC<LoginProps> = ({
     <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
       <AppLogo
         color={theme.palette.gray[300]}
-        sx={{ alignSelf: "center", marginBottom: theme.boxSpacing(10) }}
+        style={{
+          itemWrapper: {
+            alignSelf: "center",
+            marginBottom: theme.boxSpacing(10),
+          },
+        }}
       />
       <Stack
         gap={theme.gap(8)}
@@ -181,7 +185,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
         {/* Country list popup */}
         <CountryList<ICountryItem>
           menuRef={countryMenuRef}
-          list={COUNTRY_LIST}
+          list={COUNTRY_LIST()}
           listName={ListType.COUNTRY}
           showSearchBar
           heightThreshold={64}
@@ -193,7 +197,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
               borderRadius: 0,
               "& svg": { width: "16px", height: "16px" },
             },
-            wrapper: {
+            itemWrapper: {
               padding: 0,
             },
           }}

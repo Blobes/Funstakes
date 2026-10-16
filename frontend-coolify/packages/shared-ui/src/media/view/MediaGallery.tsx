@@ -87,9 +87,9 @@ export const MediaGridView = ({
         overflow: "hidden",
         bgcolor: theme.palette.gray.trans[1],
         margin: 0,
-        ...style?.wrapper?.base,
+        ...style?.itemWrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.wrapper?.smScreen,
+          ...style?.itemWrapper?.smScreen,
         },
       }}
       variant="quilted"
@@ -128,8 +128,8 @@ export const MediaGridView = ({
                 height={0}
                 excludeBlurHash
                 style={{
-                  targetContent: style?.targetContent,
-                  wrapper: {
+                  itemWrapper: style?.itemWrapper,
+                  itemWrapper: {
                     base: {
                       width: "100%",
                       height: "100%",
@@ -201,9 +201,9 @@ export const MediaSlidesView = ({
         "&::-webkit-scrollbar": {
           display: "none",
         },
-        ...style?.wrapper?.base,
+        ...style?.itemWrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.wrapper?.smScreen,
+          ...style?.itemWrapper?.smScreen,
         },
       }}
     >
@@ -253,7 +253,7 @@ export const MediaSlidesView = ({
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    ...style?.targetContent,
+                    ...style?.itemWrapper,
                   }}
                 />
               ) : (
@@ -261,7 +261,7 @@ export const MediaSlidesView = ({
                   src={url}
                   alt={alt || "Post image"}
                   fill
-                  style={{ targetContent: style?.targetContent }}
+                  style={{ itemWrapper: style?.itemWrapper }}
                 />
               )}
             </ElementTap>

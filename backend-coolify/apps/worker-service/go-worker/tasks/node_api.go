@@ -16,8 +16,14 @@ type NodeClient struct {
 }
 
 type TopicsResponse struct {
-	Success bool     `json:"success"`
-	Topics  []string `json:"topics"`
+	Success    bool     `json:"success"`
+	Topics     []string `json:"topics"`
+	Categories []string `json:"categories,omitempty"`
+}
+
+type TaxonomyData struct {
+	Topics     []string
+	Categories []string
 }
 
 /**
@@ -40,7 +46,7 @@ func NewNodeClient(baseURL string) *NodeClient {
 /**
  * Fetches existing topic names from the primary MongoDB collection via the Node backend service.
  */
-func (nc *NodeClient) FetchDBTopics(ctx context.Context) ([]string, error) {
+func (nc *NodeClient) FetchDBTopics(ctx context.Context) (*TopicsResponse, error) {
 	targetEndpoint := fmt.Sprintf("%s/topics", nc.BaseURL)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetEndpoint, nil)
@@ -62,8 +68,7 @@ func (nc *NodeClient) FetchDBTopics(ctx context.Context) ([]string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return nil, fmt.Errorf("failed decoding topics payload: %w", err)
 	}
-
-	return res.Topics, nil
+	return &res, nil
 }
 
 /**

@@ -15,6 +15,8 @@ import {
   Settings,
   User,
   WalletMinimal,
+  Info,
+  Newspaper,
 } from "lucide-react";
 import { CLIENT_ROUTES } from "./routesConfig";
 import { COUNTRIES } from "./countries";
@@ -27,138 +29,170 @@ import {
 import { COMMON_LIST } from "./msgRegistry";
 import { useTheme } from "@mui/material/styles";
 
-export const LISTS = (translator?: (transData: ITranslation) => string) => {
-  const theme = useTheme();
-  // User profile navigation list visible to only logged-in users
+type PageKey = keyof typeof COMMON_LIST.pages | "stakes" | "vibes" | "voices";
+
+/**
+ * Navigation item list for navigating through the app.
+ */
+export const NAV_LISTS = (translator?: (transData: ITranslation) => string) => {
   const translate = (transData: ITranslation) => {
     return translator ? translator(transData) : transData.tValue;
   };
 
-  const USER_NAV_LIST: IMenuItem[] = [
-    {
-      title: translate(COMMON_LIST.nav.profile),
-      element: <User />,
+  const ITEMS: Partial<Record<PageKey, IMenuItem>> = {
+    profile: {
+      title: translate(COMMON_LIST.pages.profile),
+      prefix: <User />,
       url: CLIENT_ROUTES.profile.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.pricing),
-      element: <Gem />,
+    pricing: {
+      title: translate(COMMON_LIST.pages.pricing),
+      prefix: <Gem />,
       url: CLIENT_ROUTES.pricing.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.wallet),
-      element: <WalletMinimal />,
+    wallet: {
+      title: translate(COMMON_LIST.pages.wallet),
+      prefix: <WalletMinimal />,
       url: CLIENT_ROUTES.wallet.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.bookmarks),
-      element: <Bookmark />,
+    bookmarks: {
+      title: translate(COMMON_LIST.pages.bookmarks),
+      prefix: <Bookmark />,
       url: CLIENT_ROUTES.bookmarks.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.settings),
-      element: <Settings />,
+    settings: {
+      title: translate(COMMON_LIST.pages.settings),
+      prefix: <Settings />,
       url: CLIENT_ROUTES.settings.path,
     },
-  ];
-
-  // Left Sidebar navigation list visible to only logged-in users
-  const SIDEBAR_NAV_LIST: IMenuItem[] = [
-    {
-      title: translate(COMMON_LIST.nav.home),
-      element: <House />,
+    home: {
+      title: translate(COMMON_LIST.pages.home),
+      prefix: <House />,
       url: CLIENT_ROUTES.home.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.explore),
-      element: <Search />,
-      url: CLIENT_ROUTES.explore.path,
-    },
-    {
+    stakes: {
       title: CLIENT_ROUTES.stakes.title,
-      element: <Pentagon />,
+      prefix: <Pentagon />,
       url: CLIENT_ROUTES.stakes.path,
     },
-    {
+    explore: {
+      title: translate(COMMON_LIST.pages.explore),
+      prefix: <Search />,
+      url: CLIENT_ROUTES.explore.path,
+    },
+    vibes: {
       title: CLIENT_ROUTES.vibes.title,
-      element: <CircleDashed />,
+      prefix: <CircleDashed />,
       url: CLIENT_ROUTES.vibes.path,
     },
-    {
+    voices: {
       title: CLIENT_ROUTES.voices.title,
-      element: <AudioLines />,
+      prefix: <AudioLines />,
       url: CLIENT_ROUTES.voices.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.notifications),
-      element: <Bell />,
+    notifications: {
+      title: translate(COMMON_LIST.pages.notifications),
+      prefix: <Bell />,
       url: CLIENT_ROUTES.notifications.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.inbox),
-      element: <Mail />,
+    inbox: {
+      title: translate(COMMON_LIST.pages.inbox),
+      prefix: <Mail />,
       url: CLIENT_ROUTES.inbox.path,
     },
-  ];
-
-  const HEADER_NAV_LIST: IMenuItem[] = [
-    {
-      title: translate(COMMON_LIST.nav.support),
-      element: <BadgeQuestionMark />,
-      url: CLIENT_ROUTES.support.path,
-    },
-    {
-      title: translate(COMMON_LIST.nav.pricing),
-      element: <Gem />,
-      url: CLIENT_ROUTES.pricing.path,
-    },
-  ];
-
-  const FOOTER_NAV_LIST: IMenuItem[] = [
-    {
-      title: translate(COMMON_LIST.nav.about),
+    about: {
+      title: translate(COMMON_LIST.pages.about),
+      prefix: <Info />,
       url: CLIENT_ROUTES.about.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.support),
+    support: {
+      title: translate(COMMON_LIST.pages.support),
+      prefix: <BadgeQuestionMark />,
       url: CLIENT_ROUTES.support.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.pricing),
-      url: CLIENT_ROUTES.pricing.path,
-    },
-    {
-      title: translate(COMMON_LIST.nav.blogs),
+    blogs: {
+      title: translate(COMMON_LIST.pages.blogs),
       url: CLIENT_ROUTES.blogs.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.privacy),
+    privacy: {
+      title: translate(COMMON_LIST.pages.privacy),
       url: CLIENT_ROUTES.privacy.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.terms),
+    terms: {
+      title: translate(COMMON_LIST.pages.terms),
       url: CLIENT_ROUTES.terms.path,
     },
-    {
-      title: translate(COMMON_LIST.nav.news),
+    news: {
+      title: translate(COMMON_LIST.pages.news),
+      prefix: <Newspaper />,
       url: CLIENT_ROUTES.news.path,
     },
-  ];
+  };
 
-  const COUNTRY_LIST: ICountryItem[] = Object.values(COUNTRIES).map(
-    (country) => ({
-      ...country,
-      id: `${country.iso}${country.code}`,
-      title: `${country.iso} (${country.code})`,
-      code: country.code,
-      type: "BUTTON" as const,
-      element: (
-        <span style={{ ...theme.typography.text2 }}>{country.flag}</span>
-      ),
-    }),
-  );
+  // Profile menu items for authenticated user top panel
+  const USER_TOP_NAV_LIST = [
+    ITEMS.profile,
+    ITEMS.pricing,
+    ITEMS.wallet,
+    ITEMS.bookmarks,
+    ITEMS.settings,
+  ] as IMenuItem[];
 
-  const MESSAGES = {
+  // Sidebar menu items for authenticated user desktop view
+  const USER_LEFT_NAV_LIST = [
+    ITEMS.home,
+    ITEMS.stakes,
+    ITEMS.explore,
+    ITEMS.vibes,
+    ITEMS.voices,
+    ITEMS.notifications,
+    ITEMS.inbox,
+  ] as IMenuItem[];
+
+  // Navigation bar items for authenticated user mobile view
+  const USER_BOTTOM_NAV_LIST = [
+    ITEMS.home,
+    ITEMS.stakes,
+    ITEMS.explore,
+    ITEMS.vibes,
+    ITEMS.inbox,
+  ] as IMenuItem[];
+
+  // Top header menu items for guest view
+  const HEADER_NAV_LIST = [
+    ITEMS.about,
+    ITEMS.pricing,
+    ITEMS.support,
+    ITEMS.news,
+  ] as IMenuItem[];
+
+  // Footer navigation links for general page layout
+  const FOOTER_NAV_LIST = [
+    ITEMS.about,
+    ITEMS.support,
+    ITEMS.pricing,
+    ITEMS.blogs,
+    ITEMS.privacy,
+    ITEMS.terms,
+    ITEMS.news,
+  ] as IMenuItem[];
+
+  return {
+    USER_TOP_NAV_LIST,
+    USER_LEFT_NAV_LIST,
+    USER_BOTTOM_NAV_LIST,
+    HEADER_NAV_LIST,
+    FOOTER_NAV_LIST,
+  };
+};
+
+export const MESSAGE_LIST = (
+  translator?: (transData: ITranslation) => string,
+) => {
+  const translate = (transData: ITranslation) => {
+    return translator ? translator(transData) : transData.tValue;
+  };
+  return {
     [ListType.COUNTRY]: {
       empty: translate(COMMON_LIST.msg.country_empty),
       noMatch: translate(COMMON_LIST.msg.country_no_match),
@@ -176,29 +210,35 @@ export const LISTS = (translator?: (transData: ITranslation) => string) => {
       noMatch: translate(COMMON_LIST.msg.default_no_match),
     },
   };
+};
 
-  const CREATE_POST_LIST: IMenuItem[] = [
+export const COUNTRY_LIST = () => {
+  const theme = useTheme();
+  const LIST: ICountryItem[] = Object.values(COUNTRIES).map((country) => ({
+    ...country,
+    id: `${country.iso}${country.code}`,
+    title: `${country.iso} (${country.code})`,
+    code: country.code,
+    type: "BUTTON" as const,
+    element: <span style={{ ...theme.typography.text2 }}>{country.flag}</span>,
+  }));
+  return LIST;
+};
+
+export const CREATE_POST_LIST = () => {
+  const LIST: IMenuItem[] = [
     {
       title: "Gist",
-      element: <BadgeQuestionMark />,
+      prefix: <BadgeQuestionMark />,
     },
     {
       title: "Stake",
-      element: <Gem />,
+      prefix: <Gem />,
     },
     {
       title: "Vibez",
-      element: <Gem />,
+      prefix: <Gem />,
     },
   ];
-
-  return {
-    USER_NAV_LIST,
-    SIDEBAR_NAV_LIST,
-    HEADER_NAV_LIST,
-    FOOTER_NAV_LIST,
-    COUNTRY_LIST,
-    MESSAGES,
-    CREATE_POST_LIST,
-  };
+  return LIST;
 };

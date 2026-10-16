@@ -37,7 +37,7 @@ export const ProfileCard = () => {
         src={coverImage || asset.marketingImg1}
         alt="User profile image cover"
         prioritize
-        style={{ targetContent: { height: 130, width: "100%" } }}
+        style={{ itemWrapper: { height: 130, width: "100%" } }}
       />
 
       <UserAvatar

@@ -3,7 +3,6 @@ import {
   ITopicDocument,
   TopicModel,
   UserSettingsModel,
-  ResourceType,
   USER_SETTINGS_NESTED_FIELDS,
 } from "@repo/database";
 import { TransInfo } from "../../types/general";
@@ -83,6 +82,7 @@ export const syncWithUserViaPostEngagement = async (
   const preferenceTopics = topicDocs.map((t) => ({
     topicId: t._id,
     title: t.title,
+    category: t.category,
     addedBy: "SYSTEM" as const,
     lastViewed: new Date(),
   }));

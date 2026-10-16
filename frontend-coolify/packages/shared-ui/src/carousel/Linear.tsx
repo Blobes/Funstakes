@@ -79,7 +79,7 @@ export const LinearCarousel = ({
         gap: theme.gap(5),
         flex: "none",
         userSelect: "none",
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       <Box

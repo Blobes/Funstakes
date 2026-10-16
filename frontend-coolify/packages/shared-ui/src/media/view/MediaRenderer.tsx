@@ -64,9 +64,9 @@ export const MediaRenderer = ({
 
   // Your existing dynamic style logic
   const contentStyle: BaseStyleObj = {
-    height: isPortrait ? (style?.targetContent?.height ?? "80svh") : "auto",
+    height: isPortrait ? (style?.itemWrapper?.height ?? "80svh") : "auto",
     width: isPortrait ? "auto" : "100%",
-    maxHeight: style?.targetContent?.maxHeight ?? "80svh",
+    maxHeight: style?.itemWrapper?.maxHeight ?? "80svh",
     maxWidth: "100%",
     objectFit: "contain",
     zIndex: 4,
@@ -76,12 +76,12 @@ export const MediaRenderer = ({
     // Responsive Breakpoints
     ...(!isDesktop && {
       width: "100%",
-      height: isPortrait ? (style?.targetContent?.height ?? "auto") : "unset",
+      height: isPortrait ? (style?.itemWrapper?.height ?? "auto") : "unset",
       maxHeight: isPortrait
-        ? (style?.targetContent?.maxHeight ?? "none")
+        ? (style?.itemWrapper?.maxHeight ?? "none")
         : "60svh",
     }),
-    ...style?.targetContent,
+    ...style?.itemWrapper,
   };
 
   return (
@@ -98,9 +98,9 @@ export const MediaRenderer = ({
         aspectRatio: dimensions?.aspectRatio
           ? `${dimensions.aspectRatio}`
           : "auto",
-        ...style?.wrapper?.base,
+        ...style?.itemWrapper?.base,
         [theme.breakpoints.down("md")]: {
-          ...style?.wrapper?.smScreen,
+          ...style?.itemWrapper?.smScreen,
         },
       }}
     >
@@ -131,7 +131,7 @@ export const MediaRenderer = ({
             alt=""
             fill
             style={{
-              targetContent: {
+              itemWrapper: {
                 filter: "blur(48px)",
                 opacity: 0.6,
               },
@@ -147,7 +147,7 @@ export const MediaRenderer = ({
           width={width || mediaWidth || analyzedImg?.width}
           height={height || mediaHeight || analyzedImg?.height}
           onLoad={handleImageLoad}
-          style={{ targetContent: contentStyle }}
+          style={{ itemWrapper: contentStyle }}
         />
       ) : (
         <VideoMedia
@@ -204,7 +204,7 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
       <MediaRenderer
         media={media}
         style={{
-          wrapper: { filter: activeFilterStyle },
+          itemWrapper: { filter: activeFilterStyle },
         }}
       />
 

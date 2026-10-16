@@ -57,11 +57,12 @@ export default function PrivacyPolicyPage() {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           padding: theme.boxSpacing(26),
-          borderRadius: theme.radius[40],
+          borderRadius: theme.radius[24],
           overflow: "hidden",
           ...applyBgEffects(theme).overlay(0.6, 0.6),
           [theme.breakpoints.down("md")]: {
-            padding: theme.boxSpacing(26, 20),
+            padding: theme.boxSpacing(20, 16),
+            borderRadius: theme.radius[12],
           },
         }}
       >

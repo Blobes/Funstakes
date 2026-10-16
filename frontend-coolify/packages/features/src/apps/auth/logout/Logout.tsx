@@ -47,9 +47,9 @@ export const Logout = ({ style }: { style?: BaseStyleProps }) => {
         },
         "&:hover": {
           background: "transparent",
-          ...style?.wrapper?.hover,
+          ...style?.itemWrapper?.hover,
         },
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       <LogOut />

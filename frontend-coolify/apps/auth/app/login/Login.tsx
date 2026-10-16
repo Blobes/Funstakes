@@ -64,13 +64,13 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
       currStep={currStep}
       setCurrStep={setCurrStep}
       style={{
-        wrapper: {
+        itemWrapper: {
           ...autoScroll().base, // Has height
           width: "50%",
           minWidth: 420,
           padding: theme.boxSpacing(20),
           alignItems: "center",
-          ...style.wrapper,
+          ...style.itemWrapper,
           [theme.breakpoints.down("md")]: {
             flex: "none",
             height: "100svh",
@@ -81,14 +81,14 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
             scrollSnapAlign: "start",
             padding: theme.boxSpacing(20, 10),
             overflow: "unset",
-            ...style.wrapper?.mdScreen,
+            ...style.itemWrapper?.mdScreen,
           },
           [theme.breakpoints.down("sm")]: {
             width: "100%",
-            ...style.wrapper?.smScreen,
+            ...style.itemWrapper?.smScreen,
           },
         },
-        targetContent: { margin: "auto auto", maxWidth: 420 },
+        item: { margin: "auto auto", maxWidth: 420 },
       }}
     />
   );

@@ -60,13 +60,25 @@ export const CACHE_KEYS = {
     `post:translation:${postId}:${targetLang}`,
 
   // --- Taxonomy & Search Discovery ---
-  TOPICS_LOOKUP: (
-    keyword: string,
-    excludedHash: string,
-    page: number,
-    limit: number,
-  ) =>
-    `topics:lookup:k:${keyword || "none"}:ex:${excludedHash || "none"}:p${page}:l${limit}`,
+  TOPICS_LOOKUP: (params: {
+    keyword?: string;
+    category?: string;
+    excludedHash?: string;
+    page: number;
+    limit: number;
+    fetchAll?: boolean;
+  }) => {
+    const {
+      keyword = "all",
+      category = "all",
+      excludedHash = "none",
+      page,
+      limit,
+      fetchAll = false,
+    } = params;
+
+    return `topics:lookup:k:${keyword || "all"}:c:${category || "all"}:ex:${excludedHash}:p${page}:l${limit}:all:${fetchAll}`;
+  },
 
   AI_SUGGESTED_TOPICS_LOOKUP: (
     status: string,

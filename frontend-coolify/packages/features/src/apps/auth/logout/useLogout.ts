@@ -16,7 +16,6 @@ import { useMisc, usePage, useSnackbar } from "@repo/shared-hooks";
 /** * Handles the user logout flow, clearing state, cache, and redirecting. */
 export const useLogout = () => {
   const clearAuthUser = useGlobalStore((state) => state.clearAuthUser);
-
   const { navigateTo } = usePage();
   const { setSBMessage } = useSnackbar();
   const { closeModal } = useMisc();
@@ -37,11 +36,6 @@ export const useLogout = () => {
       queryClient.clear();
 
       clearAuthUser();
-
-      // Handle navigation logic
-      if (pathname !== CLIENT_ROUTES.home.path)
-        await navigateTo(CLIENT_ROUTES.home);
-      else router.refresh();
     },
     onError: (error: ApiError) => {
       setSBMessage({
@@ -49,7 +43,13 @@ export const useLogout = () => {
       });
       console.error("Logout failed:", error);
     },
-    onSettled: () => closeModal(),
+    onSettled: async () => {
+      closeModal();
+      // Handle navigation logic
+      if (pathname !== CLIENT_ROUTES.home.path)
+        await navigateTo(CLIENT_ROUTES.home);
+      else router.refresh();
+    },
   });
 
   /** * Memoized logout handler to be used in UI components. */

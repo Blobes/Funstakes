@@ -22,7 +22,7 @@ export const formatPhoneNumber = (
   if (digits.length === 0) return containsPlus ? "+" : "";
 
   if (containsPlus) {
-    // 1. Determine Code Length by finding the closing bracket
+    // Determine Code Length by finding the closing bracket
     const bracketIndex = value.indexOf(")");
     let codeLength = 3; // Default fallback
 
@@ -31,15 +31,22 @@ export const formatPhoneNumber = (
       const codePart = value.slice(0, bracketIndex).replace(/\D/g, "");
       codeLength = codePart.length;
     } else {
-      /**
-       * Fallback: If the user typed '+23480...' without brackets,
-       * we assume a 3-digit code or take the first 3 digits.
-       */
+      // Fallback: If the user typed '+23480...' without brackets,  we assume a 3-digit code or take the first 3 digits.
       codeLength = digits.length > 10 ? 3 : digits.length > 7 ? 1 : 3;
     }
 
     const code = digits.slice(0, codeLength);
-    const rest = digits.slice(codeLength);
+    let rest = digits.slice(codeLength);
+
+    // If rest digits start with the exact same country code (e.g. user pasted 234850...), strip duplicate
+    if (rest.startsWith(code)) {
+      rest = rest.slice(code.length);
+    }
+
+    // Remove leading trunk prefix '0' if typed after country code
+    if (rest.startsWith("0")) {
+      rest = rest.slice(1);
+    }
 
     // 2. Format with the identified code
     if (rest.length === 0) return `(+${code}) `;
@@ -48,7 +55,6 @@ export const formatPhoneNumber = (
       return `(+${code}) ${rest.slice(0, 3)} ${rest.slice(3)}`;
     if (rest.length <= 10)
       return `(+${code}) ${rest.slice(0, 3)} ${rest.slice(3, 6)} ${rest.slice(6)}`;
-
     // For very long international numbers
     return `(+${code}) ${rest.slice(0, 3)} ${rest.slice(3, 6)} ${rest.slice(6, 10)} ${rest.slice(10)}`;
   }
@@ -62,7 +68,6 @@ export const formatPhoneNumber = (
 
 /**
  * Combines a selected country code with a local subscriber number.
- * Ensures the "Trunk Prefix" (leading 0) is removed if present.
  * * @param localNumber - The raw string from the input field (e.g., "0805 764")
  * @param selectedCode - The code from input field dropdowns (e.g., "+234")
  * @returns A clean E.164 formatted string (e.g., "+2348057648520")
@@ -71,13 +76,18 @@ export const sanitizePhoneNumber = (
   localNumber: string,
   selectedCode: string = "+234",
 ): string => {
-  // 1. Extract only the digits from the local input
+  // Extract the digits from the input
+  const cleanCodeDigits = selectedCode.replace(/\D/g, "");
   let digits = localNumber.replace(/\D/g, "");
 
   if (!digits) return "";
 
-  // 2. Remove the leading '0' if the user typed one (e.g., 0805 -> 805)
-  // Most countries drop the 0 when an international code is prepended.
+  // 1. If user typed/pasted the country code at the start, strip it to prevent duplicate codes
+  if (digits.startsWith(cleanCodeDigits)) {
+    digits = digits.slice(cleanCodeDigits.length);
+  }
+
+  // 2. Remove leading '0' if present (e.g., 0805 -> 805)
   if (digits.startsWith("0")) {
     digits = digits.slice(1);
   }

@@ -5,27 +5,27 @@ import { COMMON_BUTTON_LABELS, COMMON_LIST } from "./msgRegistry";
 
 export const CLIENT_ROUTES = {
   // Platform
-  about: { title: COMMON_LIST.nav.about.tValue, path: "/about" },
-  pricing: { title: COMMON_LIST.nav.pricing.tValue, path: "/pricing" },
-  blogs: { title: COMMON_LIST.nav.blogs.tValue, path: "/blogs" },
-  support: { title: COMMON_LIST.nav.support.tValue, path: "/support" },
-  privacy: { title: COMMON_LIST.nav.privacy.tValue, path: "/privacy" },
-  terms: { title: COMMON_LIST.nav.terms.tValue, path: "/terms" },
-  news: { title: COMMON_LIST.nav.news.tValue, path: "/news" },
+  about: { title: COMMON_LIST.pages.about.tValue, path: "/about" },
+  pricing: { title: COMMON_LIST.pages.pricing.tValue, path: "/pricing" },
+  blogs: { title: COMMON_LIST.pages.blogs.tValue, path: "/blogs" },
+  support: { title: COMMON_LIST.pages.support.tValue, path: "/support" },
+  privacy: { title: COMMON_LIST.pages.privacy.tValue, path: "/privacy" },
+  terms: { title: COMMON_LIST.pages.terms.tValue, path: "/terms" },
+  news: { title: COMMON_LIST.pages.news.tValue, path: "/news" },
 
   // Auth
-  login: { title: COMMON_LIST.nav.login.tValue, path: "/login" },
-  signup: { title: COMMON_LIST.nav.signup.tValue, path: "/signup" },
+  login: { title: COMMON_LIST.pages.login.tValue, path: "/login" },
+  signup: { title: COMMON_LIST.pages.signup.tValue, path: "/signup" },
   restoreAccount: {
-    title: COMMON_LIST.nav.restoreAccount.tValue,
+    title: COMMON_LIST.pages.restoreAccount.tValue,
     path: "/restore-account",
   },
   verifyIdentity: {
-    title: COMMON_LIST.nav.verifyIdentity.tValue,
+    title: COMMON_LIST.pages.verifyIdentity.tValue,
     path: "/verify-identity",
   },
   onboarding: {
-    title: COMMON_LIST.nav.onboarding.tValue,
+    title: COMMON_LIST.pages.onboarding.tValue,
     path: "/onboarding",
   },
   resetPassword: {
@@ -34,27 +34,27 @@ export const CLIENT_ROUTES = {
   },
 
   // Shell
-  home: { title: COMMON_LIST.nav.home.tValue, path: "/" },
-  explore: { title: COMMON_LIST.nav.explore.tValue, path: "/explore" },
+  home: { title: COMMON_LIST.pages.home.tValue, path: "/" },
+  explore: { title: COMMON_LIST.pages.explore.tValue, path: "/explore" },
 
   // Messaging
-  inbox: { title: COMMON_LIST.nav.inbox.tValue, path: "/inbox" },
+  inbox: { title: COMMON_LIST.pages.inbox.tValue, path: "/inbox" },
 
   // Wallet
-  wallet: { title: COMMON_LIST.nav.wallet.tValue, path: "/wallet" },
+  wallet: { title: COMMON_LIST.pages.wallet.tValue, path: "/wallet" },
 
   // Profile
-  profile: { title: COMMON_LIST.nav.profile.tValue, path: "/profile" },
+  profile: { title: COMMON_LIST.pages.profile.tValue, path: "/profile" },
   bookmarks: {
-    title: COMMON_LIST.nav.bookmarks.tValue,
+    title: COMMON_LIST.pages.bookmarks.tValue,
     path: "/bookmarks",
   },
   notifications: {
-    title: COMMON_LIST.nav.notifications.tValue,
+    title: COMMON_LIST.pages.notifications.tValue,
     path: "/notifications",
   },
   settings: {
-    title: COMMON_LIST.nav.settings.tValue,
+    title: COMMON_LIST.pages.settings.tValue,
     path: "/settings",
   },
 
@@ -67,7 +67,7 @@ export const CLIENT_ROUTES = {
   voices: { title: "Voices", path: "/voices" },
 
   // Offline
-  offline: { title: COMMON_LIST.nav.offline.tValue, path: "/offline" },
+  offline: { title: COMMON_LIST.pages.offline.tValue, path: "/offline" },
 } satisfies Record<string, IPage>;
 
 /**  Registry mapping logical application zones to their respective route paths. */

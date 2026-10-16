@@ -150,14 +150,14 @@ export const MediaCustomizer = ({ media, onSave }: MediaCustomizerProps) => {
         <MediaRenderer
           media={media}
           style={{
-            targetContent: {
+            itemWrapper: {
               maxHeight: "100%",
               height: "100%",
               width: "100%",
               objectFit: "contain",
               filter: activeFilterStyle,
             },
-            wrapper: {
+            itemWrapper: {
               base: {
                 width: "100%",
                 height: "100%",

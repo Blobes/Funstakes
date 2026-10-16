@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { AppBar, Stack } from "@mui/material";
+import { AppBar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc, usePageScroll } from "@repo/shared-hooks";
 import { BaseStyleObj, ScrollRefProps } from "@repo/core";
-import { AnchorLink } from "./Buttons";
 import { AppLogo } from "./AppLogo";
 
 export interface BaseHeaderProps extends ScrollRefProps {
@@ -50,25 +49,25 @@ export const BaseHeader: React.FC<BaseHeaderProps> = ({
         backdropFilter: "blur(24px)",
         transform: shouldHideHeader ? "translateY(-100%)" : "translateY(0)",
         transition: "transform 0.3s ease-in-out",
+        paddingLeft: !isDesktop
+          ? theme.boxSpacing(10) + "!important"
+          : undefined,
         ...style,
       }}
     >
       {/* Brand Logo */}
-      <AnchorLink
-        href={logoHref}
+      <AppLogo
+        withName
+        size={isDesktop ? 160 : 140}
+        url={logoHref}
         onClick={onLogoClick}
-        style={{ display: "inline-flex" }}
-      >
-        <AppLogo withName size={isDesktop ? 160 : 140} />
-      </AnchorLink>
+      />
 
       {/* Optional Middle Slot (e.g., Search) */}
       {searchBar}
 
       {/* Right Action Slot */}
-      <Stack direction="row" alignItems="center" spacing={theme.gap(4)}>
-        {children}
-      </Stack>
+      {children}
     </AppBar>
   );
 };

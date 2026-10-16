@@ -214,7 +214,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
         <Accordion
           items={alternativeMethodItems}
           style={{
-            wrapper: {
+            itemWrapper: {
               width: "100%",
               // [theme.breakpoints.down("lg")]: { width: "100%" },
             },
@@ -227,7 +227,7 @@ export const VerifyIdentity = <P extends TransitPurpose>(
           <Divider sx={{ width: "100%", marginY: theme.gap(8) }} />
           <Logout
             style={{
-              wrapper: {
+              itemWrapper: {
                 gap: theme.gap(4),
                 hover: {
                   "& svg": { stroke: theme.palette.primary.dark },

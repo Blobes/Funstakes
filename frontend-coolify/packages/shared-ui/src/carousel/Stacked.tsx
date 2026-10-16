@@ -51,7 +51,7 @@ export const StackedCarousel = ({
         gap: theme.gap(8),
         flex: "none",
         userSelect: "none",
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       <Box

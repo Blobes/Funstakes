@@ -71,39 +71,6 @@ export const removeSession = async (
 /**
  * Scans Redis for all sessions belonging to a user and returns their data.
  */
-// export const findUserSessions = async (
-//   userId: string,
-//   filter?: (session: any) => boolean,
-// ): Promise<{ key: string; sessionId: string; data: any }[]> => {
-//   const pattern = CACHE_KEYS.WILDCARD_USER_SESSIONS(userId);
-//   let cursor = "0";
-//   const matches: { key: string; sessionId: string; data: any }[] = [];
-
-//   do {
-//     const [nextCursor, keys] = await scanCache(cursor, pattern, 100);
-
-//     if (keys.length > 0) {
-//       const sessions = await pipelineGetCache(keys);
-
-//       sessions.forEach((session, index) => {
-//         if (session) {
-//           const include = filter ? filter(session) : true;
-//           if (include) {
-//             matches.push({
-//               key: keys[index],
-//               sessionId: keys[index].split(":").pop() || "",
-//               data: session,
-//             });
-//           }
-//         }
-//       });
-//     }
-//     cursor = nextCursor;
-//   } while (cursor !== "0");
-
-//   return matches;
-// };
-
 export const findUserSessions = async (
   userId: string,
   filter?: (session: ISessionCache) => boolean,

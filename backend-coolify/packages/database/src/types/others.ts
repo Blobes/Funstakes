@@ -22,18 +22,6 @@ export type EntityType =
   | "COMMUNITY"
   | "DEVICE";
 
-export type PublicFigureCategory =
-  | "POLITICIAN"
-  | "ARTISTE"
-  | "ENTREPRENEUR"
-  | "ATHLETE"
-  | "JOURNALIST"
-  | "CONTENT_CREATOR"
-  | "EXECUTIVE"
-  | "ACADEMIC"
-  | "GOVERNMENT_OFFICIAL"
-  | "ORGANIZATION";
-
 export type ReviewStatus =
   | "APPROVED"
   | "DENIED"
@@ -58,6 +46,16 @@ export type OAuthProvider =
   | "X"
   | "LINKEDIN"
   | "GITHUB";
+
+export type TopicCategory =
+  | "Tech & Science"
+  | "Business & Finance"
+  | "Entertainment & Culture"
+  | "Lifestyle & Community"
+  | "Education & Growth"
+  | "Sports & Betting"
+  | "Society & World"
+  | "General";
 
 export interface IAccountStatusHistory extends Document {
   account: Types.ObjectId;
@@ -98,17 +96,23 @@ export interface IBlockedUserDocument extends Document {
   updatedAt: Date;
 }
 
+export interface ITopicSeedCategory {
+  category: TopicCategory;
+  topics: string[];
+}
 /**
  * Interface defining topic preference tracking subdocument.
  */
 export interface IUserPreferredTopic {
   topicId: Types.ObjectId | string;
   title: string;
+  category: TopicCategory;
   addedBy?: ResourceType;
   lastViewed?: Date;
 }
 export interface ITopicDocument extends Document {
   title: string;
+  category: TopicCategory;
   oldTitle?: string | null;
   userCount: number;
   postCount: number;
@@ -117,9 +121,9 @@ export interface ITopicDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-
 export interface IAiSuggestedTopicDocument extends Document {
   title: string;
+  category?: string | null;
   relatedPostId?: Types.ObjectId | string;
   relatedPostType?: PostModelType;
   status: ReviewStatus;
@@ -285,60 +289,44 @@ export interface IDeviceDocument extends Document {
 
 export interface IVerifiedBadgeDocument extends Document {
   userId: Types.ObjectId;
-  status: "ACTIVE" | "INACTIVE" | "REVOKED";
+  status: ResourceStatus;
   subscriptionTier: SubscriptionTier;
   issuedAt: Date;
   revokedAt?: Date | null;
   revokedReason?: string | null;
 }
 
-export interface IPublicFigureSignals {
-  hasWikipedia?: boolean;
-  hasVipEmail?: boolean;
-  hasVipPhone?: boolean;
-  hasPressCoverage?: boolean;
-  isSearchVerified?: boolean;
+export type OrganizationStatus =
+  | "ACTIVE"
+  | "PENDING_REVIEW"
+  | "REJECTED"
+  | "DISABLED"
+  | "DELETED";
+export type OrganizationSource = "WIKIDATA" | "USER" | "ADMIN";
+export type OrgVerificationMethod =
+  | "ORG_EMAIL_OTP"
+  | "DNS_TXT"
+  | "ADMIN_VERIFIED"
+  | "SYSTEM_VERIFIED";
+
+export interface IOrganizationDocument extends Document {
+  name: string; // "Acme Corp"
+  nameCanonical: string; // normalized for search
+  primaryDomain: string; // "acme.com" unique
+  alternateDomains?: string[]; // "acme.co.uk"
+  logoUrl?: string | null;
+  website?: string | null;
+  country?: string | null;
+  status: OrganizationStatus;
+  source: OrganizationSource;
+  addedByType?: ResourceType;
+  // Ownership / claim
+  claimedByUserId?: Types.ObjectId | null;
+  claimedAt?: Date | null;
+  verification: {
+    method?: OrgVerificationMethod | null;
+    verifiedAt?: Date | null;
+  };
+  // Who may auto-join via email domain
+  allowDomainJoin: boolean; // default true when verified
 }
-
-export interface IPublicFigureBase {
-  publicName?: string | null;
-  legalName?: string | null;
-  publicEmail?: string | null;
-  accountEmail?: string | null;
-  category?: PublicFigureCategory;
-  notabilityScore: number;
-  networth?: string | null;
-  description?: string | null;
-  milestone?: string | null;
-  notableWorks?: string[];
-  officialWebsite?: string | null;
-  socialLinks?: Record<string, string>;
-  signals?: IPublicFigureSignals;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface IPublicFigureRequest extends IPublicFigureBase {
-  userId: Types.ObjectId;
-  reviewStatus?: ReviewStatus;
-  rejectionReason?: string | null;
-  reviewedBy?: Types.ObjectId | null;
-  reviewedByType?: ResourceType | null;
-  reviewedAt?: Date | null;
-}
-
-export interface IPublicFigureRequestDocument
-  extends IPublicFigureRequest, Document {}
-
-export interface IPublicFigure extends IPublicFigureBase {
-  userId: Types.ObjectId;
-  requestId?: Types.ObjectId | null;
-  status?: ResourceStatus;
-  revokedAt?: Date | null;
-  revokedBy?: Types.ObjectId | null;
-  revokedByType?: ResourceType | null;
-  revocationReason?: string | null;
-  lastExternalRefreshAt?: Date | null;
-}
-
-export interface IPublicFigureDocument extends IPublicFigure, Document {}

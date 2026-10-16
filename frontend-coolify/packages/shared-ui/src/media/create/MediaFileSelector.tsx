@@ -404,7 +404,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                           alt={file.name}
                           fill
                           style={{
-                            targetContent: {
+                            itemWrapper: {
                               transition: "transform 0.2s ease-in-out",
                               "&:hover": { transform: "scale(1.02)" },
                             },

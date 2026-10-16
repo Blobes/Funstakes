@@ -118,7 +118,7 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
       <WordTrimmer
         text={visibleText}
         style={{
-          wrapper: {
+          itemWrapper: {
             padding: theme.boxSpacing(4, 0),
             [theme.breakpoints.down("md")]: {
               padding: theme.boxSpacing(4, 6),

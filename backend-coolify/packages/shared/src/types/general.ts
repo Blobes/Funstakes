@@ -13,6 +13,7 @@ import {
   IKycAddressRequest,
   IKycFinanceRequest,
   IKycBusinessRequest,
+  TopicCategory,
 } from "@repo/database";
 import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
@@ -158,6 +159,11 @@ export interface OtpJobPayload {
   userIp?: string;
 }
 
+export interface ITopic {
+  keyword: string;
+  category: TopicCategory;
+}
+
 export interface IModResult {
   extractedTopics: string[];
   severity: ModerationSeverity | null;
@@ -165,7 +171,7 @@ export interface IModResult {
   reason: string | null;
   needsReview: boolean;
   status: PostContentStatus;
-  newTopicsFromAi?: string[];
+  newTopicsFromAi?: ITopic[];
   hasSensitiveGraphic?: boolean;
   topicsSource?: ResourceType;
 }

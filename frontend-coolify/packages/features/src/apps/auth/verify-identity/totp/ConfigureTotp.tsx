@@ -172,7 +172,7 @@ export const ConfigureTotp = <P extends TransitPurpose>(
                 }}
                 icon={<SquaresExclude />}
                 style={{
-                  wrapper: {
+                  itemWrapper: {
                     width: "100%",
                     backgroundColor: "transparent",
                     border: "none",

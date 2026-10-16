@@ -35,7 +35,7 @@ export const Stepper = <T,>({
         gap: theme.gap(18),
         width: "100%",
         alignItems: "center",
-        ...style?.wrapper,
+        ...style?.itemWrapper,
       }}
     >
       <AnimatePresence mode="wait">
@@ -51,7 +51,7 @@ export const Stepper = <T,>({
             width: "100%",
             justifyContent: "center",
             alignItems: "center",
-            ...(style.targetContent as any),
+            ...(style.item as any),
           }}
         >
           {activeStep.element}

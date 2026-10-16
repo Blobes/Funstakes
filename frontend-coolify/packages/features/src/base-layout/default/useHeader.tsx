@@ -38,6 +38,7 @@ export const useHeader = (scrollRef?: ScrollRefType) => {
   const createPostRef = useRef<MenuRef>(null);
 
   const isLoggedIn = authStatus === "AUTHENTICATED";
+  const isLoggedOut = authStatus === "UNAUTHENTICATED";
 
   /**
    * Directs the user to the home screen.
@@ -95,6 +96,7 @@ export const useHeader = (scrollRef?: ScrollRefType) => {
   return {
     theme,
     isLoggedIn,
+    isLoggedOut,
     isDesktop,
     scrollDir,
     authStatus,

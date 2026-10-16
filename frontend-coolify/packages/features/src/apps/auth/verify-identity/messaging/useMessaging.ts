@@ -35,7 +35,7 @@ import {
 import { BaseVerificationProps } from "../useVerifyIdentity";
 import { useWhatsAppStatus } from "./useWhatsapp";
 
-const HOUR_IN_MS = 12 * 60 * 60 * 1000; // 12 Hours
+const AUTO_DISPATCH_HOUR = 1 * 60 * 60 * 1000; // 1 Hour
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
 
 /**
@@ -46,7 +46,7 @@ const canAutoDispatchOtp = (): boolean => {
     key: LAST_DISPATCH_STORAGE_KEY,
   });
   if (!lastDispatchTime) return true;
-  return Date.now() - Number(lastDispatchTime) >= HOUR_IN_MS;
+  return Date.now() - Number(lastDispatchTime) >= AUTO_DISPATCH_HOUR;
 };
 
 const ALL_CHANNELS: OtpMessageChannel[] = ["EMAIL", "WHATSAPP", "SMS"];

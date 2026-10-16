@@ -42,9 +42,10 @@ export class UserQueryBuilder {
       }
 
       const formattedValue = normalizeValue(identifier.toString());
-      const checkType = identifierType || detectIdentifierType(formattedValue);
+      const detectedIdType =
+        identifierType || detectIdentifierType(formattedValue);
 
-      if (checkType === "EMAIL") {
+      if (detectedIdType === "EMAIL") {
         return UserModel.findByEmail({
           email: formattedValue.toLowerCase(),
           filter: customQuery,
@@ -52,9 +53,10 @@ export class UserQueryBuilder {
         }) as unknown as Query<unknown, IUserDocument>;
       }
 
-      if (checkType === "PHONE_NUMBER") {
+      if (detectedIdType === "PHONE_NUMBER") {
+        const digitsOnly = formattedValue.replace(/\D/g, "");
         return UserModel.findByPhone({
-          phoneNumber: formattedValue.replace(/\D/g, ""),
+          phoneNumber: `+${digitsOnly}`,
           filter: customQuery,
           options: { skipFilter },
         }) as unknown as Query<unknown, IUserDocument>;

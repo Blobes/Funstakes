@@ -50,5 +50,5 @@ export const asset = {
   facebookLogo: "/svgs/facebook.svg",
   xLogo: "/svgs/x.svg",
   githubLogo: "/svgs/github.svg",
-  linkedinLogo: "/svgs/linkedin.svg",
+  linkedInLogo: "/svgs/linkedIn.svg",
 };

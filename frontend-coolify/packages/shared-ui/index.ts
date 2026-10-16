@@ -36,7 +36,7 @@ export * from "./src/AppLogo";
 export * from "./src/VerifyBot";
 export * from "./src/ConfirmAction";
 export * from "./src/Accordion";
-export * from "./src/Header";
+export * from "./src/BaseHeader";
 export * from "./src/Toc";
 export * from "./src/Image";
 // Carousels
